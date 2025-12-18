@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useCamera } from '../hooks/useCamera';
 import { useMediaPipe } from '../hooks/useMediaPipe';
+import { useGameStateMachine } from '../hooks/useGameStateMachine';
 import { AvatarRenderer } from '../core/rendering/AvatarRenderer';
 import { DebugRenderer } from '../core/rendering/DebugRenderer';
 import type { AvatarConfig, DetectionResult } from '../types';
@@ -23,6 +24,7 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
   const prevHandResultRef = useRef<any>(null);
   const lastTimeRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
+  const detectionStartedRef = useRef(false);
 
   const [fps, setFps] = useState(0);
   const [detectionStats, setDetectionStats] = useState({
@@ -31,6 +33,19 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
     jawOpen: 0
   });
   const [avatarLoaded, setAvatarLoaded] = useState(false);
+
+  // 游戏状态管理
+  const {
+    gameState,
+    gameStats,
+    remainingTime,
+    progress,
+    updateGame,
+    initGame
+  } = useGameStateMachine({
+    gameDurationMs: 60000,
+    scorePerBrush: 10
+  });
 
   // 加载头套图片
   useEffect(() => {
@@ -77,6 +92,11 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
       handDetected,
       jawOpen
     });
+
+    // 更新游戏状态
+    if (gameState !== 'gameover') {
+      updateGame(result);
+    }
 
     // 绘制到 Canvas
     if (canvasRef.current && videoRef.current) {
@@ -145,7 +165,7 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
     }
 
     prevHandResultRef.current = result.handResult;
-  }, [avatar, avatarLoaded, videoRef, showDebug, fps]);
+  }, [avatar, avatarLoaded, videoRef, showDebug, fps, gameState, updateGame]);
 
   // MediaPipe 初始化
   const { isInitialized, error: mediaError, startDetection, stopDetection } = useMediaPipe({
@@ -163,19 +183,26 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
     return () => {
       stopCamera();
       stopDetection();
+      detectionStartedRef.current = false;
     };
   }, [startCamera, stopCamera, stopDetection]);
 
-  // 当摄像头就绪时启动检测
+  // 初始化游戏
   useEffect(() => {
     if (isReady && isInitialized) {
-      console.log('[GamePlayScreen] 启动检测循环');
-      startDetection();
-      return () => {
-        stopDetection();
-      };
+      console.log('[GamePlayScreen] 初始化游戏');
+      initGame();
     }
-  }, [isReady, isInitialized, startDetection, stopDetection]);
+  }, [isReady, isInitialized, initGame]);
+
+  // 当摄像头就绪时启动检测
+  useEffect(() => {
+    if (isReady && isInitialized && !detectionStartedRef.current) {
+      console.log('[GamePlayScreen] 启动检测循环');
+      detectionStartedRef.current = true;
+      startDetection();
+    }
+  }, [isReady, isInitialized, startDetection]);
 
   return (
     <div
@@ -193,6 +220,108 @@ export const GamePlayScreen: React.FC<GamePlayScreenProps> = ({
       }}
     >
       <h1 style={{ fontSize: '24px' }}>🎮 刷牙游戏 - {avatar.name}</h1>
+
+      {/* 游戏信息 */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr 1fr',
+          gap: '15px',
+          width: '100%',
+          maxWidth: '800px'
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: '#444',
+            padding: '12px',
+            borderRadius: '5px',
+            textAlign: 'center',
+            border: gameState === 'playing' ? '2px solid #0f0' : '2px solid #666'
+          }}
+        >
+          <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#888' }}>积分</p>
+          <p style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>{gameStats.score}</p>
+        </div>
+        <div
+          style={{
+            backgroundColor: '#444',
+            padding: '12px',
+            borderRadius: '5px',
+            textAlign: 'center',
+            border: gameState === 'playing' ? '2px solid #0f0' : '2px solid #666'
+          }}
+        >
+          <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#888' }}>成功次数</p>
+          <p style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>{gameStats.successCount}</p>
+        </div>
+        <div
+          style={{
+            backgroundColor: '#444',
+            padding: '12px',
+            borderRadius: '5px',
+            textAlign: 'center',
+            border: gameState === 'playing' ? '2px solid #0f0' : '2px solid #666'
+          }}
+        >
+          <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#888' }}>剩余时间</p>
+          <p style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
+            {(remainingTime / 1000).toFixed(1)}s
+          </p>
+        </div>
+        <div
+          style={{
+            backgroundColor: '#444',
+            padding: '12px',
+            borderRadius: '5px',
+            textAlign: 'center',
+            border: gameState === 'playing' ? '2px solid #0f0' : '2px solid #666'
+          }}
+        >
+          <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#888' }}>准确率</p>
+          <p style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
+            {(gameStats.accuracy * 100).toFixed(0)}%
+          </p>
+        </div>
+      </div>
+
+      {/* 进度条 */}
+      <div style={{ width: '100%', maxWidth: '800px' }}>
+        <div style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>游戏进度</div>
+        <div
+          style={{
+            width: '100%',
+            height: '20px',
+            backgroundColor: '#333',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            border: '2px solid #0f0'
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${progress}%`,
+              backgroundColor: '#0f0',
+              transition: 'width 0.1s linear'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 游戏状态显示 */}
+      <div
+        style={{
+          padding: '10px 20px',
+          backgroundColor: gameState === 'playing' ? '#004400' : '#444',
+          borderRadius: '5px',
+          border: gameState === 'playing' ? '2px solid #0f0' : '2px solid #666'
+        }}
+      >
+        <p style={{ margin: 0, fontSize: '14px' }}>
+          状态: <strong>{gameState}</strong>
+        </p>
+      </div>
 
       {/* 错误显示 */}
       {(cameraError || mediaError) && (

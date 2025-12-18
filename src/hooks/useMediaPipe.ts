@@ -119,16 +119,17 @@ export const useMediaPipe = ({
   /**
    * 启动推理循环
    */
-  const startDetection = useCallback(async () => {
+  const startDetection = useCallback(() => {
     if (!isInitialized) {
-      await initialize();
+      console.warn('[useMediaPipe] MediaPipe 未初始化，无法启动检测循环');
+      return;
     }
 
     if (animationFrameRef.current === null) {
       animationFrameRef.current = requestAnimationFrame(runDetectionLoop);
       console.log('[useMediaPipe] 推理循环已启动');
     }
-  }, [isInitialized, initialize, runDetectionLoop]);
+  }, [isInitialized, runDetectionLoop]);
 
   /**
    * 停止推理循环
@@ -140,6 +141,15 @@ export const useMediaPipe = ({
       console.log('[useMediaPipe] 推理循环已停止');
     }
   }, []);
+
+  /**
+   * 自动初始化 MediaPipe
+   */
+  useEffect(() => {
+    if (!isInitialized && !isInitializing) {
+      initialize();
+    }
+  }, [isInitialized, isInitializing, initialize]);
 
   /**
    * 清理资源
