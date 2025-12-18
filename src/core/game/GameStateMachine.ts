@@ -89,6 +89,26 @@ export class GameStateMachine {
     // 执行刷牙手势检测
     const brushResult = this.brushGesture.detect(detectionResult);
 
+    // 调试日志：在 playing 状态时打印检测信息
+    if (this.currentState === 'playing') {
+      console.log(
+        '[GameStateMachine] Playing - Fist:',
+        'isFist:',
+        brushResult.fist.isFist,
+        'curled:',
+        brushResult.fist.curledFingersCount,
+        'spread:',
+        brushResult.fist.handSpread.toFixed(2),
+        'Shake:',
+        'isShaking:',
+        brushResult.shake.isShaking,
+        'speed:',
+        brushResult.shake.currentSpeed.toFixed(3),
+        'ratio:',
+        brushResult.shake.highSpeedRatio.toFixed(2)
+      );
+    }
+
     // 状态转移逻辑
     this.updateState(brushResult);
 
