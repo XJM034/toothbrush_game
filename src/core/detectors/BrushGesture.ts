@@ -104,25 +104,38 @@ export class BrushGesture {
 
     // 阶段 3: 执行刷牙动作
     if (stage === 'fist_ready' || this.brushingStartTime > 0) {
-      if (
-        fistResult.isFist &&
-        shakeResult.isShaking &&
-        teethGateResult.isOpen &&
-        (brushingDirection === 'vertical' || brushingDirection === 'horizontal')
-      ) {
+      // 检查核心条件：握拳 + 摇晃 + 露出牙齿
+      const coreConditionsMet = fistResult.isFist && shakeResult.isShaking && teethGateResult.isOpen;
+      // 方向条件（可以是任意方向，不强制要求特定方向）
+      const hasDirection = brushingDirection === 'vertical' || brushingDirection === 'horizontal';
+
+      if (coreConditionsMet && hasDirection) {
         if (this.brushingStartTime === 0) {
           this.brushingStartTime = now;
+          console.log('[BrushGesture] 开始刷牙计时，方向:', brushingDirection);
         }
 
         const brushingDuration = now - this.brushingStartTime;
         if (brushingDuration > this.minBrushingDuration) {
           stage = 'brushing';
           isBrushing = true;
+          console.log('[BrushGesture] 达到刷牙时长要求，进入 brushing 状态');
         } else {
           stage = 'fist_ready';
         }
+      } else if (coreConditionsMet && !hasDirection) {
+        // 核心条件满足但方向未检测到，保持 fist_ready 状态等待
+        stage = 'fist_ready';
+        // 如果已经在刷牙中，允许短暂的方向丢失
+        if (this.brushingStartTime > 0) {
+          const brushingDuration = now - this.brushingStartTime;
+          if (brushingDuration > this.minBrushingDuration) {
+            stage = 'brushing';
+            isBrushing = true;
+          }
+        }
       } else {
-        // 刷牙动作中断
+        // 核心条件不满足，刷牙动作中断
         if (this.brushingStartTime > 0) {
           const brushingDuration = now - this.brushingStartTime;
           if (brushingDuration > this.minBrushingDuration) {
@@ -133,10 +146,17 @@ export class BrushGesture {
               '[BrushGesture] 成功检测到刷牙动作，次数:',
               this.completionCount
             );
+          } else {
+            console.log('[BrushGesture] 刷牙中断，未达到时长要求');
           }
         }
         this.brushingStartTime = 0;
-        stage = 'waiting';
+        // 如果牙齿还是露出的，回到 teeth_open 状态而不是 waiting
+        if (teethGateResult.isOpen) {
+          stage = fistResult.isFist ? 'fist_ready' : 'teeth_open';
+        } else {
+          stage = 'waiting';
+        }
       }
     }
 
@@ -195,8 +215,8 @@ export class BrushGesture {
     this.prevHandX = currentX;
     this.prevHandY = currentY;
 
-    // 分析近期运动方向
-    if (this.movementHistory.length < 5) {
+    // 分析近期运动方向（降低到 3 帧即可开始检测）
+    if (this.movementHistory.length < 3) {
       return 'none';
     }
 
@@ -211,12 +231,15 @@ export class BrushGesture {
       horizontalDist += Math.abs(move.dx);
     }
 
+    // 降低阈值从 10 到 5，使方向检测更敏感
+    const directionThreshold = 5;
+
     // 如果垂直运动 > 水平运动，则为竖直刷动
-    if (verticalDist > horizontalDist && verticalDist > 10) {
+    if (verticalDist > horizontalDist && verticalDist > directionThreshold) {
       return 'vertical';
     }
     // 如果水平运动 > 垂直运动，则为水平刷动
-    else if (horizontalDist > verticalDist && horizontalDist > 10) {
+    else if (horizontalDist > verticalDist && horizontalDist > directionThreshold) {
       return 'horizontal';
     }
 
