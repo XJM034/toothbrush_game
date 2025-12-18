@@ -10,33 +10,29 @@ export interface TeethGateResult {
 
 export class TeethGate {
   // 配置参数
-  private jawOpenThreshold = 0.2;  // jawOpen > 0.2 表示嘴巴打开
-  private mouthOpenThreshold = 0.05;  // mouthOpen > 0.05 表示嘴巴有显著打开
+  private jawOpenThreshold = 0.4;  // jawOpen > 0.4 表示嘴巴打开（足以露出牙齿）
   private stableFrames = 0;  // 需要连续保持打开的帧数
   private requiredStableFrames = 5;  // 需要 ~167ms (5 frames @ 30fps)
 
   constructor(
-    jawOpenThreshold = 0.2,
-    mouthOpenThreshold = 0.05,
+    jawOpenThreshold = 0.4,
+    _mouthOpenThreshold = 0.05, // 兼容性参数（已弃用）
     stableMs = 167,
     detectionFps = 30
   ) {
     this.jawOpenThreshold = jawOpenThreshold;
-    this.mouthOpenThreshold = mouthOpenThreshold;
     this.requiredStableFrames = Math.ceil((stableMs / 1000) * detectionFps);
   }
 
   /**
-   * 检测露出牙齿的姿态
+   * 检测露出牙齿的姿态（仅基于 jawOpen blendshape）
    */
   detect(faceResult: FaceTrackingResult): TeethGateResult {
     const jawOpen = faceResult.blendshapes?.get('jawOpen') ?? 0;
-    const mouthOpen = faceResult.blendshapes?.get('mouthOpen') ?? 0;
+    const mouthOpen = faceResult.blendshapes?.get('mouthOpen') ?? 0; // 仅用于显示
 
-    // 检查条件：jawOpen 打开 且 mouthOpen 也打开
-    const isCurrentlyOpen =
-      jawOpen >= this.jawOpenThreshold &&
-      mouthOpen >= this.mouthOpenThreshold;
+    // 检查条件：jawOpen > 阈值表示嘴巴打开足以露出牙齿
+    const isCurrentlyOpen = jawOpen >= this.jawOpenThreshold;
 
     // 更新稳定性计数
     if (isCurrentlyOpen) {
@@ -48,10 +44,9 @@ export class TeethGate {
     // 判断是否达到稳定的露出牙齿状态
     const isOpen = this.stableFrames >= this.requiredStableFrames;
 
-    // 计算置信度（基于分数和稳定性）
+    // 计算置信度（仅基于 jawOpen）
     const scoreConfidence = Math.min(
-      (jawOpen - this.jawOpenThreshold) * 2,
-      (mouthOpen - this.mouthOpenThreshold) * 3.33,
+      (jawOpen - this.jawOpenThreshold) / (1 - this.jawOpenThreshold),
       1
     );
     const stabilityConfidence = Math.min(
