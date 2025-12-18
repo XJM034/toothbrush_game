@@ -39,7 +39,7 @@ export class BrushGesture {
 
   constructor() {
     this.teethGate = new TeethGate(0.4, 0.05, 167, 30); // jawOpenThreshold 改为 0.4
-    this.fist = new Fist(4, 0.15, 167, 30);
+    this.fist = new Fist(3, 0.90, 167, 30); // 更新握拳阈值：curledFingerThreshold 3，fingerSpreadThreshold 0.90
     this.shake = new Shake(0.02, 500, 0.15, 133, 30);
   }
 

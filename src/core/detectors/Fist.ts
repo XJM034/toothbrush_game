@@ -11,8 +11,8 @@ export interface FistResult {
 
 export class Fist {
   // 握拳检测参数
-  private curledFingerThreshold = 4;  // 至少 4 根手指弯曲才算握拳
-  private fingerSpreadThreshold = 0.15;  // 手指间距离阈值
+  private curledFingerThreshold = 3;  // 至少 3 根手指弯曲才算握拳（更宽松）
+  private fingerSpreadThreshold = 0.90;  // 手指间距离阈值（允许 0.65-0.86 的握拳展开度）
   private stableFrames = 0;
   private requiredStableFrames = 5;  // ~167ms @ 30fps
 
@@ -28,8 +28,8 @@ export class Fist {
   private fingerBaseIndices = [2, 6, 10, 14, 18];  // 各手指的基部点索引
 
   constructor(
-    curledFingerThreshold = 4,
-    fingerSpreadThreshold = 0.15,
+    curledFingerThreshold = 3,
+    fingerSpreadThreshold = 0.90,
     stableMs = 167,
     detectionFps = 30
   ) {
