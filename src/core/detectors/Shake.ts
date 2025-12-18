@@ -12,24 +12,24 @@ export interface ShakeResult {
 
 export class Shake {
   // 摇晃检测参数
-  private speedThreshold = 0.05;  // 速度阈值（相对于视频尺寸）
-  private windowMs = 800;  // 时间窗口
-  private highSpeedRatio = 0.35;  // 需要有 35% 的时间在高速运动
+  private speedThreshold = 0.03;  // 速度阈值（相对于视频尺寸）
+  private windowMs = 600;  // 时间窗口
+  private highSpeedRatio = 0.20;  // 需要有 20% 的时间在高速运动
   private stableFrames = 0;
-  private requiredStableFrames = 10;  // ~333ms @ 30fps
+  private requiredStableFrames = 6;  // ~200ms @ 30fps
 
   // 速度历史记录（用于计算平均速度）
   private speedHistory: number[] = [];
-  private maxHistorySize = 25;  // 800ms @ 30fps ≈ 24 帧
+  private maxHistorySize = 18;  // 600ms @ 30fps ≈ 18 帧
 
   // 前一帧的手部位置
   private prevHandPos: { x: number; y: number } | null = null;
 
   constructor(
-    speedThreshold = 0.05,
-    windowMs = 800,
-    highSpeedRatio = 0.35,
-    stableMs = 333,
+    speedThreshold = 0.03,
+    windowMs = 600,
+    highSpeedRatio = 0.20,
+    stableMs = 200,
     detectionFps = 30
   ) {
     this.speedThreshold = speedThreshold;

@@ -35,12 +35,12 @@ export class BrushGesture {
   // 时间阈值
   private teethOpenTimeout = 5000;  // 5 秒内需要看到握拳
   private fistReadyTimeout = 3000;  // 3 秒内需要开始刷牙
-  private minBrushingDuration = 800;  // 最少需要 800ms 的刷牙动作
+  private minBrushingDuration = 500;  // 最少需要 500ms 的刷牙动作
 
   constructor() {
-    this.teethGate = new TeethGate(0.5, 0.3, 400, 30);
+    this.teethGate = new TeethGate(0.3, 0.15, 250, 30);
     this.fist = new Fist(4, 0.15, 167, 30);
-    this.shake = new Shake(0.05, 800, 0.35, 333, 30);
+    this.shake = new Shake(0.03, 600, 0.20, 200, 30);
   }
 
   /**
