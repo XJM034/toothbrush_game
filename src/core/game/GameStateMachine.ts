@@ -82,34 +82,12 @@ export class GameStateMachine {
       this.currentState !== 'init' &&
       now - this.gameStartTime > this.gameDuration
     ) {
-      console.log(
-        '[GameStateMachine] 游戏超时检查:',
-        'elapsed:',
-        now - this.gameStartTime,
-        'duration:',
-        this.gameDuration,
-        'state:',
-        this.currentState
-      );
       this.endGame();
       return;
     }
 
     // 执行刷牙手势检测
     const brushResult = this.brushGesture.detect(detectionResult);
-
-    // 调试：打印检测结果（只在 ready 状态时打印，防止刷屏）
-    if (this.currentState === 'ready') {
-      console.log(
-        '[GameStateMachine] TeethGate:',
-        'isOpen:',
-        brushResult.teethGate.isOpen,
-        'jawOpen:',
-        brushResult.teethGate.jawOpenScore.toFixed(2),
-        'mouthOpen:',
-        brushResult.teethGate.mouthOpenScore.toFixed(2)
-      );
-    }
 
     // 状态转移逻辑
     this.updateState(brushResult);
