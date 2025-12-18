@@ -173,9 +173,17 @@ export class GameStateMachine {
         break;
 
       case 'success':
-        // 短暂显示成功后回到就绪状态
-        if (Date.now() - this.lastDetectionTime > 1000) {
-          this.transitionTo('ready');
+        // 短暂显示成功后，根据当前状态决定下一步
+        // 如果用户还在露牙（teethConfirmed），直接回到 playing 继续刷牙
+        // 否则回到 ready 等待露牙
+        if (Date.now() - this.lastDetectionTime > 500) {  // 缩短到 500ms
+          if (brushResult.stage !== 'waiting') {
+            // 用户还在游戏中（露牙锁定未超时），继续 playing
+            this.transitionTo('playing');
+          } else {
+            // 露牙锁定已超时，回到 ready
+            this.transitionTo('ready');
+          }
         }
         break;
 

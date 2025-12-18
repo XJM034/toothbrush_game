@@ -33,7 +33,7 @@ export class BrushGesture {
   private teethConfirmed = false;  // 露牙已确认（锁定状态，设计文档要求）
 
   // 时间阈值（按照设计文档）
-  private teethOpenTimeout = 5000;  // 5 秒内需要完成刷牙动作
+  private teethLockTimeout = 3000;  // 露牙锁定超时：3秒没露牙则解锁
   private minBrushingDuration = 800;  // 设计文档 5.3: 800ms 滑窗
 
   constructor() {
@@ -80,72 +80,69 @@ export class BrushGesture {
     let stage: BrushGestureResult['stage'] = 'waiting';
     let isBrushing = false;
 
-    // ========== 阶段 1: 露牙检测 ==========
-    // 设计文档: "判定：score > T_open 连续稳定 >= X ms 才算通过"
+    // ========== 阶段 1: 露牙检测与锁定管理 ==========
     if (teethGateResult.isOpen) {
+      // 用户正在露牙，更新时间戳并锁定
       this.lastTeethOpenTime = now;
-      // 设计文档: "通过后：锁定进入下一状态"
       this.teethConfirmed = true;
-      stage = 'teeth_open';
+    } else if (this.teethConfirmed) {
+      // 用户没有露牙，检查是否超时解锁
+      const timeSinceTeeth = now - this.lastTeethOpenTime;
+      if (timeSinceTeeth > this.teethLockTimeout) {
+        console.log('[BrushGesture] 露牙超时解锁（', timeSinceTeeth, 'ms 未露牙）');
+        this.teethConfirmed = false;
+        this.brushingStartTime = 0;
+      }
     }
 
-    // ========== 阶段 2: 露牙确认后，进入刷牙检测 ==========
-    // 关键修改：一旦 teethConfirmed，不再要求持续露牙！
+    // ========== 阶段 2: 根据锁定状态决定 stage ==========
     if (this.teethConfirmed) {
       stage = 'teeth_open';
 
-      // 检查超时：5秒内没有完成刷牙动作则重置
-      if (now - this.lastTeethOpenTime > this.teethOpenTimeout && this.brushingStartTime === 0) {
-        console.log('[BrushGesture] 超时，重置状态');
-        this.teethConfirmed = false;
-        this.lastTeethOpenTime = 0;
-        this.brushingStartTime = 0;
-        stage = 'waiting';
-      } else {
-        // ========== 阶段 3: 刷牙动作检测 ==========
-        // 设计文档 5.3: "判定通过：'握拳成立' AND '800ms 内 highSpeedFrames 占比 > 35%'"
-        // 注意：不需要持续检测露牙！
+      // ========== 阶段 3: 刷牙动作检测（可连续得分）==========
+      const isFistDetected = fistResult.isFist;
+      const isShaking = shakeResult.isShaking;
 
-        const isFistDetected = fistResult.isFist;
-        const isShaking = shakeResult.isShaking;
+      if (isFistDetected && isShaking) {
+        stage = 'fist_ready';
 
-        // 只需要握拳+晃动即可（设计文档要求）
-        if (isFistDetected && isShaking) {
-          stage = 'fist_ready';
+        if (this.brushingStartTime === 0) {
+          this.brushingStartTime = now;
+          console.log('[BrushGesture] 检测到握拳+晃动，开始计时');
+        }
 
-          if (this.brushingStartTime === 0) {
-            this.brushingStartTime = now;
-            console.log('[BrushGesture] 检测到握拳+晃动，开始计时');
-          }
+        const brushingDuration = now - this.brushingStartTime;
 
-          const brushingDuration = now - this.brushingStartTime;
+        if (brushingDuration >= this.minBrushingDuration) {
+          // 成功完成一次刷牙！
+          stage = 'complete';
+          this.completionCount++;
+          console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
 
-          // 设计文档: 800ms 内持续动作
-          if (brushingDuration >= this.minBrushingDuration) {
-            stage = 'brushing';
-            isBrushing = true;
-          }
-        } else if (this.brushingStartTime > 0) {
-          // 动作中断，检查是否已达到时长要求
-          const brushingDuration = now - this.brushingStartTime;
+          // 重置刷牙计时，但不重置 teethConfirmed，允许连续得分
+          this.brushingStartTime = 0;
+          // 注意：保持 teethConfirmed = true，用户可以立即开始下一次刷牙
+          // 只有超时（3秒没露牙）才会解锁
+        }
+      } else if (this.brushingStartTime > 0) {
+        // 动作中断，检查是否已达到时长要求
+        const brushingDuration = now - this.brushingStartTime;
 
-          if (brushingDuration >= this.minBrushingDuration) {
-            // 成功完成一次刷牙！
-            stage = 'complete';
-            this.completionCount++;
-            console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
-
-            // 重置状态准备下一次
-            this.brushingStartTime = 0;
-            this.teethConfirmed = false;
-          } else {
-            // 动作中断但未达到时长，保持等待
-            console.log('[BrushGesture] 动作中断，已持续:', brushingDuration, 'ms，需要:', this.minBrushingDuration, 'ms');
-            this.brushingStartTime = 0;
-            stage = 'teeth_open';
-          }
+        if (brushingDuration >= this.minBrushingDuration) {
+          // 成功完成一次刷牙！
+          stage = 'complete';
+          this.completionCount++;
+          console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
+          this.brushingStartTime = 0;
+        } else {
+          // 动作中断但未达到时长
+          console.log('[BrushGesture] 动作中断，已持续:', brushingDuration, 'ms');
+          this.brushingStartTime = 0;
+          stage = 'teeth_open';
         }
       }
+    } else {
+      stage = 'waiting';
     }
 
     // 计算总置信度
