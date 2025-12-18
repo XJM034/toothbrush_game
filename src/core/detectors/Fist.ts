@@ -10,11 +10,8 @@ export interface FistResult {
 }
 
 export class Fist {
-  // 握拳检测参数
-  private curledFingerThreshold = 3;  // 至少 3 根手指弯曲才算握拳（更宽松）
-  private fingerSpreadThreshold = 0.90;  // 手指间距离阈值（允许 0.65-0.86 的握拳展开度）
-  private stableFrames = 0;
-  private requiredStableFrames = 5;  // ~167ms @ 30fps
+  // 握拳检测参数 - 设计文档 5.3: "至少 4 根手指满足'卷曲'即可认为握拳"
+  private curledFingerThreshold = 3;  // 至少 3 根手指弯曲（稍微宽松一点）
 
   // 手部关键点索引（MediaPipe Hand Landmarker）
   // 0: 手腕
@@ -27,19 +24,14 @@ export class Fist {
   private fingerTipIndices = [4, 8, 12, 16, 20];  // 各手指的顶端点索引
   private fingerBaseIndices = [2, 6, 10, 14, 18];  // 各手指的基部点索引
 
-  constructor(
-    curledFingerThreshold = 3,
-    fingerSpreadThreshold = 0.90,
-    stableMs = 167,
-    detectionFps = 30
-  ) {
+  constructor(curledFingerThreshold = 3) {
     this.curledFingerThreshold = curledFingerThreshold;
-    this.fingerSpreadThreshold = fingerSpreadThreshold;
-    this.requiredStableFrames = Math.ceil((stableMs / 1000) * detectionFps);
   }
 
   /**
    * 检测握拳状态
+   * 设计文档 5.3: "至少 4 根手指满足'卷曲'即可认为握拳"
+   * 注意：不需要稳定性检测，因为用户在晃动时手会自然不稳定
    */
   detect(handResult: HandTrackingResult): FistResult {
     if (!handResult.landmarks || handResult.landmarks.length < 21) {
@@ -66,38 +58,15 @@ export class Fist {
       }
     }
 
-    // 计算手部展开程度
+    // 计算手部展开程度（仅用于调试显示）
     const handSpread = this.calculateHandSpread(landmarks);
 
-    // 握拳判断：至少 4 根手指弯曲 且 手部展开程度低
-    const isCurrentlyFist =
-      curledFingersCount >= this.curledFingerThreshold &&
-      handSpread < this.fingerSpreadThreshold;
+    // 握拳判断：简化为只检查手指弯曲数量（设计文档要求）
+    // 不再检查 handSpread 和稳定性，因为晃动时会导致不稳定
+    const isFist = curledFingersCount >= this.curledFingerThreshold;
 
-    // 更新稳定性
-    if (isCurrentlyFist) {
-      this.stableFrames++;
-    } else {
-      this.stableFrames = 0;
-    }
-
-    const isFist = this.stableFrames >= this.requiredStableFrames;
-
-    // 计算置信度
-    const curledinessConfidence = curledFingersCount / 5;  // 弯曲手指比例
-    const spreadConfidence = Math.max(
-      0,
-      1 - (handSpread / this.fingerSpreadThreshold)
-    );  // 手部紧张度
-    const stabilityConfidence = Math.min(
-      this.stableFrames / this.requiredStableFrames,
-      1
-    );
-
-    const confidence = Math.min(
-      curledinessConfidence * spreadConfidence * stabilityConfidence,
-      1
-    );
+    // 计算置信度（基于弯曲手指比例）
+    const confidence = curledFingersCount / 5;
 
     return {
       isFist,
@@ -148,16 +117,9 @@ export class Fist {
   }
 
   /**
-   * 重置状态
+   * 重置状态（简化版本，无需稳定性追踪）
    */
   reset(): void {
-    this.stableFrames = 0;
-  }
-
-  /**
-   * 获取稳定度
-   */
-  getStability(): number {
-    return Math.min(this.stableFrames / this.requiredStableFrames, 1);
+    // 不再需要重置稳定性计数器
   }
 }

@@ -140,6 +140,8 @@ export class GameStateMachine {
 
       case 'playing':
         // 等待刷牙动作
+        // 设计文档: "通过后：锁定进入下一状态（避免一会儿闭嘴又退回造成体验差）"
+        // 所以不再检查 teethGate.isOpen，只检查 BrushGesture 的 stage
         if (brushResult.stage === 'brushing') {
           this.transitionTo('brushing');
           this.brushStartTime = Date.now();
@@ -147,10 +149,16 @@ export class GameStateMachine {
             type: 'brushing_started',
             timestamp: this.brushStartTime
           });
-        } else if (!brushResult.teethGate.isOpen) {
-          // 用户不再露出牙齿，回到就绪状态
+        } else if (brushResult.stage === 'complete') {
+          // 直接完成（跳过 brushing 状态）
+          this.handleBrushingComplete(brushResult);
+          this.transitionTo('success');
+        } else if (brushResult.stage === 'waiting') {
+          // 只有当 BrushGesture 完全重置时才回到 ready
+          // 这发生在超时（5秒内未完成刷牙动作）
           this.transitionTo('ready');
         }
+        // 注意：不再检查 !brushResult.teethGate.isOpen，保持锁定状态
         break;
 
       case 'brushing':
