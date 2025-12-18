@@ -33,10 +33,10 @@ export class GameStateMachine {
   private eventListeners: Map<string, ((event: GameEvent) => void)[]> = new Map();
 
   // 时间追踪
-  private lastDetectionTime = 0;
   private gameDuration = 60000;  // 60 秒游戏
   private gameStartTime = 0;
   private brushStartTime = 0;
+  private successStateEnterTime = 0;  // 进入 success 状态的时间
 
   // 配置
   private scorePerBrush = 10;  // 每次刷牙 10 分
@@ -54,6 +54,7 @@ export class GameStateMachine {
   initialize(): void {
     this.currentState = 'init';
     this.gameStartTime = Date.now();
+    this.successStateEnterTime = 0;
     this.gameStats = {
       score: 0,
       brushCount: 0,
@@ -73,9 +74,8 @@ export class GameStateMachine {
   /**
    * 更新游戏状态
    */
-  update(detectionResult: DetectionResult, deltaMs: number): void {
+  update(detectionResult: DetectionResult, _deltaMs: number): void {
     const now = Date.now();
-    this.lastDetectionTime = now;
 
     // 检查游戏是否超时
     if (
@@ -176,12 +176,15 @@ export class GameStateMachine {
         // 短暂显示成功后，根据当前状态决定下一步
         // 如果用户还在露牙（teethConfirmed），直接回到 playing 继续刷牙
         // 否则回到 ready 等待露牙
-        if (Date.now() - this.lastDetectionTime > 500) {  // 缩短到 500ms
+        const timeSinceSuccess = Date.now() - this.successStateEnterTime;
+        if (timeSinceSuccess > 500) {  // 500ms 后继续
           if (brushResult.stage !== 'waiting') {
             // 用户还在游戏中（露牙锁定未超时），继续 playing
+            console.log('[GameStateMachine] success 状态 500ms 后，继续 playing');
             this.transitionTo('playing');
           } else {
             // 露牙锁定已超时，回到 ready
+            console.log('[GameStateMachine] success 状态 500ms 后，露牙锁定超时，回到 ready');
             this.transitionTo('ready');
           }
         }
@@ -257,6 +260,11 @@ export class GameStateMachine {
 
     const oldState = this.currentState;
     this.currentState = newState;
+
+    // 记录进入 success 状态的时间
+    if (newState === 'success') {
+      this.successStateEnterTime = Date.now();
+    }
 
     this.emitEvent({
       type: 'state_changed',

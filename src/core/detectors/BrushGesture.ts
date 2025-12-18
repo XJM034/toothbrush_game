@@ -3,7 +3,7 @@ import { DetectionResult } from '../../types';
 import { TeethGate, TeethGateResult } from './TeethGate';
 import { Fist, FistResult } from './Fist';
 import { Shake, ShakeResult } from './Shake';
-import { distance } from '../utils/geometry';
+import { distance as _distance } from '../utils/geometry';
 
 export interface BrushGestureResult {
   isBrushing: boolean;  // 是否在进行刷牙动作

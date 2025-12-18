@@ -82,12 +82,11 @@ export class TeethGate {
    */
   setThresholds(
     jawOpenThreshold: number,
-    mouthOpenThreshold: number,
+    _mouthOpenThreshold: number,  // 兼容性参数（已弃用）
     stableMs: number,
     detectionFps: number = 30
   ): void {
     this.jawOpenThreshold = jawOpenThreshold;
-    this.mouthOpenThreshold = mouthOpenThreshold;
     this.requiredStableFrames = Math.ceil((stableMs / 1000) * detectionFps);
     this.reset();
   }

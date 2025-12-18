@@ -13,7 +13,6 @@ export interface ShakeResult {
 export class Shake {
   // 摇晃检测参数
   private speedThreshold = 0.02;  // 速度阈值（相对于视频尺寸）
-  private windowMs = 500;  // 时间窗口
   private highSpeedRatio = 0.15;  // 需要有 15% 的时间在高速运动
   private stableFrames = 0;
   private requiredStableFrames = 4;  // ~133ms @ 30fps
@@ -33,7 +32,6 @@ export class Shake {
     detectionFps = 30
   ) {
     this.speedThreshold = speedThreshold;
-    this.windowMs = windowMs;
     this.highSpeedRatio = highSpeedRatio;
     this.maxHistorySize = Math.ceil((windowMs / 1000) * detectionFps);
     this.requiredStableFrames = Math.ceil((stableMs / 1000) * detectionFps);
