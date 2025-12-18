@@ -28,14 +28,13 @@ export class BrushGesture {
 
   // 刷牙动作状态机
   private lastTeethOpenTime = 0;
-  private lastFistReadyTime = 0;
   private brushingStartTime = 0;
   private completionCount = 0;
+  private teethConfirmed = false;  // 露牙已确认（锁定状态，设计文档要求）
 
-  // 时间阈值
-  private teethOpenTimeout = 5000;  // 5 秒内需要看到握拳
-  private fistReadyTimeout = 3000;  // 3 秒内需要开始刷牙
-  private minBrushingDuration = 500;  // 最少需要 500ms 的刷牙动作
+  // 时间阈值（按照设计文档）
+  private teethOpenTimeout = 5000;  // 5 秒内需要完成刷牙动作
+  private minBrushingDuration = 800;  // 设计文档 5.3: 800ms 滑窗
 
   constructor() {
     this.teethGate = new TeethGate(0.4, 0.05, 167, 30); // jawOpenThreshold 改为 0.4
@@ -45,6 +44,12 @@ export class BrushGesture {
 
   /**
    * 检测刷牙手势
+   *
+   * 设计文档流程（分步骤）:
+   * 1. S3_PromptTeeth: 等待用户露出牙齿
+   * 2. S4_TeethConfirmed: 露牙通过 → 锁定状态（避免闭嘴又退回）
+   * 3. S5_PromptBrushGesture: 等待握拳+晃动
+   * 4. S6_BrushGestureConfirmed: 动作通过 → 得分
    */
   detect(
     detectionResult: DetectionResult,
@@ -64,7 +69,7 @@ export class BrushGesture {
       canvasHeight
     );
 
-    // 更新运动方向
+    // 更新运动方向（可选条件）
     const brushingDirection = this.updateBrushingDirection(
       detectionResult,
       canvasWidth,
@@ -75,87 +80,70 @@ export class BrushGesture {
     let stage: BrushGestureResult['stage'] = 'waiting';
     let isBrushing = false;
 
-    // 阶段 1: 等待用户露出牙齿
+    // ========== 阶段 1: 露牙检测 ==========
+    // 设计文档: "判定：score > T_open 连续稳定 >= X ms 才算通过"
     if (teethGateResult.isOpen) {
       this.lastTeethOpenTime = now;
+      // 设计文档: "通过后：锁定进入下一状态"
+      this.teethConfirmed = true;
       stage = 'teeth_open';
-    } else if (now - this.lastTeethOpenTime > this.teethOpenTimeout) {
-      // 超时，重置
-      this.lastTeethOpenTime = 0;
-      this.lastFistReadyTime = 0;
-      this.brushingStartTime = 0;
-      stage = 'waiting';
     }
 
-    // 阶段 2: 等待握拳准备
-    if (stage === 'teeth_open') {
-      if (fistResult.isFist && teethGateResult.isOpen) {
-        this.lastFistReadyTime = now;
-        stage = 'fist_ready';
-      } else if (now - this.lastTeethOpenTime > this.teethOpenTimeout) {
-        // 超时，重置
+    // ========== 阶段 2: 露牙确认后，进入刷牙检测 ==========
+    // 关键修改：一旦 teethConfirmed，不再要求持续露牙！
+    if (this.teethConfirmed) {
+      stage = 'teeth_open';
+
+      // 检查超时：5秒内没有完成刷牙动作则重置
+      if (now - this.lastTeethOpenTime > this.teethOpenTimeout && this.brushingStartTime === 0) {
+        console.log('[BrushGesture] 超时，重置状态');
+        this.teethConfirmed = false;
         this.lastTeethOpenTime = 0;
-        this.lastFistReadyTime = 0;
+        this.brushingStartTime = 0;
         stage = 'waiting';
       } else {
-        stage = 'teeth_open';
-      }
-    }
+        // ========== 阶段 3: 刷牙动作检测 ==========
+        // 设计文档 5.3: "判定通过：'握拳成立' AND '800ms 内 highSpeedFrames 占比 > 35%'"
+        // 注意：不需要持续检测露牙！
 
-    // 阶段 3: 执行刷牙动作
-    if (stage === 'fist_ready' || this.brushingStartTime > 0) {
-      // 检查核心条件：握拳 + 摇晃 + 露出牙齿
-      const coreConditionsMet = fistResult.isFist && shakeResult.isShaking && teethGateResult.isOpen;
-      // 方向条件（可以是任意方向，不强制要求特定方向）
-      const hasDirection = brushingDirection === 'vertical' || brushingDirection === 'horizontal';
+        const isFistDetected = fistResult.isFist;
+        const isShaking = shakeResult.isShaking;
 
-      if (coreConditionsMet && hasDirection) {
-        if (this.brushingStartTime === 0) {
-          this.brushingStartTime = now;
-          console.log('[BrushGesture] 开始刷牙计时，方向:', brushingDirection);
-        }
-
-        const brushingDuration = now - this.brushingStartTime;
-        if (brushingDuration > this.minBrushingDuration) {
-          stage = 'brushing';
-          isBrushing = true;
-          console.log('[BrushGesture] 达到刷牙时长要求，进入 brushing 状态');
-        } else {
+        // 只需要握拳+晃动即可（设计文档要求）
+        if (isFistDetected && isShaking) {
           stage = 'fist_ready';
-        }
-      } else if (coreConditionsMet && !hasDirection) {
-        // 核心条件满足但方向未检测到，保持 fist_ready 状态等待
-        stage = 'fist_ready';
-        // 如果已经在刷牙中，允许短暂的方向丢失
-        if (this.brushingStartTime > 0) {
+
+          if (this.brushingStartTime === 0) {
+            this.brushingStartTime = now;
+            console.log('[BrushGesture] 检测到握拳+晃动，开始计时');
+          }
+
           const brushingDuration = now - this.brushingStartTime;
-          if (brushingDuration > this.minBrushingDuration) {
+
+          // 设计文档: 800ms 内持续动作
+          if (brushingDuration >= this.minBrushingDuration) {
             stage = 'brushing';
             isBrushing = true;
           }
-        }
-      } else {
-        // 核心条件不满足，刷牙动作中断
-        if (this.brushingStartTime > 0) {
+        } else if (this.brushingStartTime > 0) {
+          // 动作中断，检查是否已达到时长要求
           const brushingDuration = now - this.brushingStartTime;
-          if (brushingDuration > this.minBrushingDuration) {
-            // 成功完成一次刷牙
+
+          if (brushingDuration >= this.minBrushingDuration) {
+            // 成功完成一次刷牙！
             stage = 'complete';
             this.completionCount++;
-            console.log(
-              '[BrushGesture] 成功检测到刷牙动作，次数:',
-              this.completionCount
-            );
+            console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
+
+            // 重置状态准备下一次
+            this.brushingStartTime = 0;
+            this.teethConfirmed = false;
           } else {
-            console.log('[BrushGesture] 刷牙中断，未达到时长要求');
+            // 动作中断但未达到时长，保持等待
+            console.log('[BrushGesture] 动作中断，已持续:', brushingDuration, 'ms，需要:', this.minBrushingDuration, 'ms');
+            this.brushingStartTime = 0;
+            stage = 'teeth_open';
           }
-        }
-        this.brushingStartTime = 0;
-        // 如果牙齿还是露出的，回到 teeth_open 状态而不是 waiting
-        if (teethGateResult.isOpen) {
-          stage = fistResult.isFist ? 'fist_ready' : 'teeth_open';
-        } else {
-          stage = 'waiting';
         }
       }
     }
@@ -300,8 +288,8 @@ export class BrushGesture {
     this.fist.reset();
     this.shake.reset();
     this.lastTeethOpenTime = 0;
-    this.lastFistReadyTime = 0;
     this.brushingStartTime = 0;
+    this.teethConfirmed = false;
     this.movementHistory = [];
     this.prevHandX = null;
     this.prevHandY = null;
