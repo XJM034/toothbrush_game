@@ -10,15 +10,15 @@ export interface TeethGateResult {
 
 export class TeethGate {
   // 配置参数
-  private jawOpenThreshold = 0.3;  // jawOpen > 0.3 表示嘴巴打开
-  private mouthOpenThreshold = 0.15;  // mouthOpen > 0.15 表示嘴巴有显著打开
+  private jawOpenThreshold = 0.2;  // jawOpen > 0.2 表示嘴巴打开
+  private mouthOpenThreshold = 0.05;  // mouthOpen > 0.05 表示嘴巴有显著打开
   private stableFrames = 0;  // 需要连续保持打开的帧数
-  private requiredStableFrames = 8;  // 需要 ~250ms (8 frames @ 30fps)
+  private requiredStableFrames = 5;  // 需要 ~167ms (5 frames @ 30fps)
 
   constructor(
-    jawOpenThreshold = 0.3,
-    mouthOpenThreshold = 0.15,
-    stableMs = 250,
+    jawOpenThreshold = 0.2,
+    mouthOpenThreshold = 0.05,
+    stableMs = 167,
     detectionFps = 30
   ) {
     this.jawOpenThreshold = jawOpenThreshold;
