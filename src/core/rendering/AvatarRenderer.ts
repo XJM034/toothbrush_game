@@ -1,5 +1,6 @@
-// 头套渲染器 - 在 Canvas 上渲染卡通头套
+// 头套渲染器 - 在 Canvas 上渲染卡通头套（Face Filter / AR Hat Overlay）
 import { FaceTrackingResult, AvatarConfig } from '../../types';
+import { getFaceBoundsFromLandmarks } from '../utils/geometry';
 
 export class AvatarRenderer {
   private avatarImage: HTMLImageElement | null = null;
@@ -22,7 +23,7 @@ export class AvatarRenderer {
       img.onload = () => {
         this.avatarImage = img;
         this.isLoading = false;
-        console.log('[AvatarRenderer] 头套加载完成:', avatarUrl);
+        console.log('[AvatarRenderer] 头套加载完成:', avatarUrl, img.width, 'x', img.height);
         resolve();
       };
 
@@ -39,6 +40,12 @@ export class AvatarRenderer {
 
   /**
    * 在 Canvas 上渲染头套
+   *
+   * 头套定位逻辑：
+   * 1. 根据人脸宽度计算头套缩放比例
+   * 2. 头套的"脸洞"中心对准用户人脸中心
+   * 3. 应用配置中的 anchorOffset 和 faceHoleOffset 微调位置
+   * 4. 跟随头部旋转
    */
   render(
     ctx: CanvasRenderingContext2D,
@@ -51,24 +58,45 @@ export class AvatarRenderer {
       return;
     }
 
-    // 获取头套的位置、大小、旋转
-    const x = faceResult.faceCenter.x * canvasWidth;
-    const y = faceResult.faceCenter.y * canvasHeight;
-    const scale = faceResult.faceScale * 2; // 放大系数（根据实际调整）
-    const rotation = faceResult.faceRotation;
+    // 获取详细的人脸定位信息
+    const faceBounds = getFaceBoundsFromLandmarks(
+      faceResult.landmarks,
+      canvasWidth,
+      canvasHeight
+    );
 
-    // 应用锚点偏移
-    const offsetX = (avatarConfig.anchorOffset?.x || 0) * this.avatarImage.width * scale;
-    const offsetY = (avatarConfig.anchorOffset?.y || 0) * this.avatarImage.height * scale;
+    // 计算头套缩放比例
+    // 基于人脸宽度，使头套宽度约为人脸宽度的 2.0-2.5 倍（覆盖头部）
+    const baseScale = (faceBounds.faceWidth * 2.2) / this.avatarImage.width;
+    const configScale = avatarConfig.scale || 1.0;
+    const scale = baseScale * configScale;
 
+    // 计算头套尺寸
     const avatarWidth = this.avatarImage.width * scale;
     const avatarHeight = this.avatarImage.height * scale;
+
+    // 头套定位点
+    // 默认：头套中心的"脸洞"对准人脸中心（两眼中点）
+    // faceHoleOffset：脸洞相对于图片中心的偏移（归一化值，-0.5 到 0.5）
+    const faceHoleOffsetX = (avatarConfig.faceHoleOffset?.x || 0) * avatarWidth;
+    const faceHoleOffsetY = (avatarConfig.faceHoleOffset?.y || 0) * avatarHeight;
+
+    // anchorOffset：额外的位置调整（归一化值）
+    const anchorOffsetX = (avatarConfig.anchorOffset?.x || 0) * avatarWidth;
+    const anchorOffsetY = (avatarConfig.anchorOffset?.y || 0) * avatarHeight;
+
+    // 最终定位：人脸中心 - 脸洞偏移 + 锚点偏移
+    const targetX = faceBounds.center.x - faceHoleOffsetX + anchorOffsetX;
+    const targetY = faceBounds.center.y - faceHoleOffsetY + anchorOffsetY;
+
+    // 旋转角度
+    const rotation = faceBounds.rotation;
 
     // 保存 canvas 状态
     ctx.save();
 
-    // 平移到头套中心
-    ctx.translate(x + offsetX, y + offsetY);
+    // 平移到目标位置
+    ctx.translate(targetX, targetY);
 
     // 旋转
     ctx.rotate(rotation);

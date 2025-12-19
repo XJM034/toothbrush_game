@@ -93,6 +93,102 @@ export function getFaceTransformFromLandmarks(
 }
 
 /**
+ * 获取人脸边界框和更多定位信息
+ * 用于头套定位
+ */
+export function getFaceBoundsFromLandmarks(
+  landmarks: NormalizedLandmark[],
+  canvasWidth: number,
+  canvasHeight: number
+): {
+  center: Point;           // 人脸中心（两眼中点）
+  forehead: Point;         // 额头位置
+  chin: Point;             // 下巴位置
+  eyeDistance: number;     // 两眼距离（像素）
+  faceHeight: number;      // 人脸高度（额头到下巴）
+  faceWidth: number;       // 人脸宽度
+  rotation: number;        // 旋转角度
+} {
+  // MediaPipe Face Landmarks 索引
+  const leftEyeIdx = 33;    // 左眼外侧
+  const rightEyeIdx = 263;  // 右眼外侧
+  const foreheadIdx = 10;   // 额头中心（眉间上方）
+  const chinIdx = 152;      // 下巴
+  const leftFaceIdx = 234;  // 左脸边缘
+  const rightFaceIdx = 454; // 右脸边缘
+
+  const defaultResult = {
+    center: { x: canvasWidth / 2, y: canvasHeight / 2 },
+    forehead: { x: canvasWidth / 2, y: canvasHeight / 3 },
+    chin: { x: canvasWidth / 2, y: canvasHeight * 2 / 3 },
+    eyeDistance: canvasWidth * 0.2,
+    faceHeight: canvasHeight * 0.4,
+    faceWidth: canvasWidth * 0.3,
+    rotation: 0
+  };
+
+  if (landmarks.length < 468) {
+    return defaultResult;
+  }
+
+  const leftEye = landmarks[leftEyeIdx];
+  const rightEye = landmarks[rightEyeIdx];
+  const forehead = landmarks[foreheadIdx];
+  const chin = landmarks[chinIdx];
+  const leftFace = landmarks[leftFaceIdx];
+  const rightFace = landmarks[rightFaceIdx];
+
+  // 人脸中心（两眼中点）
+  const center: Point = {
+    x: ((leftEye.x + rightEye.x) / 2) * canvasWidth,
+    y: ((leftEye.y + rightEye.y) / 2) * canvasHeight
+  };
+
+  // 额头位置
+  const foreheadPoint: Point = {
+    x: forehead.x * canvasWidth,
+    y: forehead.y * canvasHeight
+  };
+
+  // 下巴位置
+  const chinPoint: Point = {
+    x: chin.x * canvasWidth,
+    y: chin.y * canvasHeight
+  };
+
+  // 两眼距离
+  const eyeDistance = distance(
+    { x: leftEye.x * canvasWidth, y: leftEye.y * canvasHeight },
+    { x: rightEye.x * canvasWidth, y: rightEye.y * canvasHeight }
+  );
+
+  // 人脸高度（额头到下巴）
+  const faceHeight = distance(foreheadPoint, chinPoint);
+
+  // 人脸宽度（左右脸边缘）
+  const faceWidth = distance(
+    { x: leftFace.x * canvasWidth, y: leftFace.y * canvasHeight },
+    { x: rightFace.x * canvasWidth, y: rightFace.y * canvasHeight }
+  );
+
+  // 旋转角度
+  const rotation = angle(
+    { x: leftEye.x * canvasWidth, y: leftEye.y * canvasHeight },
+    { x: rightEye.x * canvasWidth, y: rightEye.y * canvasHeight }
+  );
+
+  return {
+    center,
+    forehead: foreheadPoint,
+    chin: chinPoint,
+    eyeDistance,
+    faceHeight,
+    faceWidth,
+    rotation
+  };
+}
+
+/**
  * 归一化坐标转像素坐标
  */
 export function normalizedToPixel(

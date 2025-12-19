@@ -27,7 +27,9 @@ export interface AvatarConfig {
   id: string;
   name: string;
   imgUrl: string;
-  anchorOffset?: { x: number; y: number };
+  anchorOffset?: { x: number; y: number };  // 头套锚点偏移（相对于人脸中心）
+  faceHoleOffset?: { x: number; y: number }; // 脸洞位置偏移（相对于图片中心）
+  scale?: number;  // 头套缩放系数
 }
 
 // 游戏配置
