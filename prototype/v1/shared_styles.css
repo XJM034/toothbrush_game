@@ -1,0 +1,170 @@
+/* Shared Styles for Kawaii Toothbrush Game - Redesign v2 */
+/* Based on Reference Images (Pokemon Smile Style) */
+
+:root {
+    /* Colors extracted from Reference */
+    --color-primary: #40E0D0;
+    /* Bright Turquoise/Cyan */
+    --color-primary-dark: #20B2AA;
+    /* Darker Cyan for shadow */
+
+    --color-accent: #FFD700;
+    /* Pikachu Yellow */
+    --color-accent-dark: #DAA520;
+    /* Darker Yellow/Gold */
+
+    --color-danger: #FF6347;
+    /* Tomato Red */
+    --color-danger-dark: #CD5C5C;
+    /* Darker Red */
+
+    --color-stroke: #2D3436;
+    /* Dark Charcoal for outlines */
+    --color-bg-pattern: #E0F7FA;
+    /* Light Cyan for crosses */
+}
+
+body {
+    font-family: 'Nunito', 'Varela Round', sans-serif;
+    background-color: white;
+    background-image:
+        radial-gradient(var(--color-bg-pattern) 4px, transparent 4px),
+        radial-gradient(var(--color-bg-pattern) 4px, transparent 4px);
+    background-size: 50px 50px;
+    background-position: 0 0, 25px 25px;
+    /* Creates a staggered dot/cross feel */
+    color: var(--color-stroke);
+}
+
+/* Override background to make it look like crosses if possible, 
+   but dots are close enough for CSS gradients without complex SVGs. 
+   Let's try a cross pattern using linear-gradient.
+*/
+.bg-cross-pattern {
+    background-color: white;
+    background-image:
+        linear-gradient(90deg, transparent 24px, #E0F7FA 24px, #E0F7FA 26px, transparent 26px),
+        linear-gradient(transparent 24px, #E0F7FA 24px, #E0F7FA 26px, transparent 26px);
+    background-size: 50px 50px;
+}
+
+/* Universal Thick Stroke */
+.stroke-thick {
+    border: 4px solid var(--color-stroke);
+}
+
+.stroke-medium {
+    border: 3px solid var(--color-stroke);
+}
+
+/* 3D Toy Button - Key Change: Colored Shadows */
+.btn-kawaii {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 4px solid var(--color-stroke);
+    border-radius: 9999px;
+    /* Capsule */
+    transition: all 0.1s;
+    cursor: pointer;
+}
+
+/* Cyan Button (e.g., Get Brushing, Settings) */
+.btn-cyan {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 8px 0 var(--color-primary-dark);
+    text-shadow: 1px 1px 0 var(--color-stroke);
+    /* Subtle text stroke */
+}
+
+.btn-cyan:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 var(--color-primary-dark);
+}
+
+/* White Button with Cyan Base (e.g., Main Menu) */
+.btn-white-cyan {
+    background-color: white;
+    color: var(--color-primary);
+    box-shadow: 0 8px 0 var(--color-primary);
+}
+
+.btn-white-cyan:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 var(--color-primary);
+}
+
+/* Red Button (Pokedex) */
+.btn-red {
+    background-color: var(--color-danger);
+    color: white;
+    box-shadow: 0 8px 0 var(--color-danger-dark);
+}
+
+.btn-red:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 var(--color-danger-dark);
+}
+
+/* Yellow Button (Costumes) */
+.btn-yellow {
+    background-color: var(--color-accent);
+    color: white;
+    box-shadow: 0 8px 0 var(--color-accent-dark);
+}
+
+.btn-yellow:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 var(--color-accent-dark);
+}
+
+/* Icon Button (Square-ish) */
+.btn-icon {
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    border-radius: 20px;
+    font-size: 2rem;
+}
+
+/* "Hill" Curve for Bottom */
+.hill-curve {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background-color: var(--color-primary);
+    border-top: 4px solid var(--color-stroke);
+    border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+    z-index: 0;
+}
+
+/* Kawaii Card */
+.card-kawaii {
+    background: white;
+    border: 4px solid var(--color-stroke);
+    border-radius: 30px;
+    padding: 1.5rem;
+}
+
+/* Text Stroke Utility */
+.text-stroke {
+    -webkit-text-stroke: 4px var(--color-stroke);
+    paint-order: stroke fill;
+}
+
+.text-stroke-white {
+    -webkit-text-stroke: 4px white;
+    paint-order: stroke fill;
+}
+
+/* Dynamic Font Sizes */
+.font-kawaii {
+    font-family: 'Varela Round', sans-serif;
+    letter-spacing: 1px;
+}

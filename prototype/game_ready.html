@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared_styles.css">
+    <title>Prep - Brushing Master</title>
+</head>
+
+<body class="h-screen flex flex-col pt-12 px-6">
+
+    <header class="mb-10 text-center">
+        <h1 class="text-3xl font-black uppercase">准备战斗！</h1>
+        <p class="font-bold text-gray-400">选择你的刷牙训练时长</p>
+    </header>
+
+    <div class="flex-1 flex flex-col gap-6">
+
+        <!-- Time Selector -->
+        <div class="grid grid-cols-3 gap-4">
+            <div
+                class="kawaii-card border-[var(--accent-yellow)] border-[6px] flex flex-col items-center justify-center py-6 cursor-pointer transform scale-105">
+                <span class="text-4xl font-black">1</span>
+                <span class="text-xs font-black">分钟</span>
+            </div>
+            <div class="kawaii-card opacity-60 flex flex-col items-center justify-center py-6 cursor-pointer">
+                <span class="text-4xl font-black">2</span>
+                <span class="text-xs font-black">分钟</span>
+            </div>
+            <div class="kawaii-card opacity-60 flex flex-col items-center justify-center py-6 cursor-pointer">
+                <span class="text-4xl font-black">3</span>
+                <span class="text-xs font-black">分钟</span>
+            </div>
+        </div>
+
+        <!-- Instruction Card -->
+        <div class="kawaii-card bg-[var(--primary-green)] text-white">
+            <h3 class="font-black text-lg mb-2"><i class="fas fa-camera mr-2"></i> 摄像头检查</h3>
+            <p class="text-xs font-bold leading-relaxed text-white text-opacity-90">请将手机放在与视线平齐的位置，并确保你的脸出现在画面正中！</p>
+        </div>
+
+        <!-- Character Preview -->
+        <div class="kawaii-card flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white border-4 border-[#333] rounded-full flex items-center justify-center">
+                    <i class="fas fa-owl text-[#333]"></i>
+                </div>
+                <div>
+                    <div class="text-[10px] font-black text-gray-400">当前皮肤</div>
+                    <div class="text-sm font-black">小猫头鹰</div>
+                </div>
+            </div>
+            <button class="kawaii-button kawaii-button-yellow px-4 py-2 text-xs">更换</button>
+        </div>
+
+    </div>
+
+    <!-- Start Button -->
+    <div class="pb-20 text-center">
+        <button class="kawaii-button kawaii-button-primary text-2xl w-full py-5"
+            onclick="location.href='game_play.html'">
+            开始 <i class="fas fa-bolt ml-2"></i>
+        </button>
+        <button class="mt-4 font-black uppercase text-xs text-gray-600"
+            onclick="location.href='home.html'">稍后再说</button>
+    </div>
+
+</body>
+
+</html>

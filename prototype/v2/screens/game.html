@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刷牙中 - 刷牙大作战</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../shared_styles.css">
+</head>
+
+<body class="h-screen w-screen overflow-hidden bg-gray-900 relative">
+
+    <!-- Camera Feed Placeholder -->
+    <div class="absolute inset-0 w-full h-full object-cover z-0">
+        <!-- In a real app this is the <video> element. Here we simulate it with a static image or gradient -->
+        <img src="https://images.unsplash.com/photo-1596496181961-d0b81aa6616e?q=80&w=2692&auto=format&fit=crop"
+            class="w-full h-full object-cover opacity-60" alt="Camera Feed">
+    </div>
+
+    <!-- AR Overlay UI Layer -->
+    <div class="absolute inset-0 z-10 flex flex-col pointer-events-none">
+
+        <!-- Top HUD -->
+        <div class="flex justify-between items-start p-4 pt-10">
+            <!-- Timer -->
+            <div
+                class="bg-white stroke-border rounded-full px-4 py-2 flex items-center gap-2 shadow-[4px_4px_0_#2C3E50]">
+                <i class="fas fa-clock text-teal-500 text-xl"></i>
+                <span id="timer" class="font-bold text-2xl text-gray-800 font-mono">02:00</span>
+            </div>
+
+            <!-- Quit Button (Pointer events auto to allow clicking) -->
+            <a href="home.html"
+                class="w-10 h-10 bg-red-500 stroke-border rounded-full flex items-center justify-center text-white shadow-[2px_2px_0_#2C3E50] pointer-events-auto active:translate-y-1">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
+
+        <!-- Guidance Message -->
+        <div class="mt-4 flex justify-center">
+            <div class="bg-yellow-300 stroke-border rounded-xl px-6 py-3 shadow-[4px_4px_0_#2C3E50] animate-bounce">
+                <span class="font-extrabold text-gray-900 text-lg flex items-center gap-2">
+                    <i class="fas fa-arrow-up"></i> 刷上面左边的牙齿！
+                </span>
+            </div>
+        </div>
+
+        <!-- Center AR Area (Mascot/Bacteria) -->
+        <div class="flex-1 relative flex items-center justify-center">
+            <!-- Simulated Bacteria Overlay -->
+            <div
+                class="absolute w-64 h-64 border-4 border-dashed border-white/50 rounded-full flex items-center justify-center">
+                <!-- Bacteria 1 -->
+                <div class="absolute top-10 left-10 text-4xl text-purple-500 animate-[bounce_2s_infinite]">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <!-- Bacteria 2 -->
+                <div class="absolute bottom-16 right-12 text-3xl text-green-500 animate-[bounce_1.5s_infinite]">
+                    <i class="fas fa-virus"></i>
+                </div>
+                <!-- Bacteria 3 -->
+                <div class="absolute top-1/2 left-4 text-5xl text-pink-500 animate-[pulse_1s_infinite]">
+                    <i class="fas fa-pastafarianism"></i>
+                </div>
+            </div>
+
+            <!-- Face Guide Frame -->
+            <div class="w-64 h-80 border-4 border-white/30 rounded-[3rem]"></div>
+        </div>
+
+        <!-- Bottom HUD: Progress -->
+        <div class="p-6 pb-12 w-full">
+            <div class="bg-white/90 backdrop-blur stroke-border rounded-full h-8 w-full p-1 relative overflow-hidden">
+                <div class="h-full bg-teal-400 rounded-full w-1/3 stroke-border transition-all duration-1000"
+                    style="width: 45%"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-xs font-bold text-gray-700 uppercase tracking-widest">细菌清理进度</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

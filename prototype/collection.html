@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared_styles.css">
+    <title>Collection - Brushing Master</title>
+</head>
+
+<body class="h-screen flex flex-col pt-12">
+
+    <header class="px-6 flex items-center justify-between mb-8">
+        <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
+            onclick="location.href='home.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-black uppercase">我的收藏</h1>
+        <div class="w-10"></div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="px-6 flex gap-2 mb-8" id="tabs">
+        <button class="flex-1 kawaii-button kawaii-button-primary py-2 text-xs" data-tab="skins">皮肤</button>
+        <button class="flex-1 kawaii-button kawaii-button-yellow py-2 text-xs border-opacity-50"
+            data-tab="awards">奖励</button>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('#tabs button');
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                tabs.forEach(t => {
+                    t.classList.remove('kawaii-button-primary');
+                    t.classList.add('kawaii-button-yellow');
+                    t.classList.add('border-opacity-50');
+                });
+                tab.classList.remove('kawaii-button-yellow');
+                tab.classList.remove('border-opacity-50');
+                tab.classList.add('kawaii-button-primary');
+            };
+        });
+    </script>
+
+    <!-- Grid -->
+    <div class="flex-1 overflow-y-auto px-6 pb-20">
+        <div class="grid grid-cols-3 gap-6">
+            <!-- Unlocked -->
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-full aspect-square kawaii-card bg-yellow-100 flex items-center justify-center text-3xl">
+                    <i class="fas fa-hat-wizard"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">小法师</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2">
+                <div
+                    class="w-full aspect-square kawaii-card bg-[var(--primary-green)] border-[#333] border-[6px] flex items-center justify-center text-3xl text-white">
+                    <i class="fas fa-owl"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">猫头鹰</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-full aspect-square kawaii-card bg-blue-100 flex items-center justify-center text-3xl">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">打工人</span>
+            </div>
+
+            <!-- Locked -->
+            <div class="flex flex-col items-center gap-2 opacity-60">
+                <div
+                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">国王</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 opacity-60">
+                <div
+                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
+                    <i class="fas fa-helmet-safety"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">飞行员</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 opacity-60">
+                <div
+                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
+                    <i class="fas fa-dragon"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">小飞龙</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 opacity-60">
+                <div
+                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
+                    <i class="fas fa-ghost"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase">小幽灵</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="p-6 bg-white border-t-4 border-[#333]">
+        <div class="justify-between items-center mb-2 flex">
+            <span class="font-black text-xs">收藏进度</span>
+            <span class="font-black text-xs text-[var(--primary-green)]">12/48</span>
+        </div>
+        <div class="kawaii-progress-bg">
+            <div class="kawaii-progress-fill" style="width: 25%"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>

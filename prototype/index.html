@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brushing Master Prototype Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="shared_styles.css">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            background-image: none;
+        }
+    </style>
+</head>
+
+<body class="p-8">
+    <header class="mb-8 text-center">
+        <h1 class="text-4xl font-black uppercase text-[#333]">刷牙大师 原型演示</h1>
+        <p class="text-gray-600">探索这款游戏化刷牙体验的所有界面。</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 justify-items-center">
+
+        <!-- Home Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">1. 主界面</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="home.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Game Ready Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">2. 准备开始</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="game_ready.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">3. 刷牙挑战</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="game_play.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Game Result Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">4. 挑战奖励</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="game_result.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Photo Edit Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">5. 贴纸装饰</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="photo_edit.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Collection Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">6. 我的收藏</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="collection.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div class="flex flex-col items-center gap-4">
+            <span class="font-bold text-lg">7. 家长设置</span>
+            <div class="phone-frame">
+                <div class="phone-island"></div>
+                <iframe src="settings.html" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

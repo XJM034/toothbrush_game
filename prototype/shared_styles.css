@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+
+:root {
+    --primary-green: #006837;
+    /* Dark Green from logo */
+    --secondary-green: #8DC63F;
+    /* Lime Green from logo */
+    --accent-yellow: #FDB913;
+    /* Golden Yellow from beak */
+    --stroke-dark: #2C3E50;
+    --bg-light: #F8F9FA;
+    --button-shadow: #2C3E50;
+    --accent-red: #FF5E5E;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg-light);
+    background-image: radial-gradient(rgba(44, 62, 80, 0.05) 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    color: var(--stroke-dark);
+}
+
+/* Kawaii 3D Button */
+.kawaii-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: 4px solid var(--stroke-dark);
+    border-radius: 9999px;
+    /* Capsule */
+    font-weight: 900;
+    text-transform: uppercase;
+    transition: all 0.1s ease;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 6px 0 var(--stroke-dark);
+    top: 0;
+}
+
+.kawaii-button:active {
+    top: 4px;
+    box-shadow: 0 2px 0 var(--stroke-dark);
+}
+
+.kawaii-button-primary {
+    background-color: var(--primary-green);
+    color: white;
+}
+
+.kawaii-button-yellow {
+    background-color: var(--accent-yellow);
+    color: var(--stroke-dark);
+}
+
+.kawaii-button-red {
+    background-color: var(--accent-red);
+    color: white;
+}
+
+/* Card Style */
+.kawaii-card {
+    background: white;
+    border: 4px solid var(--stroke-dark);
+    border-radius: 24px;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+/* Progress Bar */
+.kawaii-progress-bg {
+    height: 24px;
+    background: #E5E7EB;
+    border: 3px solid var(--stroke-dark);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.kawaii-progress-fill {
+    height: 100%;
+    background: var(--accent-yellow);
+    border-right: 3px solid var(--stroke-dark);
+    transition: width 0.3s ease;
+}
+
+/* Icons / Stickers Wrapper */
+.sticker-container {
+    padding: 10px;
+    border: 3px dashed var(--stroke-dark);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Switch Styles */
+.kawaii-switch {
+    width: 60px;
+    height: 32px;
+    background: #DDD;
+    border: 3px solid var(--stroke-dark);
+    border-radius: 16px;
+    position: relative;
+    cursor: pointer;
+}
+
+.kawaii-switch-toggle {
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 3px solid var(--stroke-dark);
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    transition: all 0.2s;
+}
+
+.kawaii-switch.on {
+    background: var(--accent-yellow);
+}
+
+.kawaii-switch.on.kawaii-switch-green {
+    background: var(--secondary-green);
+}
+
+.kawaii-switch.on .kawaii-switch-toggle {
+    left: 28px;
+}
+
+/* iPhone Frame for index.html */
+.phone-frame {
+    width: 393px;
+    height: 852px;
+    border: 12px solid var(--stroke-dark);
+    border-radius: 56px;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.phone-island {
+    width: 120px;
+    height: 35px;
+    background: var(--stroke-dark);
+    border-radius: 20px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}

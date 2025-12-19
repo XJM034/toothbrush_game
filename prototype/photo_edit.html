@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared_styles.css">
+    <title>Decorate - Brushing Master</title>
+</head>
+
+<body class="h-screen flex flex-col pt-8 bg-[#F8F9FA]">
+
+    <header class="px-6 flex justify-between items-center mb-6">
+        <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
+            onclick="location.href='game_result.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-xl font-black uppercase">猫头鹰装饰</h1>
+        <button class="kawaii-button kawaii-button-primary px-4 py-2 text-xs"
+            onclick="alert('照片已保存！'); location.href='home.html'">保存</button>
+    </header>
+
+    <!-- Photo Canvas -->
+    <div class="flex-1 px-6 relative">
+        <div class="w-full h-full bg-gray-200 border-8 border-white rounded-[40px] shadow-xl overflow-hidden relative"
+            id="photo-canvas">
+            <img src="https://images.unsplash.com/photo-1542385151-54070a2f4dc1?q=80&w=1000&auto=format&fit=crop"
+                class="w-full h-full object-cover grayscale opacity-50" />
+
+            <!-- Applied Stickers (Draggable Mockup) -->
+            <div class="absolute top-1/4 left-1/4 text-5xl">⭐️</div>
+            <div class="absolute top-1/2 right-4 text-6xl transform rotate-12">💖</div>
+            <div class="absolute bottom-10 left-10 text-4xl">✨</div>
+        </div>
+    </div>
+
+    <!-- Sticker Tray -->
+    <div class="p-6 bg-white border-t-4 border-[#333] mt-6 rounded-t-[40px]">
+        <div class="flex gap-4 overflow-x-auto pb-4" id="sticker-tray">
+            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">⭐️
+            </div>
+            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">💖
+            </div>
+            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">✨
+            </div>
+            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">🌈
+            </div>
+            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">🍦
+            </div>
+            <div
+                class="flex-shrink-0 w-16 h-16 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
+                <i class="fas fa-lock text-sm"></i>
+            </div>
+        </div>
+
+        <script>
+            const stickers = document.querySelectorAll('#sticker-tray .cursor-pointer');
+            const canvas = document.getElementById('photo-canvas');
+            stickers.forEach(s => {
+                s.onclick = () => {
+                    const newSticker = document.createElement('div');
+                    newSticker.textContent = s.textContent;
+                    newSticker.className = 'absolute text-5xl cursor-move';
+                    newSticker.style.top = Math.random() * 60 + 20 + '%';
+                    newSticker.style.left = Math.random() * 60 + 20 + '%';
+                    canvas.appendChild(newSticker);
+                    s.classList.add('opacity-50');
+                };
+            });
+        </script>
+
+        <button class="w-full kawaii-button kawaii-button-yellow mt-4 py-3" onclick="alert('分享功能仅在完整版中可用！')">
+            <i class="fas fa-share-alt mr-2"></i> 分享给好朋友
+        </button>
+    </div>
+
+</body>
+
+</html>

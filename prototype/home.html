@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared_styles.css">
+    <title>Home - Brushing Master</title>
+</head>
+
+<body class="h-screen flex flex-col pt-12">
+
+    <!-- Top Nav -->
+    <div class="px-6 flex justify-between items-center">
+        <div class="kawaii-card p-3 rounded-full flex items-center gap-2">
+            <div
+                class="w-10 h-10 rounded-full bg-[var(--secondary-green)] border-2 border-[#333] flex items-center justify-center">
+                <i class="fas fa-owl text-[#333]"></i>
+            </div>
+            <span class="font-black text-sm">ALEX</span>
+        </div>
+        <div class="kawaii-button kawaii-button-yellow p-3 rounded-full w-12 h-12 flex items-center justify-center">
+            <i class="fas fa-certificate"></i>
+        </div>
+    </div>
+
+    <!-- Hero Area -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center">
+        <div class="relative mb-8">
+            <!-- Mascot Placeholder -->
+            <div class="relative w-56 h-auto flex items-center justify-center filter drop-shadow-[8px_8px_0_#333]">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <!-- Head Shape: Precise replica of the reference -->
+                    <path d="M22,35 Q100,55 178,35 Q195,80 185,120 Q170,185 100,195 Q30,185 15,120 Q5,80 22,35 Z"
+                        fill="#006837" /> <!-- Using exact dark green from logo -->
+
+                    <!-- Eyes: Extremely large, exact positioning -->
+                    <circle cx="68" cy="105" r="48" fill="white" />
+                    <circle cx="68" cy="105" r="22" fill="#000" />
+                    <circle cx="75" cy="98" r="7" fill="white" /> <!-- Eye Highlight -->
+
+                    <circle cx="132" cy="105" r="48" fill="white" />
+                    <circle cx="132" cy="105" r="22" fill="#000" />
+                    <circle cx="125" cy="98" r="7" fill="white" /> <!-- Eye Highlight -->
+
+                    <!-- Beak: Precise triangle positioned exactly between eyes -->
+                    <path d="M85,142 L115,142 L100,172 Z" fill="#FDB913" /> <!-- Exact golden yellow -->
+                </svg>
+            </div>
+            <!-- Floating Sticker -->
+            <div class="absolute -top-4 -right-4 kawaii-button kawaii-button-red rounded-full p-2 text-xs">
+                上新啦!
+            </div>
+        </div>
+
+        <h2 class="text-3xl font-black uppercase mb-2 tracking-tight">准备好<br>拯救牙齿吗？</h2>
+        <p class="text-sm font-bold text-gray-500 mb-8">打败细菌，解锁超酷头套！</p>
+
+        <!-- Main Action -->
+        <button class="kawaii-button kawaii-button-primary text-xl px-12 py-4"
+            onclick="location.href='game_ready.html'">
+            <i class="fas fa-play mr-2"></i> 开始刷牙！
+        </button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="p-8 grid grid-cols-2 gap-4">
+        <button class="kawaii-button kawaii-button-yellow py-3 flex flex-col gap-1 items-center"
+            onclick="location.href='collection.html'">
+            <i class="fas fa-box-open text-lg"></i>
+            <span class="text-xs font-black">收藏夹</span>
+        </button>
+        <button class="kawaii-button kawaii-button-yellow py-3 flex flex-col gap-1 items-center"
+            onclick="location.href='settings.html'">
+            <i class="fas fa-cog text-lg"></i>
+            <span class="text-xs font-black">设置</span>
+        </button>
+    </div>
+
+    <!-- Cooldown Indicator -->
+    <div class="pb-10 px-8 text-center">
+        <div class="kawaii-progress-bg">
+            <div class="kawaii-progress-fill" style="width: 100%"></div>
+            <div class="text-[var(--primary-green)] font-black text-xs">准备好啦！</div>
+        </div>
+    </div>
+
+</body>
+
+</html>

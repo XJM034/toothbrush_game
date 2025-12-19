@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared_styles.css">
+    <title>Game - Brushing Master</title>
+    <style>
+        .camera-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1542385151-54070a2f4dc1?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .bacteria {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body class="h-screen camera-bg flex flex-col relative overflow-hidden">
+
+    <!-- UI Overlays -->
+    <div class="absolute inset-x-0 top-12 px-6 flex justify-between items-start pointer-events-none">
+        <div class="kawaii-card bg-white p-3 flex items-center gap-3">
+            <div class="text-xs font-black">
+                <div class="text-[8px] text-gray-400 uppercase">能量值</div>
+                <div class="text-[var(--primary-green)]">1:45</div>
+            </div>
+            <div class="w-24 kawaii-progress-bg">
+                <div class="kawaii-progress-fill" style="width: 60%"></div>
+            </div>
+        </div>
+        <div
+            class="kawaii-button kawaii-button-red w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+
+    <!-- Bacteria Targets -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div class="grid grid-cols-2 gap-20">
+            <div class="bacteria text-green-400 text-6xl drop-shadow-[0_4px_0_#333]">
+                <i class="fas fa-virus"></i>
+            </div>
+            <div class="bacteria text-purple-400 text-7xl drop-shadow-[0_4px_0_#333]" style="animation-delay: 0.5s">
+                <i class="fas fa-biohazard"></i>
+            </div>
+            <div class="bacteria text-yellow-400 text-5xl drop-shadow-[0_4px_0_#333]" style="animation-delay: 0.2s">
+                <i class="fas fa-bacteria"></i>
+            </div>
+            <div class="bacteria text-green-300 text-6xl drop-shadow-[0_4px_0_#333]" style="animation-delay: 0.8s">
+                <i class="fas fa-virus-slash"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Face Guide -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div class="w-64 h-80 border-4 border-dashed border-white opacity-40 rounded-[100px]"></div>
+    </div>
+
+    <!-- Bottom Action Info -->
+    <div class="absolute inset-x-0 bottom-12 px-8">
+        <div class="kawaii-card text-center py-4 bg-white bg-opacity-90">
+            <div class="flex items-center justify-center gap-4 mb-2">
+                <i class="fas fa-owl text-3xl text-gray-300"></i>
+                <div class="text-xl font-black text-[var(--primary-green)] uppercase">猫头鹰特训！</div>
+                <i class="fas fa-owl text-3xl text-gray-300"></i>
+            </div>
+            <p class="text-[10px] font-black uppercase text-gray-400">动起来！帮助小猫头鹰变强！</p>
+        </div>
+    </div>
+
+    <!-- Flash Effect (Mockup) -->
+    <div class="absolute inset-0 bg-white opacity-0 transition-opacity pointer-events-none" id="flash"></div>
+
+    <script>
+        // Simulate a short game session for demonstration
+        let energyTime = 105; // 1:45 in seconds
+        const energyDisplay = document.querySelector('.text-\\[var\\(--primary-green\\)\\]');
+        const progressFill = document.querySelector('.kawaii-progress-fill');
+        const exitBtn = document.querySelector('.kawaii-button-red');
+
+        exitBtn.onclick = () => location.href = 'home.html';
+
+        const timer = setInterval(() => {
+            energyTime--;
+            const mins = Math.floor(energyTime / 60);
+            const secs = energyTime % 60;
+            energyDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            // Just simulate progress bar moving a bit
+            const progress = (energyTime / 105) * 60;
+            progressFill.style.width = `${progress}%`;
+
+            if (energyTime <= 100) { // Simulate end after 5 seconds
+                clearInterval(timer);
+                location.href = 'game_result.html';
+            }
+        }, 1000);
+    </script>
+
+</body>
+
+</html>
