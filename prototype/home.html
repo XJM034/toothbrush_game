@@ -3,90 +3,560 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
+    <script src="mobile_fixes.js"></script>
+    <script src="supabase_client.js"></script>
     <title>Home - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12">
+<body class="h-screen flex flex-col pt-12 safe-area-top no-scroll">
 
     <!-- Top Nav -->
     <div class="px-6 flex justify-between items-center">
         <div class="kawaii-card p-3 rounded-full flex items-center gap-2">
-            <div
-                class="w-10 h-10 rounded-full bg-[var(--secondary-green)] border-2 border-[#333] flex items-center justify-center">
-                <i class="fas fa-owl text-[#333]"></i>
+            <div class="w-10 h-10 flex items-center justify-center user-avatar">
+                <img src="owl_mascot.svg" class="w-full h-full object-contain" />
             </div>
-            <span class="font-black text-sm">ALEX</span>
+            <span class="font-black text-sm">...</span>
         </div>
-        <div class="kawaii-button kawaii-button-yellow p-3 rounded-full w-12 h-12 flex items-center justify-center">
+        <div class="kawaii-button kawaii-button-yellow p-3 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer"
+            onclick="openDashboard()">
             <i class="fas fa-certificate"></i>
         </div>
     </div>
 
     <!-- Hero Area -->
-    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center">
-        <div class="relative mb-8">
-            <!-- Mascot Placeholder -->
-            <div class="relative w-56 h-auto flex items-center justify-center filter drop-shadow-[8px_8px_0_#333]">
-                <svg viewBox="0 0 200 200" class="w-full h-full">
-                    <!-- Head Shape: Precise replica of the reference -->
-                    <path d="M22,35 Q100,55 178,35 Q195,80 185,120 Q170,185 100,195 Q30,185 15,120 Q5,80 22,35 Z"
-                        fill="#006837" /> <!-- Using exact dark green from logo -->
-
-                    <!-- Eyes: Extremely large, exact positioning -->
-                    <circle cx="68" cy="105" r="48" fill="white" />
-                    <circle cx="68" cy="105" r="22" fill="#000" />
-                    <circle cx="75" cy="98" r="7" fill="white" /> <!-- Eye Highlight -->
-
-                    <circle cx="132" cy="105" r="48" fill="white" />
-                    <circle cx="132" cy="105" r="22" fill="#000" />
-                    <circle cx="125" cy="98" r="7" fill="white" /> <!-- Eye Highlight -->
-
-                    <!-- Beak: Precise triangle positioned exactly between eyes -->
-                    <path d="M85,142 L115,142 L100,172 Z" fill="#FDB913" /> <!-- Exact golden yellow -->
-                </svg>
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center min-h-0">
+        <div class="relative mb-4 mt-6">
+            <!-- Mascot - larger for impact -->
+            <div class="w-52 h-52 flex items-center justify-center" style="filter: drop-shadow(8px 8px 0 #333)">
+                <img src="owl_mascot.svg" class="w-full h-full object-contain" />
             </div>
-            <!-- Floating Sticker -->
-            <div class="absolute -top-4 -right-4 kawaii-button kawaii-button-red rounded-full p-2 text-xs">
+            <!-- Floating Sticker - positioned outside owl -->
+            <div onclick="openSpotlight()"
+                class="absolute -top-6 -right-6 kawaii-button kawaii-button-red rounded-full px-3 py-1 text-xs animate-bounce cursor-pointer">
                 上新啦!
             </div>
         </div>
 
-        <h2 class="text-3xl font-black uppercase mb-2 tracking-tight">准备好<br>拯救牙齿吗？</h2>
-        <p class="text-sm font-bold text-gray-500 mb-8">打败细菌，解锁超酷头套！</p>
+        <h2 class="text-2xl font-black mb-2 tracking-tight leading-tight text-center">准备好<br>拯救牙齿吗？</h2>
+        <p class="text-sm font-bold text-gray-500 mb-6 text-center">打败细菌，解锁超酷头套！</p>
 
         <!-- Main Action -->
-        <button class="kawaii-button kawaii-button-primary text-xl px-12 py-4"
+        <button class="kawaii-button kawaii-button-primary text-lg px-10 py-3"
             onclick="location.href='game_ready.html'">
             <i class="fas fa-play mr-2"></i> 开始刷牙！
         </button>
     </div>
 
     <!-- Bottom Nav -->
-    <div class="p-8 grid grid-cols-2 gap-4">
-        <button class="kawaii-button kawaii-button-yellow py-3 flex flex-col gap-1 items-center"
+    <div class="px-6 pb-4 grid grid-cols-2 gap-3">
+        <button class="kawaii-button kawaii-button-yellow py-2 flex flex-col gap-1 items-center"
             onclick="location.href='collection.html'">
-            <i class="fas fa-box-open text-lg"></i>
+            <i class="fas fa-box-open text-base"></i>
             <span class="text-xs font-black">收藏夹</span>
         </button>
-        <button class="kawaii-button kawaii-button-yellow py-3 flex flex-col gap-1 items-center"
+        <button class="kawaii-button kawaii-button-yellow py-2 flex flex-col gap-1 items-center"
             onclick="location.href='settings.html'">
-            <i class="fas fa-cog text-lg"></i>
+            <i class="fas fa-cog text-base"></i>
             <span class="text-xs font-black">设置</span>
         </button>
     </div>
 
-    <!-- Cooldown Indicator -->
-    <div class="pb-10 px-8 text-center">
-        <div class="kawaii-progress-bg">
-            <div class="kawaii-progress-fill" style="width: 100%"></div>
-            <div class="text-[var(--primary-green)] font-black text-xs">准备好啦！</div>
+    <!-- Level Progress Bar -->
+    <div class="pb-6 px-6 safe-area-bottom">
+        <div class="flex justify-between items-end mb-1">
+            <div class="flex items-baseline gap-1">
+                <span class="text-xs font-black text-gray-400">等级</span>
+                <span class="text-lg font-black text-[var(--accent-yellow)]" id="level-display">LV.1</span>
+            </div>
+            <span class="text-xs font-bold text-gray-400" id="xp-text">0/100 XP</span>
+        </div>
+        <div class="h-3 bg-gray-100 rounded-full overflow-hidden border-2 border-[#eee] relative shadow-inner">
+            <!-- Striped background pattern via CSS is simpler, but for now solid + animated overlay is fine -->
+            <div class="h-full bg-[var(--accent-yellow)] transition-all duration-1000 ease-out flex items-center justify-end pr-1"
+                id="xp-bar" style="width: 0%">
+                <div class="w-1 h-2 bg-white opacity-30 rounded-full mr-1"></div>
+            </div>
         </div>
     </div>
 
+    <!-- 退出确认弹框 (Dashboard) -->
+
+    <!-- 新用户引导弹框 -->
+    <div id="welcome-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden transform transition-all duration-300 scale-95 opacity-0"
+            id="welcome-modal-content">
+            <div class="p-6">
+                <!-- Icon -->
+                <div class="text-center mb-4">
+                    <div
+                        class="w-16 h-16 mx-auto bg-green-100 rounded-full border-4 border-[#333] flex items-center justify-center">
+                        <i class="fas fa-user-plus text-[var(--primary-green)] text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <h2 class="text-xl font-black text-center mb-2">欢迎加入刷牙特工队！</h2>
+                <p class="text-center text-gray-500 text-sm mb-6">请先创建一个角色档案，<br>开始你的冒险吧！</p>
+
+                <!-- Buttons -->
+                <div class="flex gap-4">
+                    <button class="w-full kawaii-button kawaii-button-yellow py-3 text-sm font-black"
+                        onclick="redirectToCreateProfile()">去创建角色 <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Dashboard Modal -->
+    <div id="dashboard-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-6 transition-opacity duration-300">
+        <div class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden transform scale-95 opacity-0 transition-all duration-300"
+            id="dashboard-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 rounded-full bg-[var(--accent-yellow)] border-2 border-[#333] flex items-center justify-center dashboard-avatar-container overflow-hidden">
+                            <!-- Avatar injected by JS -->
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-black uppercase dashboard-username">...</h2>
+                            <span class="text-xs font-bold text-gray-400" id="dashboard-title"></span>
+                        </div>
+                    </div>
+                    <button
+                        class="w-10 h-10 bg-red-500 rounded-full text-white text-base flex items-center justify-center border-2 border-white shadow-md"
+                        onclick="closeDashboard()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="kawaii-card bg-blue-50 p-4 text-center">
+                        <div class="text-3xl font-black text-blue-500 mb-1" id="streak-days">12</div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">连续天数</div>
+                    </div>
+                    <div class="kawaii-card bg-green-50 p-4 text-center">
+                        <div class="text-3xl font-black text-[var(--primary-green)] mb-1" id="avg-duration">2.1</div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">平均时长 (分)</div>
+                    </div>
+                </div>
+
+                <!-- Heatmap -->
+                <div class="kawaii-card p-4">
+                    <h3 class="text-xs font-black uppercase text-gray-400 mb-3">刷牙记录</h3>
+                    <div class="w-full" id="heatmap-grid">
+                        <!-- Heatmap items injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Arrivals Spotlight Modal -->
+    <div id="spotlight-modal"
+        class="fixed inset-0 bg-black/90 hidden flex flex-col items-center justify-center z-50 p-6 transition-opacity duration-500 overflow-hidden">
+        <!-- Stage Light Effect -->
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-white/20 to-transparent pointer-events-none blur-3xl">
+        </div>
+
+        <div class="relative z-10 w-full max-w-sm text-center transform scale-50 opacity-0 transition-all duration-700"
+            id="spotlight-content">
+            <h2
+                class="text-3xl font-black text-white uppercase mb-2 drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] animate-bounce">
+                NEW ARRIVAL!</h2>
+            <div class="text-yellow-400 font-black text-sm uppercase tracking-widest mb-8">全新猫头鹰皮肤</div>
+
+            <div class="relative w-64 h-64 mx-auto mb-8">
+                <!-- Shine Effect -->
+                <div class="absolute inset-0 bg-yellow-400 rounded-full opacity-20 blur-2xl animate-pulse"></div>
+                <img src="owl_mascot.svg"
+                    class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+            </div>
+
+            <p class="text-white text-sm font-bold mb-8 px-4 opacity-90 leading-relaxed">
+                穿上这套全新的猫头鹰战衣，在夜晚也能看清细菌！
+            </p>
+
+            <button class="kawaii-button kawaii-button-yellow w-full py-4 text-lg animate-pulse"
+                onclick="closeSpotlight()">
+                <i class="fas fa-star mr-2"></i> 太酷了！
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 全局状态
+        // ============================================
+        let currentProfile = null;
+        let brushingRecords = {};
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        // Avatar mapping
+        const availableAvatars = [
+            { id: 'owl', name: '猫头鹰', file: 'Avatar_ima/猫头鹰_圣诞帽.png' },
+            { id: 'cat', name: '布偶猫', file: 'Avatar_ima/布偶猫卡通头像.png' },
+            { id: 'dog', name: '狗狗', file: 'Avatar_ima/狗狗头像.png' },
+            { id: 'rabbit', name: '兔子', file: 'Avatar_ima/兔子头像.png' },
+            { id: 'panda', name: '熊猫', file: 'Avatar_ima/熊猫头像_黑色描边.png' },
+            { id: 'fox', name: '狐狸', file: 'Avatar_ima/狐狸头像.png' },
+            { id: 'bear', name: '熊', file: 'Avatar_ima/熊头像.png' },
+            { id: 'snake', name: '小蛇', file: 'Avatar_ima/小蛇_红色小嘴.png' }
+        ];
+
+        function getAvatarPath(avatarId) {
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (avatar) return avatar.file;
+            return availableAvatars[0].file;
+        }
+
+        // ============================================
+        // 从后端加载用户数据
+        // ============================================
+        async function loadUserProfile() {
+            try {
+                const user = BrushingMasterDB.getCurrentUser();
+                if (!user) {
+                    console.error('未登录');
+                    return null;
+                }
+
+                // 获取活跃档案（不自动创建）
+                currentProfile = await BrushingMasterDB.getActiveProfile(user.id);
+
+                if (!currentProfile) {
+                    // 没有档案，引导用户去设置页面创建
+                    console.log('未找到用户档案，跳转到设置页面创建');
+                    setTimeout(() => {
+                        showWelcomeModal();
+                    }, 500);
+                    return getFallbackProfile();
+                }
+
+                console.log('加载档案:', currentProfile);
+
+                // 保存档案ID到localStorage供其他页面使用
+                localStorage.setItem('activeProfileId', currentProfile.id);
+
+                return currentProfile;
+            } catch (error) {
+                console.error('加载档案失败:', error);
+                // 降级到本地数据
+                return getFallbackProfile();
+            }
+        }
+
+        // 降级方案：使用本地数据
+        function getFallbackProfile() {
+            const user = BrushingMasterDB.getCurrentUser();
+            return {
+                id: 'local',
+                profile_name: user?.display_name || '玩家',
+                avatar_id: 'owl',
+                level: 1,
+                current_xp: 0,
+                streak_days: 0,
+                total_sessions: 0,
+                longest_streak: 0
+            };
+        }
+
+        // ============================================
+        // 更新UI显示
+        // ============================================
+        function updateHomeProfile(profile) {
+            if (!profile) return;
+
+            const avatarSrc = getAvatarPath(profile.avatar_id);
+
+            // 更新左上角头像
+            const avatarContainer = document.querySelector('.user-avatar');
+            const nameLabel = document.querySelector('.kawaii-card span');
+
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img src="${avatarSrc}" class="w-full h-full object-contain" />`;
+                avatarContainer.className = 'w-10 h-10 flex items-center justify-center user-avatar';
+            }
+            if (nameLabel) {
+                nameLabel.textContent = profile.profile_name;
+            }
+
+            // 更新Dashboard头像
+            const dashAvatar = document.querySelector('.dashboard-avatar-container');
+            const dashName = document.querySelector('.dashboard-username');
+            const dashTitle = document.getElementById('dashboard-title');
+
+            if (dashAvatar) {
+                dashAvatar.innerHTML = `<img src="${avatarSrc}" class="w-full h-full object-cover" />`;
+                dashAvatar.className = 'w-12 h-12 rounded-full bg-white border-2 border-[#333] flex items-center justify-center dashboard-avatar-container overflow-hidden';
+            }
+            if (dashName) {
+                dashName.textContent = profile.profile_name;
+            }
+
+            // 根据等级或成就设置称号
+            const level = profile.level || 1;
+            let title = '';
+            if (level >= 20) {
+                title = '传奇刷手';
+            } else if (level >= 10) {
+                title = '刷牙大师';
+            } else if (level >= 5) {
+                title = '刷牙高手';
+            } else if (level >= 2) {
+                title = '刷牙新手';
+            }
+            dashTitle.textContent = title;
+
+            // 更新等级进度条
+            const levelDisplay = document.getElementById('level-display');
+            const xpText = document.getElementById('xp-text');
+            const xpBar = document.getElementById('xp-bar');
+
+            const currentXP = profile.current_xp || 0;
+            const maxXP = BrushingMasterDB.getMaxXPForLevel(level);
+            const percentage = Math.min((currentXP / maxXP) * 100, 100);
+
+            levelDisplay.textContent = `LV.${level}`;
+            xpText.textContent = `${currentXP}/${maxXP} XP`;
+
+            setTimeout(() => {
+                xpBar.style.width = `${percentage}%`;
+            }, 100);
+        }
+
+        // ============================================
+        // Dashboard 模态框
+        // ============================================
+        async function openDashboard() {
+            const modal = document.getElementById('dashboard-modal');
+            const content = document.getElementById('dashboard-content');
+
+            if (currentProfile) {
+                document.getElementById('streak-days').textContent = currentProfile.streak_days || 0;
+
+                // 计算平均时长
+                const avgDuration = currentProfile.total_sessions > 0
+                    ? (currentProfile.total_brush_minutes / currentProfile.total_sessions).toFixed(1)
+                    : '0.0';
+                document.getElementById('avg-duration').textContent = avgDuration;
+            }
+
+            // 加载刷牙记录
+            currentMonth = new Date().getMonth();
+            currentYear = new Date().getFullYear();
+            await loadAndRenderCalendar();
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        }
+
+        function closeDashboard() {
+            const modal = document.getElementById('dashboard-modal');
+            const content = document.getElementById('dashboard-content');
+
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        async function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            await loadAndRenderCalendar();
+        }
+
+        async function loadAndRenderCalendar() {
+            try {
+                if (currentProfile && currentProfile.id !== 'local') {
+                    brushingRecords = await BrushingMasterDB.getBrushingRecords(
+                        currentProfile.id,
+                        currentYear,
+                        currentMonth
+                    );
+                }
+            } catch (error) {
+                console.error('加载刷牙记录失败:', error);
+                brushingRecords = {};
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const heatmapGrid = document.getElementById('heatmap-grid');
+            const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+
+            let html = `
+                <div class="flex justify-between items-center mb-3">
+                    <button onclick="changeMonth(-1)" class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 active:bg-gray-300 active:scale-95 transition-all touch-manipulation">
+                        <i class="fas fa-chevron-left text-sm"></i>
+                    </button>
+                    <span class="text-sm font-black text-gray-600">${currentYear}年 ${monthNames[currentMonth]}</span>
+                    <button onclick="changeMonth(1)" class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 active:bg-gray-300 active:scale-95 transition-all touch-manipulation">
+                        <i class="fas fa-chevron-right text-sm"></i>
+                    </button>
+                </div>
+            `;
+
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            html += '<div class="grid grid-cols-7 gap-1 mb-2">';
+            days.forEach(d => {
+                html += `<div class="text-xs font-bold text-gray-400 text-center">${d}</div>`;
+            });
+            html += '</div>';
+
+            html += '<div class="grid grid-cols-7 gap-1">';
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const todayDate = new Date();
+
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div></div>';
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const status = brushingRecords[dateStr];
+
+                let bgClass = 'bg-gray-50';
+                let textClass = 'text-gray-300';
+
+                if (status === 'done') {
+                    bgClass = 'bg-[var(--primary-green)]';
+                    textClass = 'text-white';
+                } else if (status === 'missed') {
+                    bgClass = 'bg-red-100';
+                    textClass = 'text-red-300';
+                }
+
+                const isToday = (todayDate.getDate() === i && todayDate.getMonth() === currentMonth && todayDate.getFullYear() === currentYear);
+                const borderClass = isToday ? 'border-2 border-[var(--accent-yellow)]' : '';
+
+                html += `
+                    <div class="aspect-square rounded-lg ${bgClass} ${borderClass} flex items-center justify-center relative">
+                        <span class="text-xs font-black ${textClass}">${i}</span>
+                        ${status === 'done' ? '<div class="absolute bottom-1 w-1 h-1 rounded-full bg-white opacity-50"></div>' : ''}
+                    </div>
+                `;
+            }
+            html += '</div>';
+
+            heatmapGrid.innerHTML = html;
+        }
+
+        // ============================================
+        // Spotlight 模态框
+        // ============================================
+        function openSpotlight() {
+            const modal = document.getElementById('spotlight-modal');
+            const content = document.getElementById('spotlight-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-50', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeSpotlight() {
+            const modal = document.getElementById('spotlight-modal');
+            const content = document.getElementById('spotlight-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-50', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 500);
+        }
+
+        // Welcome Modal Functions
+        function showWelcomeModal() {
+            const modal = document.getElementById('welcome-modal');
+            const content = document.getElementById('welcome-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function redirectToCreateProfile() {
+            location.href = 'settings.html?action=create_guide';
+        }
+
+        // ============================================
+        // 初始化
+        // ============================================
+
+        // 立即从 localStorage 加载显示（无需等待数据库）
+        function loadImmediateProfile() {
+            try {
+                // 获取当前用户ID用于用户特定的存储
+                const user = BrushingMasterDB.getCurrentUser();
+                const storageKey = user?.id ? `brushingMasterSettings_${user.id}` : 'brushingMasterSettings';
+
+                const settings = localStorage.getItem(storageKey);
+                if (settings) {
+                    const data = JSON.parse(settings);
+                    const activeProfile = data.profiles?.find(p => p.active === true);
+                    if (activeProfile) {
+                        // 转换为 home 页面期望的格式
+                        const profile = {
+                            profile_name: activeProfile.name,
+                            avatar_id: activeProfile.avatar || 'owl',
+                            level: 1,
+                            current_xp: 0
+                        };
+                        updateHomeProfile(profile);
+                        console.log('立即加载本地档案:', activeProfile.name);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('立即加载失败:', error);
+            }
+            return false;
+        }
+
+        // 立即执行（不等待 load 事件）
+        loadImmediateProfile();
+
+        window.addEventListener('load', async () => {
+            // 加载用户档案（从数据库）
+            const profile = await loadUserProfile();
+            updateHomeProfile(profile);
+            // 事件绑定已在 HTML 中通过 onclick 属性完成
+        });
+    </script>
 </body>
 
 </html>

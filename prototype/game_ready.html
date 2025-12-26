@@ -3,14 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_client.js"></script>
+    <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
+    <script src="mobile_fixes.js"></script>
     <title>Prep - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12 px-6">
+<body class="h-screen flex flex-col pt-12 px-6 safe-area-top no-scroll">
 
     <header class="mb-10 text-center">
         <h1 class="text-3xl font-black uppercase">准备战斗！</h1>
@@ -20,17 +25,17 @@
     <div class="flex-1 flex flex-col gap-6">
 
         <!-- Time Selector -->
-        <div class="grid grid-cols-3 gap-4">
-            <div
-                class="kawaii-card border-[var(--accent-yellow)] border-[6px] flex flex-col items-center justify-center py-6 cursor-pointer transform scale-105">
+        <div class="grid grid-cols-3 gap-4" id="time-selector">
+            <div class="kawaii-card border-[var(--accent-yellow)] border-[6px] flex flex-col items-center justify-center py-6 cursor-pointer transform scale-105 active-time"
+                data-time="1">
                 <span class="text-4xl font-black">1</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
-            <div class="kawaii-card opacity-60 flex flex-col items-center justify-center py-6 cursor-pointer">
+            <div class="kawaii-card flex flex-col items-center justify-center py-6 cursor-pointer" data-time="2">
                 <span class="text-4xl font-black">2</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
-            <div class="kawaii-card opacity-60 flex flex-col items-center justify-center py-6 cursor-pointer">
+            <div class="kawaii-card flex flex-col items-center justify-center py-6 cursor-pointer" data-time="3">
                 <span class="text-4xl font-black">3</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
@@ -45,28 +50,279 @@
         <!-- Character Preview -->
         <div class="kawaii-card flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-white border-4 border-[#333] rounded-full flex items-center justify-center">
-                    <i class="fas fa-owl text-[#333]"></i>
+                <div id="current-skin-icon"
+                    class="w-12 h-12 bg-[var(--primary-green)] border-4 border-[#333] rounded-full flex items-center justify-center overflow-hidden">
+                    <img src="owl_mascot.svg" class="w-3/5 h-3/5 object-contain" />
                 </div>
                 <div>
                     <div class="text-[10px] font-black text-gray-400">当前皮肤</div>
-                    <div class="text-sm font-black">小猫头鹰</div>
+                    <div class="text-sm font-black" id="current-skin-name">小猫头鹰</div>
                 </div>
             </div>
-            <button class="kawaii-button kawaii-button-yellow px-4 py-2 text-xs">更换</button>
+            <button class="kawaii-button kawaii-button-yellow px-4 py-2 text-xs" onclick="openSkinModal()">更换</button>
         </div>
 
     </div>
 
     <!-- Start Button -->
     <div class="pb-20 text-center">
-        <button class="kawaii-button kawaii-button-primary text-2xl w-full py-5"
-            onclick="location.href='game_play.html'">
+        <button class="kawaii-button kawaii-button-primary text-2xl w-full py-5" onclick="startGame()">
             开始 <i class="fas fa-bolt ml-2"></i>
         </button>
         <button class="mt-4 font-black uppercase text-xs text-gray-600"
             onclick="location.href='home.html'">稍后再说</button>
     </div>
+
+    <!-- Skin Selection Modal -->
+    <div id="skin-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-center mb-6">选择皮肤</h2>
+
+                <div class="grid grid-cols-2 gap-4 mb-8" id="skins-grid">
+                    <!-- Skins injected by JS -->
+                </div>
+
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeSkinModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm"
+                        onclick="confirmSkinSelection()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DURATION SELECTION =====
+        // 从设置页同步默认时长（始终使用设置页的值）
+        function getSettingsDuration() {
+            // 使用与 settings.html 相同的方式获取 key
+            const user = BrushingMasterDB.getCurrentUser();
+            const settingsKey = (user && user.id) ? `brushingMasterSettings_${user.id}` : 'brushingMasterSettings';
+            try {
+                const data = JSON.parse(localStorage.getItem(settingsKey));
+                console.log('Settings data:', data, 'Key:', settingsKey);
+                if (data && data.defaultDuration) {
+                    return data.defaultDuration;
+                }
+            } catch (e) {
+                console.error('Error reading settings:', e);
+            }
+            return 2; // 默认2分钟
+        }
+
+        // 始终使用设置页的时长作为默认值
+        let selectedDuration = getSettingsDuration();
+
+        const timeCards = document.querySelectorAll('#time-selector > div');
+
+        function initDurationUI() {
+            timeCards.forEach(card => {
+                const time = parseInt(card.dataset.time);
+                const numEl = card.querySelector('.text-4xl');
+                const labelEl = card.querySelector('.text-xs');
+
+                if (time === selectedDuration) {
+                    // 选中状态：黄色边框 + 黑色文字 + 放大
+                    card.classList.add('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-105');
+                    card.classList.remove('opacity-50');
+                    if (numEl) {
+                        numEl.classList.remove('text-gray-400');
+                        numEl.classList.add('text-gray-700');
+                    }
+                    if (labelEl) {
+                        labelEl.classList.remove('text-gray-400');
+                        labelEl.classList.add('text-gray-700');
+                    }
+                } else {
+                    // 未选中状态：灰色边框 + 灰色文字 + 半透明
+                    card.classList.remove('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-105');
+                    card.classList.add('opacity-50');
+                    if (numEl) {
+                        numEl.classList.remove('text-gray-700');
+                        numEl.classList.add('text-gray-400');
+                    }
+                    if (labelEl) {
+                        labelEl.classList.remove('text-gray-700');
+                        labelEl.classList.add('text-gray-400');
+                    }
+                }
+            });
+        }
+
+        timeCards.forEach(card => {
+            card.onclick = () => {
+                selectedDuration = parseInt(card.dataset.time);
+                initDurationUI();
+            };
+        });
+
+        // 初始化时长UI
+        initDurationUI();
+
+        // ===== SKIN DATA & SELECTION =====
+        const skinData = {
+            owl: { name: '猫头鹰', icon: 'SkinSet/owl.png', bgColor: 'bg-amber-50', isImage: true },
+            cat: { name: '小猫咪', icon: 'SkinSet/cat.png', bgColor: 'bg-pink-50', isImage: true },
+            dog: { name: '小狗狗', icon: 'SkinSet/dog.png', bgColor: 'bg-orange-50', isImage: true },
+            rabbit: { name: '小兔子', icon: 'SkinSet/rabbit.png', bgColor: 'bg-blue-50', isImage: true },
+            panda: { name: '熊猫', icon: 'SkinSet/panda.png', bgColor: 'bg-gray-50', isImage: true },
+            fox: { name: '狐狸', icon: 'SkinSet/fox.png', bgColor: 'bg-orange-50', isImage: true },
+            bear: { name: '熊', icon: 'SkinSet/bear.png', bgColor: 'bg-amber-100', isImage: true },
+            snake: { name: '小蛇', icon: 'SkinSet/snake.png', bgColor: 'bg-green-50', isImage: true },
+            tiger: { name: '老虎', icon: 'SkinSet/tiger.png', bgColor: 'bg-yellow-100', isImage: true },
+            lion: { name: '狮子', icon: 'SkinSet/lion.png', bgColor: 'bg-yellow-50', isImage: true },
+        };
+
+        // 默认只有猫头鹰解锁
+        let availableSkins = ['owl'];
+
+        let selectedSkin = localStorage.getItem('selectedSkin') || 'owl';
+        let tempSelectedSkin = selectedSkin;
+
+        // 从数据库加载用户已解锁的皮肤
+        async function loadUserSkins() {
+            try {
+                const user = BrushingMasterDB.getCurrentUser();
+                if (!user) return;
+
+                const profileId = localStorage.getItem('activeProfileId');
+                if (!profileId) {
+                    console.log('No active profile, showing default skins');
+                    renderSkins();
+                    return;
+                }
+
+                // 获取已解锁的皮肤列表
+                const unlocked = await BrushingMasterDB.getUserSkins(profileId);
+                console.log('Loaded unlocked skins:', unlocked);
+
+                // 更新可用皮肤列表 (猫头鹰始终可用)
+                const unlockedIds = unlocked.map(s => s.skin_id);
+                availableSkins = ['owl', ...unlockedIds];
+
+                // 去重
+                availableSkins = [...new Set(availableSkins)];
+
+                // 如果当前选中的皮肤已被锁定（如切换账号），重置为猫头鹰
+                if (!availableSkins.includes(selectedSkin)) {
+                    selectedSkin = 'owl';
+                    localStorage.setItem('selectedSkin', 'owl');
+                    updateCurrentSkinDisplay();
+                }
+
+                renderSkins();
+
+            } catch (error) {
+                console.error('Failed to load skins:', error);
+                renderSkins(); // Fallback to default
+            }
+        }
+
+        // 渲染皮肤选择网格
+        function renderSkins() {
+            const grid = document.getElementById('skins-grid');
+            if (!grid) return;
+
+            let html = '';
+
+            // 遍历所有可能的皮肤数据
+            Object.keys(skinData).forEach(key => {
+                // 只显示已解锁的
+                if (availableSkins.includes(key)) {
+                    const skin = skinData[key];
+                    html += `
+    <div class="flex flex-col items-center gap-2 cursor-pointer skin-option" data-skin="${key}"
+        onclick="selectTempSkin('${key}')">
+        <div class="w-full aspect-square kawaii-card ${skin.bgColor} flex items-center justify-center overflow-hidden skin-card-border"
+            id="skin-card-${key}">
+            <img src="${skin.icon}" class="w-full h-full object-cover p-2" />
+        </div>
+        <span class="text-xs font-black">${skin.name}</span>
+    </div>
+    `;
+                }
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Initialize current skin display on page load
+        function updateCurrentSkinDisplay() {
+            const skin = skinData[selectedSkin];
+            if (!skin) {
+                // Fallback to owl if stored skin doesn't exist in data
+                selectedSkin = 'owl';
+                localStorage.setItem('selectedSkin', 'owl');
+                return updateCurrentSkinDisplay();
+            }
+            const iconContainer = document.getElementById('current-skin-icon');
+            const nameElement = document.getElementById('current-skin-name');
+
+            nameElement.textContent = skin.name;
+            iconContainer.className = `w-12 h-12 ${skin.bgColor} border-4 border-[#333] rounded-full flex items-center
+    justify-center overflow-hidden`;
+
+            if (skin.isImage) {
+                iconContainer.innerHTML = `<img src="${skin.icon}" class="w-3/5 h-3/5 object-contain" />`;
+            } else {
+                iconContainer.innerHTML = `<i class="fas ${skin.icon} text-xl"></i>`;
+            }
+        }
+
+        // Modal functions
+        function openSkinModal() {
+            document.getElementById('skin-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            tempSelectedSkin = selectedSkin;
+            updateModalSelection();
+        }
+
+        function closeSkinModal() {
+            document.getElementById('skin-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function selectTempSkin(skinId) {
+            tempSelectedSkin = skinId;
+            updateModalSelection();
+        }
+
+        function updateModalSelection() {
+            // 清除所有高亮
+            document.querySelectorAll('.skin-card-border').forEach(el => {
+                el.classList.remove('border-[var(--accent-yellow)]', 'border-[6px]');
+            });
+
+            // 高亮选中项
+            const selectedCard = document.getElementById(`skin-card-${tempSelectedSkin}`);
+            if (selectedCard) {
+                selectedCard.classList.add('border-[var(--accent-yellow)]', 'border-[6px]');
+            }
+        }
+
+        function confirmSkinSelection() {
+            selectedSkin = tempSelectedSkin;
+            localStorage.setItem('selectedSkin', selectedSkin);
+            updateCurrentSkinDisplay();
+            closeSkinModal();
+        }
+
+        // Initialize on page load
+        window.onload = function () {
+            updateCurrentSkinDisplay();
+            loadUserSkins();
+        };
+
+        // Start game function
+        function startGame() {
+            // 确保时长已保存
+            localStorage.setItem('selectedDuration', selectedDuration.toString());
+            location.href = 'game_play.html';
+        }
+    </script>
 
 </body>
 

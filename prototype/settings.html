@@ -3,14 +3,151 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
+    <script src="mobile_fixes.js"></script>
+    <script src="supabase_client.js"></script>
     <title>设置中心 - Brushing Master</title>
+    <style>
+        /* iOS-like wiggle animation */
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(-2deg);
+            }
+
+            50% {
+                transform: rotate(2deg);
+            }
+        }
+
+        .wiggle {
+            animation: wiggle 0.15s ease-in-out infinite;
+        }
+
+        /* Horizontal bounce animation for scroll hints */
+        @keyframes bounce-x {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+        }
+
+        .animate-bounce-x {
+            animation: bounce-x 1s ease-in-out infinite;
+        }
+
+        /* Avatar selection grid */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            cursor: pointer;
+            border: 4px solid var(--stroke-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.2s;
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px var(--secondary-green);
+        }
+
+        .avatar-option:active {
+            transform: scale(1.05);
+        }
+
+        /* iOS-style context menu */
+        .context-menu {
+            position: fixed;
+            z-index: 150;
+            background: white;
+            border-radius: 16px;
+            border: 4px solid var(--stroke-dark);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-width: 160px;
+        }
+
+        .context-menu-item {
+            padding: 14px 20px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-item:active {
+            background: #f5f5f5;
+        }
+
+        .context-menu-item.danger {
+            color: #ff4757;
+        }
+
+        .context-menu-item.cancel {
+            color: #999;
+        }
+
+        .context-menu-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 149;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Prevent long-press image preview on mobile */
+        .profile-avatar img {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Additional mobile text selection prevention */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
 </head>
 
-<body class="h-screen flex flex-col pt-12">
+<body class="h-screen flex flex-col pt-12 safe-area-top">
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed top-16 left-1/2 -translate-x-1/2 z-[300] opacity-0 scale-95 transition-all duration-300 pointer-events-none">
+        <div class="kawaii-card bg-[var(--accent-yellow)] px-6 py-3 flex items-center gap-3 border-[#333]">
+            <i class="fas fa-exclamation-circle text-[#333] text-xl" id="toast-icon"></i>
+            <span class="font-black text-sm" id="toast-message">提示信息</span>
+        </div>
+    </div>
+
 
     <header class="px-6 flex items-center justify-between mb-8">
         <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
@@ -26,93 +163,1323 @@
         <!-- Profiles Section -->
         <section>
             <h3 class="font-black text-sm text-gray-400 mb-4 uppercase tracking-widest">用户存档</h3>
-            <div class="flex gap-4 overflow-x-auto pb-2">
-                <div class="flex-shrink-0 flex flex-col items-center gap-2">
-                    <div
-                        class="w-16 h-16 kawaii-card border-[var(--secondary-green)] border-[6px] p-0 flex items-center justify-center overflow-hidden">
-                        <div class="w-full h-full bg-[var(--secondary-green)] flex items-center justify-center">
-                            <i class="fas fa-owl text-2xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-black uppercase">亚历克斯</span>
+            <div class="relative">
+                <div class="flex gap-4 overflow-x-auto pt-3 pl-2 pb-3 items-end scroll-container"
+                    id="profiles-container">
+                    <!-- Profiles will be rendered by JS -->
                 </div>
-                <div class="flex-shrink-0 flex flex-col items-center gap-2">
-                    <div
-                        class="w-16 h-16 kawaii-card p-0 flex items-center justify-center overflow-hidden opacity-50 grayscale">
-                        <div class="w-full h-full bg-blue-400 flex items-center justify-center">
-                            <i class="fas fa-child text-2xl"></i>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-black uppercase">艾玛</span>
-                </div>
-                <div class="flex-shrink-0 flex flex-col items-center gap-2">
-                    <div
-                        class="w-16 h-16 border-4 border-dashed border-[#333] rounded-3xl flex items-center justify-center text-gray-300">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase">添加用户</span>
+                <!-- Scroll Hint with animated arrow -->
+                <div
+                    class="scroll-hint-right absolute right-0 top-0 bottom-2 w-10 bg-gradient-to-l from-[#F8F9FA] to-transparent pointer-events-none flex items-center justify-end pr-1 transition-opacity duration-300">
+                    <i class="fas fa-chevron-right text-gray-400 text-xs animate-bounce-x"></i>
                 </div>
             </div>
+            <!-- Long-press hint -->
+            <p class="text-xs text-gray-400 mt-2 text-center">
+                <i class="fas fa-hand-pointer mr-1"></i>长按头像可编辑或删除用户
+            </p>
         </section>
 
         <!-- Reminders Section -->
         <section>
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-2">
                 <h3 class="font-black text-sm text-gray-400 uppercase tracking-widest">刷牙提醒</h3>
-                <span class="text-[10px] font-black text-primary-cyan">最多 3 个</span>
+                <span class="text-xs font-black text-primary-cyan">最多 3 个</span>
             </div>
-            <div class="space-y-4">
-                <div class="kawaii-card flex justify-between items-center py-4">
-                    <div class="flex items-center gap-4">
-                        <i class="fas fa-sun text-yellow-500 text-xl"></i>
-                        <div>
-                            <div class="text-sm font-black uppercase">早晨刷牙</div>
-                            <div class="text-[10px] font-bold text-gray-400">07:30 AM</div>
-                        </div>
-                    </div>
-                    <div class="kawaii-switch on kawaii-switch-green" onclick="this.classList.toggle('on')">
-                        <div class="kawaii-switch-toggle"></div>
-                    </div>
-                </div>
-
-                <div class="kawaii-card flex justify-between items-center py-4">
-                    <div class="flex items-center gap-4">
-                        <i class="fas fa-moon text-blue-500 text-xl"></i>
-                        <div>
-                            <div class="text-sm font-black uppercase">睡前刷牙</div>
-                            <div class="text-[10px] font-bold text-gray-400">08:00 PM</div>
-                        </div>
-                    </div>
-                    <div class="kawaii-switch on kawaii-switch-green" onclick="this.classList.toggle('on')">
-                        <div class="kawaii-switch-toggle"></div>
-                    </div>
-                </div>
-
-                <div class="kawaii-card flex justify-between items-center py-4 opacity-50">
-                    <div class="flex items-center gap-4">
-                        <i class="fas fa-plus text-gray-400 text-xl"></i>
-                        <span class="text-sm font-black uppercase text-gray-400">添加提醒</span>
-                    </div>
-                </div>
+            <!-- Swipe hint -->
+            <p class="text-xs text-gray-400 mb-4">
+                <i class="fas fa-hand-point-left mr-1"></i>左滑卡片可删除提醒
+            </p>
+            <div class="space-y-4" id="reminders-container">
+                <!-- Reminders will be rendered by JS -->
             </div>
         </section>
 
         <!-- App Info -->
         <section class="space-y-4">
-            <div class="kawaii-card flex justify-between items-center py-4">
-                <span class="text-sm font-black uppercase">默认刷牙时长</span>
-                <span class="font-black text-[var(--primary-green)]">2 分钟</span>
+            <!-- Default Duration -->
+            <div class="kawaii-card py-4 cursor-pointer active:bg-gray-50 transition-colors"
+                onclick="toggleDurationSelector()">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-black uppercase">默认刷牙时长</span>
+                    <span class="font-black text-[var(--primary-green)]" id="current-duration">2 分钟</span>
+                </div>
+                <div class="hidden mt-4 pt-4 border-t-2 border-gray-200" id="duration-selector">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="duration-option kawaii-card text-center py-3 px-1 cursor-pointer" data-duration="1">
+                            <span class="font-black text-xs whitespace-nowrap">1 分钟</span>
+                        </div>
+                        <div class="duration-option kawaii-card text-center py-3 px-1 cursor-pointer border-[var(--accent-yellow)] border-[4px]"
+                            data-duration="2">
+                            <span class="font-black text-xs whitespace-nowrap">2 分钟</span>
+                        </div>
+                        <div class="duration-option kawaii-card text-center py-3 px-1 cursor-pointer" data-duration="3">
+                            <span class="font-black text-xs whitespace-nowrap">3 分钟</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="kawaii-card flex justify-between items-center py-4">
-                <span class="text-sm font-black uppercase">刷牙常见问题 (FAQ)</span>
-                <i class="fas fa-chevron-right text-gray-300"></i>
-            </div>
-            <div class="kawaii-card border-red-400 py-4 text-center">
-                <span class="text-xs font-black text-red-500 uppercase">家长控制锁</span>
+
+            <!-- FAQ -->
+            <div class="kawaii-card py-4 cursor-pointer active:bg-gray-50 transition-colors" onclick="toggleFAQ()">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-black uppercase">刷牙常见问题 (FAQ)</span>
+                    <i class="fas fa-chevron-down text-gray-300 transition-transform" id="faq-icon"></i>
+                </div>
+                <div class="hidden mt-4 pt-4 border-t-2 border-gray-200 space-y-4" id="faq-content">
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">📱 如何开始刷牙游戏？</div>
+                        <p class="text-xs text-gray-600">点击主页的"开始刷牙!"按钮，选择时长后即可开始。请确保摄像头能看到你的脸！</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">🎮 皮肤有什么用？</div>
+                        <p class="text-xs text-gray-600">皮肤是装饰性道具，在刷牙时会"戴在你头上"显示。完成刷牙后会随机获得新皮肤！</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">⏰ 为什么需要等待4小时？</div>
+                        <p class="text-xs text-gray-600">为了保护牙齿健康，避免过度刷牙，两次游戏之间需要间隔4小时。</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">👨‍👩‍👧 如何添加多个用户？</div>
+                        <p class="text-xs text-gray-600">在"用户存档"区域点击"+"按钮即可添加新用户（最多5个）。每个用户的进度独立保存。</p>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- 退出登录 -->
+        <section class="mt-4">
+            <button onclick="confirmLogout()"
+                class="kawaii-card w-full py-4 cursor-pointer active:bg-red-50 transition-colors border-red-400 touch-manipulation">
+                <div class="flex justify-center items-center gap-3">
+                    <i class="fas fa-sign-out-alt text-red-500 text-lg"></i>
+                    <span class="text-sm font-black uppercase text-red-500">退出登录</span>
+                </div>
+            </button>
+        </section>
+
     </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-center mb-4" id="user-modal-title">添加新用户</h2>
+                <input type="text" id="new-user-name" placeholder="输入用户名" inputmode="text" autocapitalize="words"
+                    enterkeyhint="done"
+                    class="w-full kawaii-card bg-gray-50 py-3 px-4 text-center font-black mb-4 focus:outline-none focus:border-[var(--accent-yellow)] focus:border-[4px]">
+
+                <!-- Avatar Selection -->
+                <p class="text-xs font-black text-gray-400 uppercase mb-3 text-center">选择头像</p>
+                <div class="avatar-grid justify-center mb-6" id="avatar-grid">
+                    <!-- Avatars will be rendered by JS -->
+                </div>
+
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeAddUserModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm"
+                        onclick="confirmAddUser()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- iOS-style Context Menu (appears on long-press) -->
+    <div id="context-menu-backdrop" class="context-menu-backdrop hidden" onclick="cancelEditMode()"></div>
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-menu-item danger" onclick="handleRemoveUser()">移除用户</div>
+        <div class="context-menu-item" onclick="openEditUserModal()">编辑信息</div>
+        <div class="context-menu-item cancel" onclick="cancelEditMode()">取消</div>
+    </div>
+
+    <!-- Delete User Confirmation Modal -->
+    <div id="delete-user-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-center mb-4">确认删除</h2>
+                <p class="text-center text-gray-600 mb-6">确定要删除该用户吗？所有数据将丢失。</p>
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeDeleteUserModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm bg-red-500 border-red-700"
+                        onclick="confirmDeleteUser()">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-sign-out-alt text-red-500 text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-black">确认退出</h2>
+                </div>
+                <p class="text-center text-gray-600 mb-6">确定要退出登录吗？</p>
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeLogoutModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-red py-3 text-sm"
+                        onclick="executeLogout()">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Picker Modal (Native Input) -->
+    <div id="time-picker-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-center mb-6" id="time-picker-title">设置提醒时间</h2>
+
+                <!-- Native Time Input with Custom Styling -->
+                <div class="flex justify-center mb-6">
+                    <div class="kawaii-card bg-gray-50 p-4 w-full">
+                        <input type="time" id="native-time-picker"
+                            class="w-full text-center text-3xl font-black bg-transparent outline-none" value="07:30">
+                    </div>
+                </div>
+
+                <!-- Quick Time Presets -->
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <button
+                        class="kawaii-card bg-yellow-50 py-2 text-xs font-black active:scale-95 transition-transform"
+                        onclick="setQuickTime('07:00')">7:00</button>
+                    <button
+                        class="kawaii-card bg-yellow-50 py-2 text-xs font-black active:scale-95 transition-transform"
+                        onclick="setQuickTime('08:00')">8:00</button>
+                    <button class="kawaii-card bg-blue-50 py-2 text-xs font-black active:scale-95 transition-transform"
+                        onclick="setQuickTime('19:00')">19:00</button>
+                    <button class="kawaii-card bg-blue-50 py-2 text-xs font-black active:scale-95 transition-transform"
+                        onclick="setQuickTime('20:00')">20:00</button>
+                </div>
+
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeTimePickerModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm"
+                        onclick="confirmTimePicker()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reminder Edit Modal -->
+    <div id="reminder-edit-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-center mb-6" id="reminder-edit-title">编辑提醒</h2>
+
+                <!-- Name Input -->
+                <div class="mb-6">
+                    <label class="text-xs font-black text-gray-400 uppercase block mb-2">提醒名称</label>
+                    <input type="text" id="edit-reminder-name" placeholder="输入提醒名称" inputmode="text"
+                        autocapitalize="sentences" enterkeyhint="done"
+                        class="w-full kawaii-card bg-gray-50 py-3 px-4 text-center font-black focus:outline-none focus:border-[var(--accent-yellow)] focus:border-[4px]">
+                </div>
+
+                <!-- Time Picker -->
+                <div class="mb-6">
+                    <label class="text-xs font-black text-gray-400 uppercase block mb-2 text-center">提醒时间</label>
+                    <div class="flex justify-center items-center gap-3">
+                        <div class="flex flex-col items-center">
+                            <button class="text-xl text-gray-400 mb-1" onclick="adjustEditTime('hour', 1)"><i
+                                    class="fas fa-chevron-up"></i></button>
+                            <div class="kawaii-card bg-gray-50 w-16 py-3 flex items-center justify-center">
+                                <span class="text-2xl font-black" id="edit-picker-hour">07</span>
+                            </div>
+                            <button class="text-xl text-gray-400 mt-1" onclick="adjustEditTime('hour', -1)"><i
+                                    class="fas fa-chevron-down"></i></button>
+                        </div>
+                        <span class="text-2xl font-black">:</span>
+                        <div class="flex flex-col items-center">
+                            <button class="text-xl text-gray-400 mb-1" onclick="adjustEditTime('minute', 1)"><i
+                                    class="fas fa-chevron-up"></i></button>
+                            <div class="kawaii-card bg-gray-50 w-16 py-3 flex items-center justify-center">
+                                <span class="text-2xl font-black" id="edit-picker-minute">30</span>
+                            </div>
+                            <button class="text-xl text-gray-400 mt-1" onclick="adjustEditTime('minute', -1)"><i
+                                    class="fas fa-chevron-down"></i></button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button class="text-xl text-gray-400 mb-1" onclick="toggleEditAmPm()"><i
+                                    class="fas fa-chevron-up"></i></button>
+                            <div
+                                class="kawaii-card bg-[var(--accent-yellow)] w-14 py-3 flex items-center justify-center">
+                                <span class="text-lg font-black" id="edit-picker-ampm">AM</span>
+                            </div>
+                            <button class="text-xl text-gray-400 mt-1" onclick="toggleEditAmPm()"><i
+                                    class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeReminderEditModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm"
+                        onclick="confirmReminderEdit()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PREVENT CONTEXT MENU ON MOBILE =====
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('selectstart', (e) => e.preventDefault());
+
+        // ===== DATA MANAGEMENT =====
+        // 获取当前用户的 localStorage key
+        function getStorageKey() {
+            const user = BrushingMasterDB.getCurrentUser();
+            if (user && user.id) {
+                return `brushingMasterSettings_${user.id}`;
+            }
+            return 'brushingMasterSettings';
+        }
+
+        const defaultData = {
+            profiles: [],  // 默认为空，让用户从数据库创建
+            reminders: [
+                { id: 1, name: '早晨刷牙', time: '07:30 AM', icon: 'fa-sun', iconColor: 'text-yellow-500', enabled: true },
+                { id: 2, name: '睡前刷牙', time: '08:00 PM', icon: 'fa-moon', iconColor: 'text-blue-500', enabled: true }
+            ],
+            defaultDuration: 2
+        };
+
+        function getData() {
+            const key = getStorageKey();
+            const stored = localStorage.getItem(key);
+            return stored ? JSON.parse(stored) : { ...defaultData };
+        }
+
+        function saveData(data) {
+            const key = getStorageKey();
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // ===== PROFILES =====
+        // Available avatars (using user-provided images)
+        const availableAvatars = [
+            { id: 'owl', name: '猫头鹰', file: 'Avatar_ima/猫头鹰_圣诞帽.png' },
+            { id: 'cat', name: '布偶猫', file: 'Avatar_ima/布偶猫卡通头像.png' },
+            { id: 'dog', name: '狗狗', file: 'Avatar_ima/狗狗头像.png' },
+            { id: 'rabbit', name: '兔子', file: 'Avatar_ima/兔子头像.png' },
+            { id: 'panda', name: '熊猫', file: 'Avatar_ima/熊猫头像_黑色描边.png' },
+            { id: 'fox', name: '狐狸', file: 'Avatar_ima/狐狸头像.png' },
+            { id: 'bear', name: '熊', file: 'Avatar_ima/熊头像.png' },
+            { id: 'snake', name: '小蛇', file: 'Avatar_ima/小蛇_红色小嘴.png' }
+        ];
+        let selectedAvatar = availableAvatars[0].id;
+        let isEditMode = false;
+        let editingProfileId = null;
+        let longPressTimer = null;
+        let wiggleProfileId = null;
+
+        function getAvatarPath(avatarId) {
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (avatar) return avatar.file;
+            // Fallback to first avatar
+            return availableAvatars[0].file;
+        }
+
+        function renderProfiles() {
+            const data = getData();
+            const container = document.getElementById('profiles-container');
+            let html = '';
+
+            data.profiles.forEach(profile => {
+                const isActive = profile.active === true;
+                const activeStyle = isActive ? 'box-shadow: 0 0 0 4px #7ed56f !important;' : '';
+                const opacityClass = isActive ? '' : 'opacity-50';
+                const wiggleClass = wiggleProfileId === profile.id ? 'wiggle' : '';
+
+                // Get avatar path
+                const avatarSrc = getAvatarPath(profile.avatar);
+
+                html += `
+                    <div class="flex-shrink-0 flex flex-col items-center gap-2 relative ${wiggleClass}" 
+                         style="padding-top: 10px; padding-right: 10px;"
+                         data-profile-id="${profile.id}">
+                        <div class="w-16 h-16 kawaii-card p-0 flex items-center justify-center overflow-hidden cursor-pointer profile-avatar" 
+                             style="${activeStyle} -webkit-backface-visibility: hidden; -webkit-transform: translate3d(0, 0, 0);"
+                             data-profile-id="${profile.id}"
+                             onclick="handleProfileClick('${profile.id}')">
+                            <div class="w-full h-full bg-white flex items-center justify-center overflow-hidden ${opacityClass}" style="border-radius: 20px;">
+                                <img src="${avatarSrc}" class="w-10 h-10 object-contain" alt="avatar">
+                            </div>
+                        </div>
+                        <span class="text-xs font-black uppercase">${profile.name}</span>
+                    </div>
+                `;
+            });
+
+            // Always show add user button (grayed out if at max)
+            const isAtMax = data.profiles.length >= 5;
+            const opacityClass = isAtMax ? 'opacity-40' : '';
+            html += `
+                <div id="add-user-btn" class="flex-shrink-0 flex flex-col items-center gap-2 cursor-pointer ${opacityClass}" style="padding-top: 10px;" onclick="handleAddUserClick()">
+                    <div class="w-16 h-16 border-4 border-dashed border-[#333] rounded-3xl flex items-center justify-center text-gray-300">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <span class="text-xs font-black uppercase">添加用户</span>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            initLongPressHandlers();
+        }
+
+        function handleProfileClick(id) {
+            if (wiggleProfileId === id) {
+                // Already in wiggle mode, do nothing on click
+                return;
+            }
+            selectProfile(id);
+        }
+
+        async function selectProfile(id) {
+            const data = getData();
+            data.profiles.forEach(p => p.active = p.id === id);
+            saveData(data);
+            renderProfiles();
+
+            // 同时同步到数据库
+            try {
+                const user = BrushingMasterDB.getCurrentUser();
+                if (user) {
+                    // 将本地 ID 转换为数据库 profile ID
+                    // 检查该 profile 是否在数据库中存在
+                    const allDbProfiles = await BrushingMasterDB.getAllProfiles(user.id);
+                    const selectedProfile = data.profiles.find(p => p.id === id);
+
+                    if (selectedProfile && selectedProfile.dbId) {
+                        // 使用数据库ID激活
+                        await BrushingMasterDB.setActiveProfile(user.id, selectedProfile.dbId);
+                        localStorage.setItem('activeProfileId', selectedProfile.dbId);
+                        console.log('已同步到数据库: 激活档案', selectedProfile.name);
+                    } else if (allDbProfiles.length > 0) {
+                        // 尝试匹配名称
+                        const matchingDbProfile = allDbProfiles.find(p => p.profile_name === selectedProfile?.name);
+                        if (matchingDbProfile) {
+                            await BrushingMasterDB.setActiveProfile(user.id, matchingDbProfile.id);
+                            localStorage.setItem('activeProfileId', matchingDbProfile.id);
+                            // 保存映射
+                            selectedProfile.dbId = matchingDbProfile.id;
+                            saveData(data);
+                            console.log('已同步到数据库: 激活档案', matchingDbProfile.profile_name);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('同步档案到数据库失败:', error);
+            }
+        }
+
+        // Long-press handlers for edit mode
+        function initLongPressHandlers() {
+            const avatars = document.querySelectorAll('.profile-avatar');
+            avatars.forEach(avatar => {
+                const profileId = avatar.dataset.profileId; // 不用 parseInt，支持 UUID
+
+                // Touch events
+                avatar.addEventListener('touchstart', (e) => {
+                    // Add visual feedback immediately
+                    avatar.style.transform = 'scale(0.95)';
+                    avatar.style.transition = 'transform 0.1s ease';
+
+                    longPressTimer = setTimeout(() => {
+                        // Pulse effect before triggering
+                        avatar.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            avatar.style.transform = '';
+                            startWiggleMode(profileId, avatar);
+                        }, 100);
+                    }, 600); // 600ms long press
+                }, { passive: true });
+
+                avatar.addEventListener('touchend', () => {
+                    clearTimeout(longPressTimer);
+                    avatar.style.transform = '';
+                });
+
+                avatar.addEventListener('touchmove', () => {
+                    clearTimeout(longPressTimer);
+                    avatar.style.transform = '';
+                });
+
+                // Mouse events for desktop
+                avatar.addEventListener('mousedown', () => {
+                    // Add visual feedback immediately
+                    avatar.style.transform = 'scale(0.95)';
+                    avatar.style.transition = 'transform 0.1s ease';
+
+                    longPressTimer = setTimeout(() => {
+                        // Pulse effect before triggering
+                        avatar.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            avatar.style.transform = '';
+                            startWiggleMode(profileId, avatar);
+                        }, 100);
+                    }, 600);
+                });
+
+                avatar.addEventListener('mouseup', () => {
+                    clearTimeout(longPressTimer);
+                    avatar.style.transform = '';
+                });
+
+                avatar.addEventListener('mouseleave', () => {
+                    clearTimeout(longPressTimer);
+                    avatar.style.transform = '';
+                });
+            });
+        }
+
+        function startWiggleMode(profileId, avatarElement) {
+            // Get position BEFORE re-rendering, as renderProfiles will remove avatarElement from DOM
+            const rect = avatarElement.getBoundingClientRect();
+
+            wiggleProfileId = profileId;
+            renderProfiles();
+
+            const menu = document.getElementById('context-menu');
+            const backdrop = document.getElementById('context-menu-backdrop');
+
+            // Find best position
+            // Default: center horizontally relative to avatar
+            const menuWidth = 160; // Min-width from CSS
+            let left = rect.left + (rect.width / 2) - (menuWidth / 2);
+
+            // Clamp to viewport edges (with 16px padding)
+            const padding = 16;
+            const maxLeft = window.innerWidth - menuWidth - padding;
+
+            left = Math.max(padding, Math.min(left, maxLeft));
+
+            // Position menu below the avatar
+            menu.style.left = left + 'px';
+            menu.style.top = (rect.bottom + 10) + 'px';
+
+            backdrop.classList.remove('hidden');
+            menu.classList.remove('hidden');
+        }
+
+        function cancelEditMode() {
+            wiggleProfileId = null;
+            document.getElementById('context-menu').classList.add('hidden');
+            document.getElementById('context-menu-backdrop').classList.add('hidden');
+            renderProfiles();
+        }
+
+        function handleRemoveUser() {
+            if (wiggleProfileId === null) return;
+
+            const data = getData();
+            if (data.profiles.length <= 1) {
+                showToast('至少需要保留一个用户！');
+                cancelEditMode();
+                return;
+            }
+
+            // Open delete confirmation modal
+            pendingDeleteUserId = wiggleProfileId;
+            document.getElementById('context-menu').classList.add('hidden');
+            document.getElementById('context-menu-backdrop').classList.add('hidden');
+            document.getElementById('delete-user-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openEditUserModal() {
+            if (wiggleProfileId === null) return;
+
+            const data = getData();
+            const profile = data.profiles.find(p => p.id === wiggleProfileId);
+            if (!profile) return;
+
+            editingProfileId = wiggleProfileId;
+            document.getElementById('user-modal-title').textContent = '编辑用户';
+            document.getElementById('new-user-name').value = profile.name;
+            selectedAvatar = profile.avatar || 'owl';
+            renderAvatarGrid();
+
+            document.getElementById('context-menu').classList.add('hidden');
+            document.getElementById('context-menu-backdrop').classList.add('hidden');
+            wiggleProfileId = null;
+            renderProfiles();
+
+            document.getElementById('add-user-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function deleteProfile(id) {
+            const data = getData();
+            if (data.profiles.length <= 1) {
+                showToast('至少需要保留一个用户！');
+                return;
+            }
+            data.profiles = data.profiles.filter(p => p.id !== id);
+            if (!data.profiles.some(p => p.active)) {
+                data.profiles[0].active = true;
+            }
+            saveData(data);
+            renderProfiles();
+        }
+
+        let pendingDeleteUserId = null;
+
+        function openDeleteUserModal(id) {
+            pendingDeleteUserId = id;
+            document.getElementById('delete-user-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteUserModal() {
+            pendingDeleteUserId = null;
+            document.getElementById('delete-user-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function confirmDeleteUser() {
+            if (pendingDeleteUserId !== null) {
+                deleteProfile(pendingDeleteUserId);
+            }
+            wiggleProfileId = null;
+            closeDeleteUserModal();
+        }
+
+        function renderAvatarGrid() {
+            const grid = document.getElementById('avatar-grid');
+            let html = '';
+
+            availableAvatars.forEach(avatar => {
+                const selectedClass = avatar.id === selectedAvatar ? 'selected' : '';
+                html += `
+                    <div class="avatar-option ${selectedClass}" onclick="selectAvatar('${avatar.id}')">
+                        <img src="${avatar.file}" class="w-8 h-8 object-contain">
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function selectAvatar(avatarId) {
+            selectedAvatar = avatarId;
+            renderAvatarGrid();
+        }
+
+        function openAddUserModal() {
+            editingProfileId = null;
+            document.getElementById('user-modal-title').textContent = '添加新用户';
+            document.getElementById('add-user-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('new-user-name').value = '';
+            selectedAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)].id;
+            renderAvatarGrid();
+        }
+
+        function handleAddUserClick() {
+            const data = getData();
+            if (data.profiles.length >= 5) {
+                showToast('最多只能添加5个用户！');
+                return;
+            }
+            openAddUserModal();
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('add-user-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            editingProfileId = null;
+        }
+
+        async function confirmAddUser() {
+            const name = document.getElementById('new-user-name').value.trim();
+            if (!name) {
+                showToast('请输入用户名！');
+                return;
+            }
+
+            const data = getData();
+            const user = BrushingMasterDB.getCurrentUser();
+
+            if (editingProfileId !== null) {
+                // Editing existing user
+                const profile = data.profiles.find(p => p.id === editingProfileId);
+                if (profile) {
+                    profile.name = name;
+                    profile.avatar = selectedAvatar;
+
+                    // 同步到数据库
+                    if (user && profile.dbId) {
+                        try {
+                            await BrushingMasterDB.updateProfile(profile.dbId, {
+                                profile_name: name,
+                                avatar_id: selectedAvatar
+                            });
+                            console.log('已同步到数据库: 更新档案', name);
+                        } catch (error) {
+                            console.error('同步更新失败:', error);
+                        }
+                    }
+                }
+            } else {
+                // Adding new user
+                if (data.profiles.length >= 5) {
+                    showToast('最多只能添加5个用户！');
+                    return;
+                }
+                const newId = Math.max(...data.profiles.map(p => p.id), 0) + 1;
+                const newProfile = { id: newId, name: name, avatar: selectedAvatar, active: data.profiles.length === 0 };
+
+                // 创建到数据库
+                if (user) {
+                    try {
+                        const dbProfile = await BrushingMasterDB.createProfile(user.id, name, selectedAvatar);
+                        newProfile.dbId = dbProfile.id;
+                        if (dbProfile.is_active) {
+                            newProfile.active = true;
+                            localStorage.setItem('activeProfileId', dbProfile.id);
+                        }
+                        console.log('已创建数据库档案:', dbProfile);
+                        showToast('角色创建成功！', 'success');
+                    } catch (error) {
+                        console.error('创建数据库档案失败:', error);
+                        // 显示更详细的错误信息
+                        let errorMsg = '创建失败，请重试';
+                        if (error.message) {
+                            if (error.message.includes('unique') || error.message.includes('duplicate')) {
+                                errorMsg = '该角色名已存在！';
+                            } else if (error.message.includes('violates foreign key')) {
+                                errorMsg = '请先确保账号已正确登录';
+                            } else {
+                                console.log('错误详情:', error.message);
+                            }
+                        }
+                        showToast(errorMsg);
+                        return;
+                    }
+                } else {
+                    console.warn('未登录，无法创建数据库档案');
+                    showToast('请先登录账号');
+                    return;
+                }
+
+                data.profiles.push(newProfile);
+            }
+
+            saveData(data);
+            renderProfiles();
+            closeAddUserModal();
+        }
+
+        // ===== REMINDERS =====
+        let currentReminderId = null;
+        let pickerHour = 7;
+        let pickerMinute = 30;
+        let pickerAmPm = 'AM';
+
+        function renderReminders() {
+            const data = getData();
+            const container = document.getElementById('reminders-container');
+            let html = '';
+
+            data.reminders.forEach(reminder => {
+                html += `
+                    <div class="relative overflow-hidden rounded-3xl" id="reminder-wrapper-${reminder.id}">
+                        <div class="absolute right-0 top-0 bottom-0 w-20 bg-red-500 flex items-center justify-center rounded-3xl">
+                            <button class="text-white font-black text-xs" onclick="deleteReminder(${reminder.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                        <div class="kawaii-card flex justify-between items-center py-4 cursor-pointer bg-white transition-transform reminder-swipeable" 
+                             data-reminder-id="${reminder.id}"
+                             style="transform: translateX(0);">
+                            <div class="flex items-center gap-4">
+                                <i class="fas ${reminder.icon} ${reminder.iconColor} text-xl w-6 flex-shrink-0"></i>
+                                <div class="flex-1">
+                                    <div class="text-sm font-black uppercase">${reminder.name}</div>
+                                    <div class="text-xs font-bold text-gray-400">${reminder.time}</div>
+                                </div>
+                            </div>
+                            <div class="kawaii-switch ${reminder.enabled ? 'on' : ''} kawaii-switch-green" 
+                                 onclick="event.stopPropagation(); toggleReminder(${reminder.id})"
+                                 ontouchstart="event.stopPropagation();"
+                                 ontouchend="event.stopPropagation(); toggleReminder(${reminder.id});">
+                                <div class="kawaii-switch-toggle"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (data.reminders.length < 3) {
+                html += `
+                    <div class="kawaii-card flex justify-between items-center py-4 opacity-50 cursor-pointer active:bg-gray-50 transition-colors" onclick="openReminderEditModal(null)">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-plus text-gray-400 text-xl"></i>
+                            <span class="text-sm font-black uppercase text-gray-400">添加提醒</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            initSwipeHandlers();
+        }
+
+        function toggleReminder(id) {
+            const data = getData();
+            const reminder = data.reminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.enabled = !reminder.enabled;
+                saveData(data);
+                renderReminders();
+            }
+        }
+
+        function deleteReminder(id) {
+            const data = getData();
+            data.reminders = data.reminders.filter(r => r.id !== id);
+            saveData(data);
+            renderReminders();
+        }
+
+        // ===== REMINDER EDIT MODAL =====
+        let editReminderId = null;
+        let editHour = 7;
+        let editMinute = 30;
+        let editAmPm = 'AM';
+
+        function openReminderEditModal(id) {
+            const data = getData();
+
+            if (id === null) {
+                // Add new reminder mode
+                editReminderId = null;
+                document.getElementById('edit-reminder-name').value = '';
+                editHour = 12;
+                editMinute = 0;
+                editAmPm = 'PM';
+                document.getElementById('reminder-edit-title').textContent = '添加提醒';
+            } else {
+                // Edit existing reminder mode
+                const reminder = data.reminders.find(r => r.id === id);
+                if (!reminder) return;
+
+                editReminderId = id;
+                document.getElementById('edit-reminder-name').value = reminder.name;
+                const timeParts = reminder.time.match(/(\d+):(\d+)\s*(AM|PM)/);
+                editHour = parseInt(timeParts[1]);
+                editMinute = parseInt(timeParts[2]);
+                editAmPm = timeParts[3];
+                document.getElementById('reminder-edit-title').textContent = '编辑提醒';
+            }
+
+            updateEditTimeDisplay();
+            document.getElementById('reminder-edit-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReminderEditModal() {
+            editReminderId = null;
+            document.getElementById('reminder-edit-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function adjustEditTime(type, delta) {
+            if (type === 'hour') {
+                editHour += delta;
+                if (editHour > 12) editHour = 1;
+                if (editHour < 1) editHour = 12;
+            } else {
+                editMinute += delta * 5;
+                if (editMinute >= 60) editMinute = 0;
+                if (editMinute < 0) editMinute = 55;
+            }
+            updateEditTimeDisplay();
+        }
+
+        function toggleEditAmPm() {
+            editAmPm = editAmPm === 'AM' ? 'PM' : 'AM';
+            updateEditTimeDisplay();
+        }
+
+        function updateEditTimeDisplay() {
+            document.getElementById('edit-picker-hour').textContent = String(editHour).padStart(2, '0');
+            document.getElementById('edit-picker-minute').textContent = String(editMinute).padStart(2, '0');
+            document.getElementById('edit-picker-ampm').textContent = editAmPm;
+        }
+
+        function confirmReminderEdit() {
+            const name = document.getElementById('edit-reminder-name').value.trim();
+            if (!name) {
+                // Use toast instead of alert for consistency
+                document.getElementById('edit-reminder-name').classList.add('border-red-500', 'border-[4px]');
+                setTimeout(() => {
+                    document.getElementById('edit-reminder-name').classList.remove('border-red-500', 'border-[4px]');
+                }, 1500);
+                return;
+            }
+
+            const timeStr = `${String(editHour).padStart(2, '0')}:${String(editMinute).padStart(2, '0')} ${editAmPm}`;
+            const data = getData();
+
+            if (editReminderId === null) {
+                // Add new reminder
+                const icons = ['fa-bell', 'fa-clock', 'fa-star'];
+                const colors = ['text-purple-500', 'text-green-500', 'text-red-500'];
+                const newId = data.reminders.length > 0 ? Math.max(...data.reminders.map(r => r.id)) + 1 : 1;
+                const iconIndex = data.reminders.length % icons.length;
+
+                data.reminders.push({
+                    id: newId,
+                    name: name,
+                    time: timeStr,
+                    icon: icons[iconIndex],
+                    iconColor: colors[iconIndex],
+                    enabled: true
+                });
+            } else {
+                // Edit existing reminder
+                const reminder = data.reminders.find(r => r.id === editReminderId);
+                if (reminder) {
+                    reminder.name = name;
+                    reminder.time = timeStr;
+                }
+            }
+
+            saveData(data);
+            renderReminders();
+            closeReminderEditModal();
+        }
+
+        // Swipe to delete handlers - separates tap from swipe
+        function initSwipeHandlers() {
+            const swipeables = document.querySelectorAll('.reminder-swipeable');
+            swipeables.forEach(el => {
+                let startX = 0;
+                let currentX = 0;
+                let hasMoved = false;
+                let isDragging = false;
+                const MOVE_THRESHOLD = 10; // pixels - movement below this is considered a tap
+
+                // Touch events
+                let touchedOnSwitch = false;
+                el.addEventListener('touchstart', (e) => {
+                    // Check if touched on toggle switch
+                    touchedOnSwitch = e.target.closest('.kawaii-switch') !== null;
+                    if (touchedOnSwitch) return; // Don't track drag for switch touches
+
+                    startX = e.touches[0].clientX;
+                    currentX = startX;
+                    hasMoved = false;
+                    isDragging = true;
+                    el.style.transition = 'none';
+                }, { passive: true });
+
+                el.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    currentX = e.touches[0].clientX;
+                    const diff = currentX - startX;
+                    if (Math.abs(diff) > MOVE_THRESHOLD) {
+                        hasMoved = true;
+                    }
+                    if (diff < 0 && diff > -80) {
+                        el.style.transform = `translateX(${diff}px)`;
+                    }
+                }, { passive: true });
+
+                el.addEventListener('touchend', () => {
+                    if (touchedOnSwitch) {
+                        touchedOnSwitch = false;
+                        return; // Skip - switch handles its own touch
+                    }
+                    isDragging = false;
+                    el.style.transition = 'transform 0.3s ease';
+                    const diff = currentX - startX;
+
+                    if (!hasMoved) {
+                        // It was a tap - open edit modal
+                        const reminderId = el.dataset.reminderId;
+                        if (reminderId) {
+                            openReminderEditModal(parseInt(reminderId));
+                        }
+                        el.style.transform = 'translateX(0)';
+                    } else if (diff < -40) {
+                        // Swiped left enough - show delete
+                        el.style.transform = 'translateX(-80px)';
+                    } else {
+                        // Not enough swipe - reset
+                        el.style.transform = 'translateX(0)';
+                    }
+                });
+
+                // Mouse events for desktop testing
+                let clickedOnSwitch = false;
+                el.addEventListener('mousedown', (e) => {
+                    // Check if clicked on toggle switch
+                    clickedOnSwitch = e.target.closest('.kawaii-switch') !== null;
+                    if (clickedOnSwitch) return; // Don't track drag for switch clicks
+
+                    startX = e.clientX;
+                    currentX = startX;
+                    hasMoved = false;
+                    isDragging = true;
+                    el.style.transition = 'none';
+                    e.preventDefault();
+                });
+
+                const handleMouseMove = (e) => {
+                    if (!isDragging) return;
+                    currentX = e.clientX;
+                    const diff = currentX - startX;
+                    if (Math.abs(diff) > MOVE_THRESHOLD) {
+                        hasMoved = true;
+                    }
+                    if (diff < 0 && diff > -80) {
+                        el.style.transform = `translateX(${diff}px)`;
+                    }
+                };
+
+                const handleMouseUp = () => {
+                    if (clickedOnSwitch) {
+                        clickedOnSwitch = false;
+                        return; // Skip - switch handles its own click
+                    }
+                    if (!isDragging) return;
+                    isDragging = false;
+                    el.style.transition = 'transform 0.3s ease';
+                    const diff = currentX - startX;
+
+                    if (!hasMoved) {
+                        // It was a click - open edit modal
+                        const reminderId = el.dataset.reminderId;
+                        if (reminderId) {
+                            openReminderEditModal(parseInt(reminderId));
+                        }
+                        el.style.transform = 'translateX(0)';
+                    } else if (diff < -40) {
+                        // Swiped left enough - show delete
+                        el.style.transform = 'translateX(-80px)';
+                    } else {
+                        // Not enough swipe - reset
+                        el.style.transform = 'translateX(0)';
+                    }
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+        }
+
+        function openTimePickerForReminder(id) {
+            const data = getData();
+            const reminder = data.reminders.find(r => r.id === id);
+            if (reminder) {
+                currentReminderId = id;
+                // Convert AM/PM time to 24h format for native input
+                const timeParts = reminder.time.match(/(\d+):(\d+)\s*(AM|PM)/);
+                let hour = parseInt(timeParts[1]);
+                const minute = parseInt(timeParts[2]);
+                const ampm = timeParts[3];
+
+                if (ampm === 'PM' && hour !== 12) hour += 12;
+                if (ampm === 'AM' && hour === 12) hour = 0;
+
+                const timeValue = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                document.getElementById('native-time-picker').value = timeValue;
+                document.getElementById('time-picker-title').textContent = '编辑提醒时间';
+                document.getElementById('time-picker-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function openTimePickerForNewReminder() {
+            currentReminderId = null;
+            document.getElementById('native-time-picker').value = '12:00';
+            document.getElementById('time-picker-title').textContent = '添加新提醒';
+            document.getElementById('time-picker-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTimePickerModal() {
+            document.getElementById('time-picker-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Quick time preset function
+        function setQuickTime(time) {
+            document.getElementById('native-time-picker').value = time;
+        }
+
+        // Convert 24h time to AM/PM format for storage
+        function formatTimeForStorage(time24) {
+            const [hourStr, minuteStr] = time24.split(':');
+            let hour = parseInt(hourStr);
+            const minute = minuteStr;
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+
+            if (hour === 0) hour = 12;
+            else if (hour > 12) hour -= 12;
+
+            return `${String(hour).padStart(2, '0')}:${minute} ${ampm}`;
+        }
+
+        function confirmTimePicker() {
+            const time24 = document.getElementById('native-time-picker').value;
+            if (!time24) {
+                showToast('请选择时间！');
+                return;
+            }
+
+            const timeStr = formatTimeForStorage(time24);
+            const data = getData();
+
+            if (currentReminderId) {
+                const reminder = data.reminders.find(r => r.id === currentReminderId);
+                if (reminder) reminder.time = timeStr;
+            } else {
+                const newId = data.reminders.length > 0 ? Math.max(...data.reminders.map(r => r.id)) + 1 : 1;
+                const icons = [
+                    { icon: 'fa-sun', color: 'text-yellow-500' },
+                    { icon: 'fa-moon', color: 'text-blue-500' },
+                    { icon: 'fa-star', color: 'text-purple-500' }
+                ];
+                const iconData = icons[data.reminders.length] || icons[0];
+                data.reminders.push({
+                    id: newId,
+                    name: `提醒 ${newId}`,
+                    time: timeStr,
+                    icon: iconData.icon,
+                    iconColor: iconData.color,
+                    enabled: true
+                });
+            }
+
+            saveData(data);
+            renderReminders();
+            closeTimePickerModal();
+        }
+
+        // ===== DURATION SELECTOR =====
+        function toggleDurationSelector() {
+            const selector = document.getElementById('duration-selector');
+            selector.classList.toggle('hidden');
+        }
+
+        function initDurationSelector() {
+            const data = getData();
+            document.getElementById('current-duration').textContent = `${data.defaultDuration} 分钟`;
+
+            document.querySelectorAll('.duration-option').forEach(opt => {
+                const duration = parseInt(opt.dataset.duration);
+                if (duration === data.defaultDuration) {
+                    opt.classList.add('border-[var(--accent-yellow)]', 'border-[4px]');
+                } else {
+                    opt.classList.remove('border-[var(--accent-yellow)]', 'border-[4px]');
+                }
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    selectDuration(duration);
+                };
+            });
+        }
+
+        function selectDuration(duration) {
+            const data = getData();
+            data.defaultDuration = duration;
+            saveData(data);
+            document.getElementById('current-duration').textContent = `${duration} 分钟`;
+            document.querySelectorAll('.duration-option').forEach(opt => {
+                if (parseInt(opt.dataset.duration) === duration) {
+                    opt.classList.add('border-[var(--accent-yellow)]', 'border-[4px]');
+                } else {
+                    opt.classList.remove('border-[var(--accent-yellow)]', 'border-[4px]');
+                }
+            });
+            // Collapse selector after selection
+            document.getElementById('duration-selector').classList.add('hidden');
+        }
+
+        // Click outside to collapse duration selector
+        document.addEventListener('click', function (e) {
+            const durationCard = document.querySelector('[onclick="toggleDurationSelector()"]');
+            const selector = document.getElementById('duration-selector');
+            if (durationCard && !durationCard.contains(e.target) && !selector.classList.contains('hidden')) {
+                selector.classList.add('hidden');
+            }
+        });
+
+        // ===== FAQ =====
+        function toggleFAQ() {
+            const content = document.getElementById('faq-content');
+            const icon = document.getElementById('faq-icon');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // ===== TOAST FUNCTION =====
+        function showToast(message, type = 'warning') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+
+            // Set icon based on type
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-[var(--primary-green)] text-xl';
+            } else {
+                toastIcon.className = 'fas fa-exclamation-circle text-[#333] text-xl';
+            }
+
+            toast.classList.remove('opacity-0', 'scale-95');
+            toast.classList.add('opacity-100', 'scale-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'scale-100');
+                toast.classList.add('opacity-0', 'scale-95');
+            }, 2000);
+        }
+
+        // ===== INIT =====
+        // 从数据库同步档案数据
+        async function syncProfilesFromDB() {
+            try {
+                const user = BrushingMasterDB.getCurrentUser();
+                if (!user) return;
+
+                const dbProfiles = await BrushingMasterDB.getAllProfiles(user.id);
+                console.log('从数据库同步档案:', dbProfiles);
+
+                const localData = getData();
+                // 转换数据库格式为本地格式
+                localData.profiles = dbProfiles.map(p => ({
+                    id: p.id,
+                    dbId: p.id,
+                    name: p.profile_name,
+                    avatar: p.avatar_id,
+                    active: p.is_active
+                }));
+
+                saveData(localData);
+                renderProfiles();
+
+                // 设置活跃档案ID
+                const activeProfile = localData.profiles.find(p => p.active);
+                if (activeProfile) {
+                    localStorage.setItem('activeProfileId', activeProfile.id);
+                } else {
+                    localStorage.removeItem('activeProfileId');
+                }
+
+                // 检查是否有指引标记
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('action') === 'create_guide' && localData.profiles.length === 0) {
+                    showCreateProfileGuide();
+                }
+
+            } catch (error) {
+                console.error('同步档案失败:', error);
+            }
+        }
+
+        // 显示创建角色指引
+        function showCreateProfileGuide() {
+            // 等待DOM渲染
+            setTimeout(() => {
+                const addBtn = document.getElementById('add-user-btn');
+                if (!addBtn) return;
+
+                const rect = addBtn.getBoundingClientRect();
+
+                // 创建浮动的手指指引
+                const guide = document.createElement('div');
+                guide.className = 'fixed inset-0 z-50 pointer-events-none flex flex-col bg-black/50 overflow-hidden';
+
+                // 计算位置：放在按钮下方
+                const left = rect.left + rect.width / 2;
+                const top = rect.bottom + 10;
+
+                guide.innerHTML = `
+                    <div class="absolute flex flex-col items-center gap-2 animate-bounce transition-all duration-300" 
+                         style="left: ${left}px; top: ${top}px; transform: translateX(-50%);">
+                        <i class="fas fa-hand-point-up text-5xl text-white drop-shadow-md"></i>
+                        <span class="bg-white px-3 py-1 rounded-lg font-black text-xs shadow-lg text-[var(--primary-green)] whitespace-nowrap">点击添加成员</span>
+                    </div>
+                    <!-- 高亮区域（可选）：使用 box-shadow 模拟挖空效果 -->
+                    <div class="absolute inset-0 pointer-events-none" 
+                         style="background: radial-gradient(circle at ${left}px ${rect.top + rect.height / 2}px, transparent 40px, rgba(0,0,0,0.5) 45px);">
+                    </div>
+                `;
+                document.body.appendChild(guide);
+
+                // 点击任意处移除遮罩
+                setTimeout(() => {
+                    document.addEventListener('click', () => guide.remove(), { once: true });
+                }, 100);
+            }, 300); // 稍微延迟确保渲染完成
+        }
+
+        // ===== INIT =====
+        window.addEventListener('load', () => {
+            renderProfiles();
+            renderReminders();
+            initDurationSelector();
+
+            syncProfilesFromDB();
+        });
+
+        // Hide scroll hints after user scrolls
+        const scrollContainers = document.querySelectorAll('.scroll-container');
+        scrollContainers.forEach(container => {
+            container.addEventListener('scroll', () => {
+                const hint = container.parentElement.querySelector('.scroll-hint-right');
+                if (hint && container.scrollLeft > 20) {
+                    hint.style.opacity = '0';
+                }
+            }, { passive: true });
+        });
+
+        // ===== 退出登录 =====
+        function confirmLogout() {
+            document.getElementById('logout-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logout-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function executeLogout() {
+            // 清除登录信息
+            localStorage.removeItem('brushing_user');
+            // 显示提示
+            showToast('已退出登录');
+            // 延迟跳转到登录页
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 500);
+        }
+    </script>
 
 </body>
 

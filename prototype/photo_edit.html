@@ -3,78 +3,998 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
+    <script src="mobile_fixes.js"></script>
+    <script src="supabase_client.js"></script>
     <title>Decorate - Brushing Master</title>
+    <style>
+        /* Transform-based slider for circular navigation */
+        .photo-slider {
+            display: flex;
+            transition: transform 0.3s ease-out;
+        }
+
+        .photo-slide {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .sticker-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: visible;
+            touch-action: none;
+        }
+
+        .sticker {
+            pointer-events: auto;
+            touch-action: none;
+            user-select: none;
+            cursor: grab;
+            position: relative;
+        }
+
+        .sticker.dragging {
+            cursor: grabbing;
+            z-index: 100;
+        }
+
+        .sticker .delete-btn {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 28px;
+            height: 28px;
+            background: #ff4757;
+            border: 2px solid #333;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            line-height: 28px;
+            text-align: center;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* Prevent button from scaling with sticker */
+            transform-origin: center;
+        }
+
+        .sticker .scale-btn {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-green);
+            border: 2px solid #333;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            line-height: 24px;
+            text-align: center;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .sticker .scale-btn.minus {
+            bottom: -4px;
+            left: -4px;
+        }
+
+        .sticker .scale-btn.plus {
+            bottom: -4px;
+            right: -4px;
+        }
+
+        .sticker.selected .delete-btn,
+        .sticker.selected .scale-btn {
+            display: flex;
+        }
+
+        .sticker.selected {
+            outline: 3px dashed #ff4757;
+            outline-offset: 2px;
+        }
+
+        /* Save Modal Styles */
+        .save-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .save-modal-overlay.active {
+            display: flex;
+        }
+
+        .save-modal {
+            max-width: 360px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .photo-select-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .photo-select-item {
+            position: relative;
+            aspect-ratio: 1;
+            border: 4px solid var(--stroke-dark);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .photo-select-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-select-item.selected {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px var(--secondary-green);
+        }
+
+        .photo-select-item .check-indicator {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-green);
+            border: 3px solid var(--stroke-dark);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .photo-select-item.selected .check-indicator {
+            display: flex;
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-sticker {
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
-<body class="h-screen flex flex-col pt-8 bg-[#F8F9FA]">
+<body class="h-screen flex flex-col pt-10 bg-[#F8F9FA] safe-area-top safe-area-bottom no-scroll">
 
-    <header class="px-6 flex justify-between items-center mb-6">
-        <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
-            onclick="location.href='game_result.html'">
-            <i class="fas fa-arrow-left"></i>
+    <!-- Save Modal Overlay -->
+    <div id="save-modal" class="save-modal-overlay">
+        <div class="kawaii-card save-modal">
+            <h2 class="text-lg font-black text-center mb-4">选择要保存的照片</h2>
+            <p class="text-xs text-gray-500 text-center mb-4">点击选择，可多选</p>
+            <div class="photo-select-grid" id="photo-select-grid">
+                <div class="photo-select-item selected" data-index="0" onclick="togglePhotoSelection(0)">
+                    <div class="preview-container" id="preview-0"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="photo-select-item selected" data-index="1" onclick="togglePhotoSelection(1)">
+                    <div class="preview-container" id="preview-1"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="photo-select-item selected" data-index="2" onclick="togglePhotoSelection(2)">
+                    <div class="preview-container" id="preview-2"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="photo-select-item selected" data-index="3" onclick="togglePhotoSelection(3)">
+                    <div class="preview-container" id="preview-3"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="photo-select-item selected" data-index="4" onclick="togglePhotoSelection(4)">
+                    <div class="preview-container" id="preview-4"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="photo-select-item selected" data-index="5" onclick="togglePhotoSelection(5)">
+                    <div class="preview-container" id="preview-5"></div>
+                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button class="kawaii-button kawaii-button-yellow flex-1 text-sm py-2"
+                    onclick="closeSaveModal()">取消</button>
+                <button class="kawaii-button kawaii-button-primary flex-1 text-sm py-2"
+                    onclick="confirmSave()">确认保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancel-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-6">
+        <div class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] p-6">
+            <div class="text-center mb-4">
+                <div class="text-5xl mb-3">⚠️</div>
+                <h2 class="text-lg font-black mb-2">确定要取消吗？</h2>
+                <p class="text-sm text-gray-500">照片将不会保存，且无法找回。</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="flex-1 kawaii-button kawaii-button-yellow py-2 text-sm" onclick="closeCancelModal()">
+                    继续编辑
+                </button>
+                <button class="flex-1 kawaii-button kawaii-button-red py-2 text-sm" onclick="location.href='home.html'">
+                    确认取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmCancel() {
+            document.getElementById('cancel-modal').classList.remove('hidden');
+        }
+        function closeCancelModal() {
+            document.getElementById('cancel-modal').classList.add('hidden');
+        }
+    </script>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed top-20 left-1/2 -translate-x-1/2 z-50 opacity-0 scale-95 transition-all duration-300 pointer-events-none">
+        <div class="kawaii-card bg-[var(--accent-yellow)] px-6 py-3 flex items-center gap-3 border-[#333]">
+            <i class="fas fa-check-circle text-[var(--primary-green)] text-xl"></i>
+            <span class="font-black text-sm" id="toast-message">操作成功！</span>
+        </div>
+    </div>
+
+    <header class="px-6 flex justify-between items-center mb-3">
+        <button class="kawaii-button kawaii-button-red px-3 py-2 text-xs" onclick="confirmCancel()">
+            取消
         </button>
-        <h1 class="text-xl font-black uppercase">猫头鹰装饰</h1>
-        <button class="kawaii-button kawaii-button-primary px-4 py-2 text-xs"
-            onclick="alert('照片已保存！'); location.href='home.html'">保存</button>
+        <h1 class="text-lg font-black">猫头鹰装饰</h1>
+        <button class="kawaii-button kawaii-button-primary px-4 py-2 text-xs" onclick="openSaveModal()">保存</button>
     </header>
 
-    <!-- Photo Canvas -->
-    <div class="flex-1 px-6 relative">
+    <!-- Photo Canvas with Transform-based Gallery -->
+    <!-- min-h-0 is critical: allows flex item to shrink below its content size -->
+    <div class="flex-1 px-6 pb-4 relative min-h-0 overflow-hidden">
         <div class="w-full h-full bg-gray-200 border-8 border-white rounded-[40px] shadow-xl overflow-hidden relative"
             id="photo-canvas">
-            <img src="https://images.unsplash.com/photo-1542385151-54070a2f4dc1?q=80&w=1000&auto=format&fit=crop"
-                class="w-full h-full object-cover grayscale opacity-50" />
 
-            <!-- Applied Stickers (Draggable Mockup) -->
-            <div class="absolute top-1/4 left-1/4 text-5xl">⭐️</div>
-            <div class="absolute top-1/2 right-4 text-6xl transform rotate-12">💖</div>
-            <div class="absolute bottom-10 left-10 text-4xl">✨</div>
+            <!-- Photo Slider Container -->
+            <div class="photo-slider w-full h-full" id="photo-slider">
+                <!-- Clone of Photo 6 (for seamless left wrap) -->
+                <div class="photo-slide clone" data-index="5">
+                    <img src="Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer"></div>
+                </div>
+                <!-- Photo 1 -->
+                <div class="photo-slide" data-index="0">
+                    <img src="Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-0"></div>
+                </div>
+                <!-- Photo 2 -->
+                <div class="photo-slide" data-index="1">
+                    <img src="Sample_ima/03ddc3251a33a2da3ac190b368c3e6e6.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-1"></div>
+                </div>
+                <!-- Photo 3 -->
+                <div class="photo-slide" data-index="2">
+                    <img src="Sample_ima/9ad1c9c090e4b32d700bdda8a1179f95.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-2"></div>
+                </div>
+                <!-- Photo 4 -->
+                <div class="photo-slide" data-index="3">
+                    <img src="Sample_ima/ba3c9719f84490a9e2257a0ed01d3faa.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-3"></div>
+                </div>
+                <!-- Photo 5 -->
+                <div class="photo-slide" data-index="4">
+                    <img src="Sample_ima/f3bd68d0920e6f239d00e877d49d1878.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-4"></div>
+                </div>
+                <!-- Photo 6 -->
+                <div class="photo-slide" data-index="5">
+                    <img src="Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer" id="sticker-layer-5"></div>
+                </div>
+                <!-- Clone of Photo 1 (for seamless right wrap) -->
+                <div class="photo-slide clone" data-index="0">
+                    <img src="Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg" class="w-full h-full object-cover"
+                        draggable="false" />
+                    <div class="sticker-layer"></div>
+                </div>
+            </div>
+
+            <!-- Swipe Hint (shows briefly on load) -->
+            <div id="swipe-hint"
+                class="absolute inset-0 flex items-center justify-center bg-black/30 z-30 transition-opacity duration-500 pointer-events-none">
+                <div class="text-white text-center">
+                    <div class="flex items-center justify-center gap-4">
+                        <i class="fas fa-chevron-left text-2xl animate-pulse"></i>
+                        <i class="fas fa-hand-pointer text-4xl"></i>
+                        <i class="fas fa-chevron-right text-2xl animate-pulse"></i>
+                    </div>
+                    <p class="mt-2 font-black text-sm">左右滑动切换照片</p>
+                </div>
+            </div>
+
+            <!-- Pagination Dots -->
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10" id="pagination-dots">
+                <div class="p-2 cursor-pointer" data-index="0">
+                    <div class="w-3 h-3 rounded-full bg-white border-2 border-[#333] dot active"></div>
+                </div>
+                <div class="p-2 cursor-pointer" data-index="1">
+                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
+                </div>
+                <div class="p-2 cursor-pointer" data-index="2">
+                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
+                </div>
+                <div class="p-2 cursor-pointer" data-index="3">
+                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
+                </div>
+                <div class="p-2 cursor-pointer" data-index="4">
+                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
+                </div>
+                <div class="p-2 cursor-pointer" data-index="5">
+                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
+                </div>
+            </div>
+
+            <!-- Photo Counter -->
+            <div class="absolute top-4 right-4 bg-black/50 text-white text-xs font-black px-3 py-1 rounded-full z-10">
+                <span id="photo-counter">1</span> / 6
+            </div>
         </div>
     </div>
 
     <!-- Sticker Tray -->
-    <div class="p-6 bg-white border-t-4 border-[#333] mt-6 rounded-t-[40px]">
-        <div class="flex gap-4 overflow-x-auto pb-4" id="sticker-tray">
-            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">⭐️
-            </div>
-            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">💖
-            </div>
-            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">✨
-            </div>
-            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">🌈
-            </div>
-            <div class="flex-shrink-0 w-16 h-16 kawaii-card flex items-center justify-center text-3xl cursor-pointer">🍦
-            </div>
+    <div class="p-4 pt-3 pb-2 bg-white border-t-4 border-[#333] mt-6 rounded-t-[32px]">
+        <!-- Sticker usage hint -->
+        <p class="text-xs text-gray-400 mb-2 text-center">
+            <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
+            点击添加贴纸 · 拖动移动 · 点击 +/- 缩放 · 点击 × 删除
+        </p>
+        <div class="flex gap-3 overflow-x-auto pt-1 pb-2 relative" id="sticker-tray">
+            <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                data-sticker="⭐️">⭐️</div>
+            <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                data-sticker="💖">💖</div>
+            <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                data-sticker="✨">✨</div>
+            <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                data-sticker="🌈">🌈</div>
+            <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                data-sticker="🧁">🧁</div>
             <div
-                class="flex-shrink-0 w-16 h-16 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
+                class="flex-shrink-0 w-14 h-14 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
                 <i class="fas fa-lock text-sm"></i>
             </div>
+
         </div>
 
         <script>
-            const stickers = document.querySelectorAll('#sticker-tray .cursor-pointer');
+            // ===== PHOTO GALLERY STATE (INFINITE CAROUSEL) =====
+            let currentSlidePosition = 1;
+            const totalPhotos = 6;
+            const slider = document.getElementById('photo-slider');
+            const dots = document.querySelectorAll('.dot');
+            const dotWrappers = document.querySelectorAll('#pagination-dots > div[data-index]');
+            const counter = document.getElementById('photo-counter');
             const canvas = document.getElementById('photo-canvas');
-            stickers.forEach(s => {
-                s.onclick = () => {
+
+            // Initialize slider at position 1 (the real photo 1)
+            slider.style.transform = `translateX(-${currentSlidePosition * 100}%)`;
+
+            // Hide swipe hint after 2 seconds
+            setTimeout(() => {
+                const hint = document.getElementById('swipe-hint');
+                if (hint) {
+                    hint.classList.add('opacity-0');
+                    setTimeout(() => hint.remove(), 500);
+                }
+            }, 2000);
+
+            // Get real photo index (0-5) from slide position (0-7)
+            function getRealIndex(position) {
+                if (position === 0) return 5;
+                if (position === 7) return 0;
+                return position - 1;
+            }
+
+            // Update UI (dots and counter) based on current position
+            function updateUI() {
+                const realIndex = getRealIndex(currentSlidePosition);
+                counter.textContent = realIndex + 1;
+
+                dots.forEach((dot, i) => {
+                    if (i === realIndex) {
+                        dot.classList.add('bg-white');
+                        dot.classList.remove('bg-white/50');
+                    } else {
+                        dot.classList.remove('bg-white');
+                        dot.classList.add('bg-white/50');
+                    }
+                });
+            }
+
+            // Update slider transform with animation
+            function updateSlider(animate = true) {
+                if (animate) {
+                    slider.style.transition = 'transform 0.3s ease-out';
+                } else {
+                    slider.style.transition = 'none';
+                }
+                slider.style.transform = `translateX(-${currentSlidePosition * 100}%)`;
+                updateUI();
+            }
+
+            // Handle jump-back after reaching clone slides
+            function handleTransitionEnd() {
+                if (currentSlidePosition === 0) {
+                    currentSlidePosition = 6;
+                    updateSlider(false);
+                } else if (currentSlidePosition === 7) {
+                    currentSlidePosition = 1;
+                    updateSlider(false);
+                }
+            }
+
+            slider.addEventListener('transitionend', handleTransitionEnd);
+
+            // Go to next photo (seamless)
+            function nextPhoto() {
+                currentSlidePosition++;
+                updateSlider(true);
+            }
+
+            // Go to previous photo (seamless)
+            function prevPhoto() {
+                currentSlidePosition--;
+                updateSlider(true);
+            }
+
+            // Go to specific photo (by real index 0-4)
+            function goToPhoto(realIndex) {
+                currentSlidePosition = realIndex + 1;
+                updateSlider(true);
+            }
+
+            // ===== TOUCH SWIPE FOR GALLERY =====
+            let touchStartX = 0;
+            let touchCurrentX = 0;
+            let isSwiping = false;
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.sticker')) return;
+                touchStartX = e.touches[0].clientX;
+                touchCurrentX = touchStartX;
+                isSwiping = true;
+                slider.style.transition = 'none';
+            }, { passive: true });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+                touchCurrentX = e.touches[0].clientX;
+                const diff = touchCurrentX - touchStartX;
+                const baseOffset = -currentSlidePosition * 100;
+                const dragOffset = (diff / canvas.offsetWidth) * 100;
+                slider.style.transform = `translateX(${baseOffset + dragOffset}%)`;
+            }, { passive: true });
+
+            canvas.addEventListener('touchend', (e) => {
+                if (!isSwiping) return;
+                isSwiping = false;
+                slider.style.transition = 'transform 0.3s ease-out';
+                const diff = touchCurrentX - touchStartX;
+                const swipeThreshold = 50;
+
+                if (diff < -swipeThreshold) {
+                    nextPhoto();
+                } else if (diff > swipeThreshold) {
+                    prevPhoto();
+                } else {
+                    updateSlider(true);
+                }
+            });
+
+            // ===== MOUSE DRAG FOR DESKTOP =====
+            let mouseStartX = 0;
+            let mouseCurrentX = 0;
+            let isMouseDragging = false;
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.sticker')) return;
+                mouseStartX = e.clientX;
+                mouseCurrentX = mouseStartX;
+                isMouseDragging = true;
+                slider.style.transition = 'none';
+                canvas.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isMouseDragging) return;
+                mouseCurrentX = e.clientX;
+                const diff = mouseCurrentX - mouseStartX;
+                const baseOffset = -currentSlidePosition * 100;
+                const dragOffset = (diff / canvas.offsetWidth) * 100;
+                slider.style.transform = `translateX(${baseOffset + dragOffset}%)`;
+            });
+
+            document.addEventListener('mouseup', (e) => {
+                if (!isMouseDragging) return;
+                isMouseDragging = false;
+                slider.style.transition = 'transform 0.3s ease-out';
+                canvas.style.cursor = '';
+                const diff = mouseCurrentX - mouseStartX;
+                const swipeThreshold = 50;
+
+                if (diff < -swipeThreshold) {
+                    nextPhoto();
+                } else if (diff > swipeThreshold) {
+                    prevPhoto();
+                } else {
+                    updateSlider(true);
+                }
+            });
+
+            // Dot click navigation
+            dotWrappers.forEach(wrapper => {
+                wrapper.onclick = () => {
+                    goToPhoto(parseInt(wrapper.dataset.index));
+                };
+            });
+
+            // ===== TOAST FUNCTION =====
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                toastMessage.textContent = message;
+                toast.classList.remove('opacity-0', 'scale-95');
+                toast.classList.add('opacity-100', 'scale-100');
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'scale-100');
+                    toast.classList.add('opacity-0', 'scale-95');
+                }, 2000);
+            }
+
+            // ===== SAVE MODAL FUNCTIONS =====
+            const photoSources = [
+                'Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg',
+                'Sample_ima/03ddc3251a33a2da3ac190b368c3e6e6.jpg',
+                'Sample_ima/9ad1c9c090e4b32d700bdda8a1179f95.jpg',
+                'Sample_ima/ba3c9719f84490a9e2257a0ed01d3faa.jpg',
+                'Sample_ima/f3bd68d0920e6f239d00e877d49d1878.jpg',
+                'Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg'
+            ];
+
+            function openSaveModal() {
+                // First, deselect all stickers to hide controls
+                deselectAllStickers();
+
+                // Generate preview for each photo with stickers
+                for (let i = 0; i < 6; i++) {
+                    const previewContainer = document.getElementById(`preview-${i}`);
+                    previewContainer.innerHTML = '';
+
+                    // Add base photo
+                    const img = document.createElement('img');
+                    img.src = photoSources[i];
+                    previewContainer.appendChild(img);
+
+                    // Clone stickers from the actual sticker layer
+                    const stickerLayer = document.getElementById(`sticker-layer-${i}`);
+                    if (stickerLayer) {
+                        const stickers = stickerLayer.querySelectorAll('.sticker');
+                        stickers.forEach(sticker => {
+                            const stickerClone = document.createElement('div');
+                            stickerClone.className = 'preview-sticker';
+                            // Get only the emoji text (first text node), not button text
+                            const emojiText = sticker.childNodes[0]?.textContent?.trim() || sticker.dataset.sticker || '';
+                            stickerClone.textContent = emojiText;
+                            stickerClone.style.top = sticker.style.top;
+                            stickerClone.style.left = sticker.style.left;
+                            stickerClone.style.fontSize = '16px'; // Scale down for thumbnail
+                            stickerClone.style.transform = sticker.style.transform || 'scale(1)';
+                            previewContainer.appendChild(stickerClone);
+                        });
+                    }
+                }
+
+                document.getElementById('save-modal').classList.add('active');
+            }
+
+            function closeSaveModal() {
+                document.getElementById('save-modal').classList.remove('active');
+            }
+
+            function togglePhotoSelection(index) {
+                const items = document.querySelectorAll('.photo-select-item');
+                items[index].classList.toggle('selected');
+            }
+
+            function confirmSave() {
+                const selectedItems = document.querySelectorAll('.photo-select-item.selected');
+                const count = selectedItems.length;
+                if (count === 0) {
+                    showToast('请至少选择一张照片');
+                    return;
+                }
+                closeSaveModal();
+                showToast(`已保存 ${count} 张照片！`);
+                setTimeout(() => location.href = 'home.html', 1200);
+            }
+
+            // ===== STICKER MANAGEMENT =====
+            let selectedSticker = null;
+
+            // Deselect all stickers
+            function deselectAllStickers() {
+                document.querySelectorAll('.sticker.selected').forEach(s => {
+                    s.classList.remove('selected');
+                });
+                selectedSticker = null;
+            }
+
+            // Click outside stickers to deselect
+            canvas.addEventListener('click', (e) => {
+                if (!e.target.closest('.sticker')) {
+                    deselectAllStickers();
+                }
+            });
+
+            // Make sticker draggable with button-based scaling and delete
+            function makeStickerDraggable(sticker, layer) {
+                let offsetX = 0, offsetY = 0;
+                let currentScale = 1;
+
+                // Add delete button
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    sticker.remove();
+                    selectedSticker = null;
+                };
+                sticker.appendChild(deleteBtn);
+
+                // Add scale buttons (- and +)
+                const minusBtn = document.createElement('div');
+                minusBtn.className = 'scale-btn minus';
+                minusBtn.innerHTML = '−';
+                sticker.appendChild(minusBtn);
+
+                const plusBtn = document.createElement('div');
+                plusBtn.className = 'scale-btn plus';
+                plusBtn.innerHTML = '+';
+                sticker.appendChild(plusBtn);
+
+                // Function to update button sizes inversely to sticker scale
+                function updateButtonScales() {
+                    const inverseScale = 1 / currentScale;
+                    deleteBtn.style.transform = `scale(${inverseScale})`;
+                    minusBtn.style.transform = `scale(${inverseScale})`;
+                    plusBtn.style.transform = `scale(${inverseScale})`;
+                }
+
+                minusBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentScale = Math.max(0.5, currentScale - 0.2);
+                    sticker.style.transform = `scale(${currentScale})`;
+                    updateButtonScales();
+                };
+
+                plusBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentScale = Math.min(3, currentScale + 0.2);
+                    sticker.style.transform = `scale(${currentScale})`;
+                    updateButtonScales();
+                };
+
+                // Touch events - only drag, no pinch zoom
+                sticker.addEventListener('touchstart', (e) => {
+                    // Don't prevent default on buttons
+                    if (e.target.closest('.delete-btn') || e.target.closest('.scale-btn')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Select sticker
+                    deselectAllStickers();
+                    sticker.classList.add('selected');
+                    selectedSticker = sticker;
+
+                    sticker.classList.add('dragging');
+                    const touch = e.touches[0];
+                    const rect = sticker.getBoundingClientRect();
+                    offsetX = touch.clientX - rect.left;
+                    offsetY = touch.clientY - rect.top;
+                }, { passive: false });
+
+                sticker.addEventListener('touchmove', (e) => {
+                    if (e.target.closest('.delete-btn') || e.target.closest('.scale-btn')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        const layerRect = layer.getBoundingClientRect();
+                        let newX = touch.clientX - layerRect.left - offsetX;
+                        let newY = touch.clientY - layerRect.top - offsetY;
+                        newX = Math.max(0, Math.min(newX, layerRect.width - sticker.offsetWidth));
+                        newY = Math.max(0, Math.min(newY, layerRect.height - sticker.offsetHeight));
+                        sticker.style.left = newX + 'px';
+                        sticker.style.top = newY + 'px';
+                    }
+                }, { passive: false });
+
+                sticker.addEventListener('touchend', (e) => {
+                    sticker.classList.remove('dragging');
+                });
+
+                // Mouse events for desktop
+                sticker.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.delete-btn') || e.target.closest('.scale-btn')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    deselectAllStickers();
+                    sticker.classList.add('selected');
+                    selectedSticker = sticker;
+
+                    sticker.classList.add('dragging');
+                    const rect = sticker.getBoundingClientRect();
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+
+                    const onMouseMove = (e) => {
+                        const layerRect = layer.getBoundingClientRect();
+                        let newX = e.clientX - layerRect.left - offsetX;
+                        let newY = e.clientY - layerRect.top - offsetY;
+                        newX = Math.max(0, Math.min(newX, layerRect.width - sticker.offsetWidth));
+                        newY = Math.max(0, Math.min(newY, layerRect.height - sticker.offsetHeight));
+                        sticker.style.left = newX + 'px';
+                        sticker.style.top = newY + 'px';
+                    };
+
+                    const onMouseUp = () => {
+                        sticker.classList.remove('dragging');
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    };
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+
+                // Mouse wheel zoom for desktop (keep this for desktop users)
+                sticker.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    currentScale = Math.max(0.5, Math.min(3, currentScale + delta));
+                    sticker.style.transform = `scale(${currentScale})`;
+                    updateButtonScales();
+                }, { passive: false });
+            }
+
+            // ===== STICKER BUTTON FUNCTIONALITY =====
+            const stickerBtns = document.querySelectorAll('.sticker-btn');
+
+            stickerBtns.forEach(btn => {
+                btn.onclick = () => {
+                    const stickerEmoji = btn.dataset.sticker;
+                    const currentStickerLayer = document.getElementById(`sticker-layer-${getRealIndex(currentSlidePosition)}`);
+
                     const newSticker = document.createElement('div');
-                    newSticker.textContent = s.textContent;
-                    newSticker.className = 'absolute text-5xl cursor-move';
-                    newSticker.style.top = Math.random() * 60 + 20 + '%';
-                    newSticker.style.left = Math.random() * 60 + 20 + '%';
-                    canvas.appendChild(newSticker);
-                    s.classList.add('opacity-50');
+                    newSticker.textContent = stickerEmoji;
+                    newSticker.className = 'sticker absolute text-5xl';
+
+                    // Position randomly to avoid overlap
+                    const randomTop = Math.floor(Math.random() * 60) + 10;
+                    const randomLeft = Math.floor(Math.random() * 60) + 10;
+                    newSticker.style.top = randomTop + '%';
+                    newSticker.style.left = randomLeft + '%';
+
+                    currentStickerLayer.appendChild(newSticker);
+                    makeStickerDraggable(newSticker, currentStickerLayer);
+
+                    // Select new sticker to show controls
+                    deselectAllStickers();
+                    newSticker.classList.add('selected');
+                    selectedSticker = newSticker;
+
+                    // Auto-hide controls after 2 seconds
+                    setTimeout(() => {
+                        if (selectedSticker === newSticker) {
+                            deselectAllStickers();
+                        }
+                    }, 2000);
+
+                    // Visual feedback
+                    btn.classList.add('ring-4', 'ring-[var(--accent-yellow)]');
+                    setTimeout(() => btn.classList.remove('ring-4', 'ring-[var(--accent-yellow)]'), 300);
+
+                    showToast('点击贴纸调整 · 拖动移动');
                 };
             });
         </script>
 
-        <button class="w-full kawaii-button kawaii-button-yellow mt-4 py-3" onclick="alert('分享功能仅在完整版中可用！')">
+        <button class="w-full kawaii-button kawaii-button-yellow mt-2 py-2 text-sm"
+            onclick="showToast('分享功能仅在完整版中可用！')">
             <i class="fas fa-share-alt mr-2"></i> 分享给好朋友
         </button>
     </div>
+
+    <script>
+        // 贴纸目录
+        const ALL_STICKERS = {
+            star: { id: 'star', emoji: '⭐️', name: '星星' },
+            heart: { id: 'heart', emoji: '💖', name: '爱心' },
+            sparkle: { id: 'sparkle', emoji: '✨', name: '闪光' },
+            rainbow: { id: 'rainbow', emoji: '🌈', name: '彩虹' },
+            cupcake: { id: 'cupcake', emoji: '🧁', name: '蛋糕' },
+            crown: { id: 'crown', emoji: '👑', name: '皇冠' },
+            unicorn: { id: 'unicorn', emoji: '🦄', name: '独角兽' },
+            moon: { id: 'moon', emoji: '🌙', name: '月亮' },
+            sun: { id: 'sun', emoji: '☀️', name: '太阳' },
+            flower: { id: 'flower', emoji: '🌸', name: '花朵' },
+            butterfly: { id: 'butterfly', emoji: '🦋', name: '蝴蝶' },
+            rocket: { id: 'rocket', emoji: '🚀', name: '火箭' }
+        };
+
+        // 从数据库加载用户贴纸
+        async function loadUserStickers() {
+            const profileId = localStorage.getItem('activeProfileId');
+            if (!profileId) {
+                console.log('No profile ID, using default stickers');
+                return;
+            }
+
+            try {
+                const userStickers = await BrushingMasterDB.getUserStickers(profileId);
+                const ownedStickerIds = userStickers.map(s => s.sticker_id);
+                console.log('用户拥有的贴纸:', ownedStickerIds);
+
+                // 更新贴纸栏
+                updateStickerTray(ownedStickerIds);
+            } catch (error) {
+                console.error('加载贴纸失败:', error);
+            }
+        }
+
+        // 更新贴纸栏UI
+        function updateStickerTray(ownedStickerIds) {
+            const tray = document.getElementById('sticker-tray');
+            let html = '';
+
+            // 显示已拥有的贴纸
+            Object.values(ALL_STICKERS).forEach(sticker => {
+                if (ownedStickerIds.includes(sticker.id)) {
+                    html += `
+                        <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
+                            data-sticker="${sticker.emoji}">${sticker.emoji}</div>
+                    `;
+                }
+            });
+
+            // 添加锁定的贴纸占位符
+            const lockedCount = Math.max(0, 3 - (12 - ownedStickerIds.length));
+            for (let i = ownedStickerIds.length; i < Math.min(ownedStickerIds.length + 2, 12); i++) {
+                html += `
+                    <div class="flex-shrink-0 w-14 h-14 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
+                        <i class="fas fa-lock text-sm"></i>
+                    </div>
+                `;
+            }
+
+            tray.innerHTML = html;
+
+            // 重新绑定贴纸点击事件
+            rebindStickerEvents();
+        }
+
+        // 重新绑定贴纸事件
+        function rebindStickerEvents() {
+            const stickerBtns = document.querySelectorAll('.sticker-btn');
+            stickerBtns.forEach(btn => {
+                btn.onclick = () => {
+                    const emoji = btn.dataset.sticker;
+                    const slides = document.querySelectorAll('.photo-slide:not(.clone)');
+                    const realIndex = getRealIndex(currentSlidePosition);
+                    const currentSlide = slides[realIndex];
+                    const currentStickerLayer = currentSlide?.querySelector('.sticker-layer');
+
+                    if (!currentStickerLayer) return;
+
+                    const newSticker = document.createElement('div');
+                    newSticker.className = 'sticker text-5xl';
+                    newSticker.textContent = emoji;
+                    newSticker.innerHTML += `
+                        <div class="delete-btn" onclick="event.stopPropagation(); this.parentElement.remove();"><i class="fas fa-times"></i></div>
+                        <div class="scale-btn minus" onclick="event.stopPropagation(); scaleSticker(this.parentElement, 0.9);">−</div>
+                        <div class="scale-btn plus" onclick="event.stopPropagation(); scaleSticker(this.parentElement, 1.1);">+</div>
+                    `;
+                    newSticker.dataset.scale = '1';
+
+                    const randomTop = 20 + Math.random() * 50;
+                    const randomLeft = 10 + Math.random() * 60;
+                    newSticker.style.position = 'absolute';
+                    newSticker.style.top = randomTop + '%';
+                    newSticker.style.left = randomLeft + '%';
+
+                    currentStickerLayer.appendChild(newSticker);
+                    makeStickerDraggable(newSticker, currentStickerLayer);
+
+                    deselectAllStickers();
+                    newSticker.classList.add('selected');
+                    selectedSticker = newSticker;
+
+                    setTimeout(() => {
+                        if (selectedSticker === newSticker) {
+                            deselectAllStickers();
+                        }
+                    }, 2000);
+
+                    btn.classList.add('ring-4', 'ring-[var(--accent-yellow)]');
+                    setTimeout(() => btn.classList.remove('ring-4', 'ring-[var(--accent-yellow)]'), 300);
+
+                    showToast('点击贴纸调整 · 拖动移动');
+                };
+            });
+        }
+
+        // Initialize
+        updateUI();
+        loadUserStickers();
+    </script>
 
 </body>
 

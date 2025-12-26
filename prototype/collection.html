@@ -3,14 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
+    <script src="mobile_fixes.js"></script>
+    <script src="supabase_client.js"></script>
     <title>Collection - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12">
+<body class="h-screen flex flex-col pt-12 safe-area-top">
 
     <header class="px-6 flex items-center justify-between mb-8">
         <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
@@ -23,96 +28,628 @@
 
     <!-- Tabs -->
     <div class="px-6 flex gap-2 mb-8" id="tabs">
-        <button class="flex-1 kawaii-button kawaii-button-primary py-2 text-xs" data-tab="skins">皮肤</button>
-        <button class="flex-1 kawaii-button kawaii-button-yellow py-2 text-xs border-opacity-50"
-            data-tab="awards">奖励</button>
+        <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-xs" data-tab="skins">皮肤</button>
+        <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-xs border-opacity-50"
+            data-tab="achievements">成就</button>
     </div>
 
-    <script>
-        const tabs = document.querySelectorAll('#tabs button');
-        tabs.forEach(tab => {
-            tab.onclick = () => {
-                tabs.forEach(t => {
-                    t.classList.remove('kawaii-button-primary');
-                    t.classList.add('kawaii-button-yellow');
-                    t.classList.add('border-opacity-50');
-                });
-                tab.classList.remove('kawaii-button-yellow');
-                tab.classList.remove('border-opacity-50');
-                tab.classList.add('kawaii-button-primary');
-            };
-        });
-    </script>
-
-    <!-- Grid -->
-    <div class="flex-1 overflow-y-auto px-6 pb-20">
-        <div class="grid grid-cols-3 gap-6">
-            <!-- Unlocked -->
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-full aspect-square kawaii-card bg-yellow-100 flex items-center justify-center text-3xl">
-                    <i class="fas fa-hat-wizard"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase">小法师</span>
-            </div>
-
-            <div class="flex flex-col items-center gap-2">
+    <!-- Skins Grid -->
+    <div class="flex-1 overflow-y-auto px-6 pb-20" id="skins-content">
+        <div class="grid grid-cols-3 gap-6" id="skins-grid">
+            <!-- Unlocked Skins -->
+            <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="owl">
                 <div
-                    class="w-full aspect-square kawaii-card bg-[var(--primary-green)] border-[#333] border-[6px] flex items-center justify-center text-3xl text-white">
-                    <i class="fas fa-owl"></i>
+                    class="w-full aspect-square kawaii-card bg-amber-50 flex items-center justify-center overflow-hidden">
+                    <img src="SkinSet/owl.png" class="w-full h-full object-cover" />
                 </div>
-                <span class="text-[10px] font-black uppercase">猫头鹰</span>
+                <span class="text-xs font-black uppercase">猫头鹰</span>
             </div>
 
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-full aspect-square kawaii-card bg-blue-100 flex items-center justify-center text-3xl">
-                    <i class="fas fa-hard-hat"></i>
+            <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="cat">
+                <div
+                    class="w-full aspect-square kawaii-card bg-pink-50 flex items-center justify-center overflow-hidden">
+                    <img src="SkinSet/cat.png" class="w-full h-full object-cover" />
                 </div>
-                <span class="text-[10px] font-black uppercase">打工人</span>
+                <span class="text-xs font-black uppercase">小猫咪</span>
             </div>
 
-            <!-- Locked -->
-            <div class="flex flex-col items-center gap-2 opacity-60">
+            <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="dog">
+                <div
+                    class="w-full aspect-square kawaii-card bg-orange-50 flex items-center justify-center overflow-hidden">
+                    <img src="SkinSet/dog.png" class="w-full h-full object-cover" />
+                </div>
+                <span class="text-xs font-black uppercase">小狗狗</span>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="rabbit">
+                <div
+                    class="w-full aspect-square kawaii-card bg-blue-50 flex items-center justify-center overflow-hidden">
+                    <img src="SkinSet/rabbit.png" class="w-full h-full object-cover" />
+                </div>
+                <span class="text-xs font-black uppercase">小兔子</span>
+            </div>
+
+            <!-- Locked Skins (placeholders for future) -->
+            <div class="flex flex-col items-center gap-2 opacity-60" data-skin="mystery1">
                 <div
                     class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
-                    <i class="fas fa-crown"></i>
+                    <i class="fas fa-question text-gray-400"></i>
                 </div>
-                <span class="text-[10px] font-black uppercase">国王</span>
+                <span class="text-xs font-black uppercase">???</span>
             </div>
 
-            <div class="flex flex-col items-center gap-2 opacity-60">
+            <div class="flex flex-col items-center gap-2 opacity-60" data-skin="mystery2">
                 <div
                     class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
-                    <i class="fas fa-helmet-safety"></i>
+                    <i class="fas fa-question text-gray-400"></i>
                 </div>
-                <span class="text-[10px] font-black uppercase">飞行员</span>
-            </div>
-
-            <div class="flex flex-col items-center gap-2 opacity-60">
-                <div
-                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
-                    <i class="fas fa-dragon"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase">小飞龙</span>
-            </div>
-
-            <div class="flex flex-col items-center gap-2 opacity-60">
-                <div
-                    class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
-                    <i class="fas fa-ghost"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase">小幽灵</span>
+                <span class="text-xs font-black uppercase">???</span>
             </div>
         </div>
     </div>
+
+    <!-- Achievement Details Modal -->
+    <div id="achievement-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden relative">
+            <div class="p-6">
+                <!-- Achievement Icon -->
+                <div class="text-center mb-4">
+                    <div id="modal-ach-icon-container"
+                        class="w-24 h-24 mx-auto mb-4 rounded-3xl border-4 border-[#333] flex items-center justify-center text-5xl">
+                        <!-- Icon injected -->
+                    </div>
+                    <h2 class="text-xl font-black" id="modal-ach-name">成就名称</h2>
+                    <div id="modal-ach-status"
+                        class="mt-2 inline-block px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-500">
+                        未解锁
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="kawaii-card bg-gray-50 p-4 mb-6 text-center">
+                    <p class="text-sm text-gray-600 mb-2" id="modal-ach-desc">成就介绍</p>
+                    <div class="mt-3 pt-3 border-t-2 border-gray-200">
+                        <span class="text-xs font-black text-gray-400 uppercase">解锁条件</span>
+                        <p class="text-sm font-bold text-[#333] mt-1" id="modal-ach-condition">条件描述</p>
+                    </div>
+                </div>
+
+                <!-- Close Button -->
+                <button class="kawaii-button kawaii-button-primary w-full py-3 text-sm"
+                    onclick="closeAchievementModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <!-- Achievements Grid (Hidden by default) -->
+    <div class="flex-1 overflow-y-auto px-6 pb-20 hidden" id="achievements-content">
+        <div class="grid grid-cols-1 gap-4" id="achievements-grid">
+            <!-- 成就将由 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <!-- Skin Selection Modal -->
+    <div id="skin-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+        <div
+            class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden">
+            <div class="p-6">
+                <!-- Skin Preview -->
+                <div class="text-center mb-4">
+                    <div id="modal-skin-icon"
+                        class="w-24 h-24 mx-auto mb-4 rounded-3xl border-4 border-[#333] flex items-center justify-center text-5xl">
+                        <!-- Icon will be injected -->
+                    </div>
+                    <h2 class="text-xl font-black" id="modal-skin-name">皮肤名称</h2>
+                </div>
+
+                <!-- Skin Description -->
+                <div class="kawaii-card bg-gray-50 p-4 mb-6">
+                    <p class="text-sm text-gray-600 text-center" id="modal-skin-desc">皮肤介绍</p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-4">
+                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm"
+                        onclick="closeSkinModal()">取消</button>
+                    <button class="flex-1 kawaii-button kawaii-button-yellow py-3 text-sm"
+                        onclick="confirmSkinSelection()">确认选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed top-16 left-1/2 -translate-x-1/2 z-[300] opacity-0 scale-95 transition-all duration-300 pointer-events-none">
+        <div class="kawaii-card bg-[var(--accent-yellow)] px-6 py-3 flex items-center gap-3 border-[#333]">
+            <i class="fas fa-check-circle text-[var(--primary-green)] text-xl"></i>
+            <span class="font-black text-sm" id="toast-message">操作成功！</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== SKIN DATA =====
+        const skinData = {
+            owl: {
+                name: '猫头鹰',
+                desc: '智慧的化身，夜视能力让细菌无所遁形！是我们最可靠的伙伴！',
+                icon: 'SkinSet/owl.png',
+                bgColor: 'bg-amber-50',
+                isImage: true,
+                unlocked: true  // 默认皮肤，所有用户都有
+            },
+            cat: {
+                name: '小猫咪',
+                desc: '优雅又可爱的小猫咪，用猫爪般的灵巧清洁每一颗牙齿！',
+                icon: 'SkinSet/cat.png',
+                bgColor: 'bg-pink-50',
+                isImage: true,
+                unlocked: false
+            },
+            dog: {
+                name: '小狗狗',
+                desc: '忠诚勇敢的小狗狗，用坚定的毅力守护牙齿健康！',
+                icon: 'SkinSet/dog.png',
+                bgColor: 'bg-orange-50',
+                isImage: true,
+                unlocked: false
+            },
+            rabbit: {
+                name: '小兔子',
+                desc: '活泼可爱的小兔子，蹦蹦跳跳地消灭所有细菌！',
+                icon: 'SkinSet/rabbit.png',
+                bgColor: 'bg-blue-50',
+                isImage: true,
+                unlocked: false
+            },
+            mystery1: {
+                name: '???',
+                desc: '神秘皮肤，等待你来解锁！',
+                icon: 'fa-question',
+                bgColor: 'bg-gray-100',
+                isImage: false,
+                unlocked: false
+            },
+            mystery2: {
+                name: '???',
+                desc: '神秘皮肤，等待你来解锁！',
+                icon: 'fa-question',
+                bgColor: 'bg-gray-100',
+                isImage: false,
+                unlocked: false
+            }
+        };
+
+        // ===== ACHIEVEMENT DATA =====
+        const achievementData = {
+            newbie: {
+                name: '刷牙新手',
+                desc: '欢迎加入刷牙特工队！这是你迈向健康牙齿的第一步。',
+                condition: '完成首次刷牙',
+                icon: 'fa-medal',
+                color: 'text-yellow-500',
+                bgColor: 'bg-green-100',
+                unlocked: false  // 默认为 false，从数据库加载
+            },
+            streak7: {
+                name: '连续7天',
+                desc: '坚持就是胜利！你已经连续一周保护了牙齿。',
+                condition: '连续刷牙7天',
+                icon: 'fa-calendar-check',
+                color: 'text-blue-500',
+                bgColor: 'bg-blue-100',
+                unlocked: false
+            },
+            germbuster: {
+                name: '细菌克星',
+                desc: '细菌看到你都瑟瑟发抖！你是牙齿的守护神。',
+                condition: '累计消灭1000个细菌',
+                icon: 'fa-trophy',
+                color: 'text-purple-500',
+                bgColor: 'bg-purple-100',
+                unlocked: false
+            },
+            streak30: {
+                name: '连续30天',
+                desc: '太棒了！刷牙已经成为了你的好习惯。',
+                condition: '连续刷牙30天',
+                icon: 'fa-fire',
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-100',
+                unlocked: false
+            },
+            master: {
+                name: '刷牙大师',
+                desc: '你的刷牙技巧已经达到了大师级别！',
+                condition: '通过所有关卡',
+                icon: 'fa-star',
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-100',
+                unlocked: false
+            },
+            champion: {
+                name: '全勤冠军',
+                desc: '风雨无阻，你是最勤奋的刷牙小冠军！',
+                condition: '连续刷牙60天',
+                icon: 'fa-gem',
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-100',
+                unlocked: false
+            },
+            king: {
+                name: '刷牙王者',
+                desc: '至高无上的荣耀，只有最顶尖的刷牙特工才能获得！',
+                condition: '获得所有其他成就',
+                icon: 'fa-crown',
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-100',
+                unlocked: false
+            },
+            super: {
+                name: '超级刷手',
+                desc: '超越极限，你的速度和准确度无人能敌！',
+                condition: '单次评分达到SS',
+                icon: 'fa-rocket',
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-100',
+                unlocked: false
+            }
+        };
+
+        // State
+        let currentSelectedSkin = localStorage.getItem('selectedSkin') || 'owl';
+        let pendingSkinId = null;
+
+        // ===== TAB SWITCHING =====
+        const tabs = document.querySelectorAll('#tabs button');
+        const skinsContent = document.getElementById('skins-content');
+        const achievementsContent = document.getElementById('achievements-content');
+
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                tabs.forEach(t => {
+                    t.classList.remove('kawaii-button-yellow');
+                    t.classList.add('kawaii-button-primary', 'border-opacity-50');
+                });
+                tab.classList.remove('kawaii-button-primary', 'border-opacity-50');
+                tab.classList.add('kawaii-button-yellow');
+
+                const progressLabel = document.getElementById('progress-label');
+                const progressValue = document.getElementById('progress-value');
+                const progressBar = document.getElementById('progress-bar');
+
+                if (tab.dataset.tab === 'skins') {
+                    skinsContent.classList.remove('hidden');
+                    achievementsContent.classList.add('hidden');
+                    progressLabel.textContent = '收藏进度';
+                    // 使用动态数据
+                    if (window.progressData && window.progressData.skins) {
+                        const { unlocked, total } = window.progressData.skins;
+                        progressValue.textContent = `${unlocked}/${total}`;
+                        progressBar.style.width = `${(unlocked / total) * 100}%`;
+                    }
+                } else {
+                    skinsContent.classList.add('hidden');
+                    achievementsContent.classList.remove('hidden');
+                    progressLabel.textContent = '成就进度';
+                    // 使用动态数据
+                    if (window.progressData && window.progressData.achievements) {
+                        const { unlocked, total } = window.progressData.achievements;
+                        progressValue.textContent = `${unlocked}/${total}`;
+                        progressBar.style.width = `${(unlocked / total) * 100}%`;
+                    }
+                }
+            };
+        });
+
+        // ===== SKIN SELECTION =====
+        function updateSkinSelectionUI() {
+            const skinItems = document.querySelectorAll('.skin-item');
+            skinItems.forEach(item => {
+                const skinId = item.dataset.skin;
+                const card = item.querySelector('.kawaii-card');
+
+                if (skinId === currentSelectedSkin) {
+                    item.classList.add('selected');
+                    card.classList.add('border-[var(--accent-yellow)]', 'border-[6px]');
+                } else {
+                    item.classList.remove('selected');
+                    card.classList.remove('border-[var(--accent-yellow)]', 'border-[6px]');
+                }
+            });
+        }
+
+        function openSkinModal(skinId) {
+            const skin = skinData[skinId];
+            if (!skin || !skin.unlocked) return;
+
+            pendingSkinId = skinId;
+
+            // Update modal content
+            const iconContainer = document.getElementById('modal-skin-icon');
+            iconContainer.className = `w-24 h-24 mx-auto mb-4 rounded-3xl border-4 border-[#333] flex items-center justify-center text-5xl ${skin.bgColor}`;
+
+            if (skin.isImage) {
+                iconContainer.innerHTML = `<img src="${skin.icon}" class="w-2/3 h-2/3 object-contain" />`;
+            } else {
+                iconContainer.innerHTML = `<i class="fas ${skin.icon}"></i>`;
+            }
+
+            document.getElementById('modal-skin-name').textContent = skin.name;
+            document.getElementById('modal-skin-desc').textContent = skin.desc;
+
+            // Show modal
+            document.getElementById('skin-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSkinModal() {
+            document.getElementById('skin-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            pendingSkinId = null;
+        }
+
+        function confirmSkinSelection() {
+            if (!pendingSkinId) return;
+
+            currentSelectedSkin = pendingSkinId;
+            localStorage.setItem('selectedSkin', currentSelectedSkin);
+
+            updateSkinSelectionUI();
+            closeSkinModal();
+            showToast(`已选择「${skinData[currentSelectedSkin].name}」为默认皮肤`);
+        }
+
+        // ===== ACHIEVEMENT MODAL =====
+        function openAchievementModal(achId) {
+            const ach = achievementData[achId];
+            if (!ach) return;
+
+            // Update modal content
+            const iconContainer = document.getElementById('modal-ach-icon-container');
+            const statusBadge = document.getElementById('modal-ach-status');
+
+            // Icon Style
+            if (ach.unlocked) {
+                iconContainer.className = `w-24 h-24 mx-auto mb-4 rounded-3xl border-4 border-[#333] flex items-center justify-center text-5xl ${ach.bgColor} ${ach.color}`;
+                iconContainer.innerHTML = `<i class="fas ${ach.icon}"></i>`;
+
+                statusBadge.textContent = '已获得';
+                statusBadge.className = 'mt-2 inline-block px-3 py-1 bg-green-100 rounded-full text-xs font-bold text-green-600';
+            } else {
+                iconContainer.className = `w-24 h-24 mx-auto mb-4 rounded-3xl border-4 border-[#333] flex items-center justify-center text-5xl bg-gray-100 text-gray-300`;
+                iconContainer.innerHTML = `<div class="relative"><i class="fas ${ach.icon}"></i><i class="fas fa-lock absolute -bottom-2 -right-2 text-2xl text-gray-400"></i></div>`;
+
+                statusBadge.textContent = '未解锁';
+                statusBadge.className = 'mt-2 inline-block px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-500';
+            }
+
+            document.getElementById('modal-ach-name').textContent = ach.name;
+            document.getElementById('modal-ach-desc').textContent = ach.desc || '？？？';
+            document.getElementById('modal-ach-condition').textContent = ach.condition;
+
+            // Add locking style for condition if locked
+            const conditionEl = document.getElementById('modal-ach-condition');
+            if (!ach.unlocked) {
+                conditionEl.classList.add('text-red-500');
+            } else {
+                conditionEl.classList.remove('text-red-500');
+            }
+
+            // Show modal
+            document.getElementById('achievement-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAchievementModal() {
+            document.getElementById('achievement-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // ===== TOAST =====
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.classList.remove('opacity-0', 'scale-95');
+            toast.classList.add('opacity-100', 'scale-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'scale-100');
+                toast.classList.add('opacity-0', 'scale-95');
+            }, 2000);
+        }
+
+        // ===== DATABASE LOADING =====
+        async function loadCollectionData() {
+            const profileId = localStorage.getItem('activeProfileId');
+            if (!profileId) {
+                console.log('No profile ID, using default data');
+                return;
+            }
+
+            try {
+                // 加载用户拥有的皮肤
+                const userSkins = await BrushingMasterDB.getUserSkins(profileId);
+                const ownedSkinIds = userSkins.map(s => s.skin_id);
+                console.log('用户拥有的皮肤:', ownedSkinIds);
+
+                // 更新皮肤解锁状态（owl 始终解锁作为默认皮肤）
+                Object.keys(skinData).forEach(skinId => {
+                    if (skinId === 'owl') {
+                        skinData[skinId].unlocked = true;  // 默认皮肤始终解锁
+                    } else {
+                        skinData[skinId].unlocked = ownedSkinIds.includes(skinId);
+                    }
+                });
+
+                // 加载用户成就
+                const userAchievements = await BrushingMasterDB.getUserAchievements(profileId);
+                const unlockedAchIds = userAchievements.filter(a => a.is_unlocked).map(a => a.achievement_id);
+                console.log('用户解锁的成就:', unlockedAchIds);
+
+                // 更新成就解锁状态
+                Object.keys(achievementData).forEach(achId => {
+                    achievementData[achId].unlocked = unlockedAchIds.includes(achId);
+                });
+
+                // 更新UI
+                updateSkinsUI();
+                updateAchievementsUI();
+                updateProgressBars();
+
+            } catch (error) {
+                console.error('加载收藏数据失败:', error);
+            }
+        }
+
+        // 更新皮肤UI
+        function updateSkinsUI() {
+            const skinsGrid = document.getElementById('skins-grid');
+            let html = '';
+
+            Object.entries(skinData).forEach(([id, skin]) => {
+                const isUnlocked = skin.unlocked;
+                const opacityClass = isUnlocked ? '' : 'opacity-60';
+                const cursorClass = isUnlocked ? 'cursor-pointer skin-item' : '';
+
+                if (skin.isImage && isUnlocked) {
+                    html += `
+                        <div class="flex flex-col items-center gap-2 ${cursorClass} ${opacityClass}" data-skin="${id}">
+                            <div class="w-full aspect-square kawaii-card ${skin.bgColor} flex items-center justify-center overflow-hidden">
+                                <img src="${skin.icon}" class="w-full h-full object-cover" />
+                            </div>
+                            <span class="text-xs font-black uppercase">${skin.name}</span>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="flex flex-col items-center gap-2 ${opacityClass}" data-skin="${id}">
+                            <div class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center text-3xl grayscale">
+                                <i class="fas fa-question text-gray-400"></i>
+                            </div>
+                            <span class="text-xs font-black uppercase">???</span>
+                        </div>
+                    `;
+                }
+            });
+
+            skinsGrid.innerHTML = html;
+
+            // 重新绑定点击事件
+            document.querySelectorAll('.skin-item').forEach(item => {
+                item.onclick = () => {
+                    const skinId = item.dataset.skin;
+                    if (!skinData[skinId]?.unlocked) return;
+                    openSkinModal(skinId);
+                };
+            });
+        }
+
+        // 更新成就UI
+        function updateAchievementsUI() {
+            const achGrid = document.getElementById('achievements-grid');
+            let html = '';
+
+            Object.entries(achievementData).forEach(([id, ach]) => {
+                const isUnlocked = ach.unlocked;
+                const opacityClass = isUnlocked ? '' : 'opacity-50';
+                const colorClass = isUnlocked ? ach.color : 'text-gray-400';
+                const bgColorClass = isUnlocked ? ach.bgColor : 'bg-gray-100';
+                const grayscaleClass = isUnlocked ? '' : 'grayscale';
+
+                html += `
+                    <div class="flex items-center gap-4 kawaii-card p-4 achievement-item cursor-pointer ${opacityClass} ${grayscaleClass}" data-achievement="${id}">
+                        <div class="w-12 h-12 ${bgColorClass} rounded-2xl border-3 border-[#333] flex items-center justify-center ${colorClass}">
+                            <i class="fas ${ach.icon} text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-black text-sm">${ach.name}</div>
+                            <div class="text-xs text-gray-400">${ach.condition}</div>
+                        </div>
+                        ${isUnlocked ? '<i class="fas fa-check-circle text-[var(--primary-green)]"></i>' : '<i class="fas fa-lock text-gray-300"></i>'}
+                    </div>
+                `;
+            });
+
+            achGrid.innerHTML = html;
+
+            // 重新绑定点击事件
+            document.querySelectorAll('.achievement-item').forEach(item => {
+                item.onclick = () => {
+                    const achId = item.dataset.achievement;
+                    openAchievementModal(achId);
+                };
+            });
+        }
+
+        // 更新进度条
+        function updateProgressBars() {
+            const unlockedSkins = Object.values(skinData).filter(s => s.unlocked).length;
+            const totalSkins = Object.keys(skinData).length;
+            const unlockedAch = Object.values(achievementData).filter(a => a.unlocked).length;
+            const totalAch = Object.keys(achievementData).length;
+
+            // 保存进度数据供 tab 切换使用
+            window.progressData = {
+                skins: { unlocked: unlockedSkins, total: totalSkins },
+                achievements: { unlocked: unlockedAch, total: totalAch }
+            };
+
+            // 默认显示皮肤进度
+            const progressLabel = document.getElementById('progress-label');
+            const progressValue = document.getElementById('progress-value');
+            const progressBar = document.getElementById('progress-bar');
+
+            progressLabel.textContent = '收藏进度';
+            progressValue.textContent = `${unlockedSkins}/${totalSkins}`;
+            progressBar.style.width = `${(unlockedSkins / totalSkins) * 100}%`;
+        }
+
+        // ===== INIT =====
+        // Bind click events to skin items
+        const skinItems = document.querySelectorAll('.skin-item');
+        skinItems.forEach(item => {
+            item.onclick = () => {
+                const skinId = item.dataset.skin;
+                // Only allow selection for unlocked items
+                if (item.classList.contains('opacity-60')) return;
+                openSkinModal(skinId);
+            };
+        });
+
+        // Bind click events to achievement items
+        const achItems = document.querySelectorAll('.achievement-item');
+        achItems.forEach(item => {
+            item.onclick = () => {
+                const achId = item.dataset.achievement;
+                openAchievementModal(achId);
+            };
+        });
+
+        // Initialize selection UI based on localStorage
+        updateSkinSelectionUI();
+
+        // 立即更新UI显示（显示默认锁定状态）
+        updateSkinsUI();
+        updateAchievementsUI();
+
+        // Load data from database and update progress bars after DOM ready
+        window.addEventListener('load', () => {
+            updateProgressBars(); // 立即显示默认值
+            loadCollectionData();  // 然后从数据库加载
+        });
+    </script>
 
     <!-- Progress Summary -->
     <div class="p-6 bg-white border-t-4 border-[#333]">
         <div class="justify-between items-center mb-2 flex">
-            <span class="font-black text-xs">收藏进度</span>
-            <span class="font-black text-xs text-[var(--primary-green)]">12/48</span>
+            <span class="font-black text-xs" id="progress-label">收藏进度</span>
+            <span class="font-black text-xs text-[var(--primary-green)]" id="progress-value">-/-</span>
         </div>
         <div class="kawaii-progress-bg">
-            <div class="kawaii-progress-fill" style="width: 25%"></div>
+            <div class="kawaii-progress-fill" id="progress-bar" style="width: 0%"></div>
         </div>
     </div>
 

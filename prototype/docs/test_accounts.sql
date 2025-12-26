@@ -1,0 +1,6 @@
+INSERT INTO public.users (account, password, created_at, updated_at) VALUES
+('13800138001', '2024123456', NOW(), NOW()),
+('13800138002', '2024654321', NOW(), NOW()),
+('13800138003', '2024111222', NOW(), NOW()),
+('13800138004', '2024333444', NOW(), NOW()),
+('13800138005', '2024555666', NOW(), NOW());
