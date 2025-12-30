@@ -116,6 +116,7 @@ async function createProfile(userId, profileName, avatarId = 'owl') {
             level: 1,
             current_xp: 0,
             total_xp: 0,
+            diamonds: 0,  // 金币初始化为0
             streak_days: 0,
             selected_skin: 'owl',
             is_active: isFirst  // 第一个档案自动设为活跃
@@ -192,12 +193,105 @@ async function updateProfile(profileId, updates) {
 }
 
 /**
- * 计算升级所需XP
- * @param {number} level - 当前等级
- * @returns {number} 升级所需XP
+ * 删除用户档案
+ * @param {string} profileId - 档案ID
+ * @returns {Promise<void>}
  */
-function getMaxXPForLevel(level) {
-    return 100 + (level - 1) * 50;
+async function deleteProfile(profileId) {
+    const supabase = getSupabaseClient();
+    if (!supabase) throw new Error('Supabase 未初始化');
+
+    // 先删除关联的皮肤、贴纸、成就等
+    await supabase.from('user_skins').delete().eq('profile_id', profileId);
+    await supabase.from('user_stickers').delete().eq('profile_id', profileId);
+    await supabase.from('user_achievements').delete().eq('profile_id', profileId);
+    await supabase.from('brushing_sessions').delete().eq('profile_id', profileId);
+
+    // 删除档案本身
+    const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', profileId);
+
+    if (error) throw error;
+}
+
+/**
+ * 获取积分里程碑（替代等级系统）
+ * @param {number} totalPoints - 总积分
+ * @returns {Object} 里程碑信息 {current, next, progress}
+ */
+function getPointsMilestone(totalPoints) {
+    const milestones = [100, 300, 600, 1000, 1500, 2000, 3000, 5000, 10000];
+    let current = 0;
+    let next = milestones[0];
+
+    for (let i = 0; i < milestones.length; i++) {
+        if (totalPoints >= milestones[i]) {
+            current = milestones[i];
+            next = milestones[i + 1] || current * 2;
+        } else {
+            break;
+        }
+    }
+
+    const progress = current === 0 ? (totalPoints / next) * 100 :
+        ((totalPoints - current) / (next - current)) * 100;
+
+    return { current, next, progress: Math.min(progress, 100) };
+}
+
+/**
+ * 更新用户钻石数量
+ * @param {string} profileId - 档案ID
+ * @param {number} diamondChange - 钻石变化量（正数增加，负数减少）
+ * @returns {Promise<number>} 更新后的钻石数量
+ */
+async function updateDiamonds(profileId, diamondChange) {
+    const supabase = getSupabaseClient();
+    if (!supabase) throw new Error('Supabase 未初始化');
+
+    // 先获取当前钻石数
+    const { data: profile, error: fetchError } = await supabase
+        .from('user_profiles')
+        .select('diamonds')
+        .eq('id', profileId)
+        .single();
+
+    if (fetchError) throw fetchError;
+
+    const currentDiamonds = profile?.diamonds || 0;
+    const newDiamonds = Math.max(0, currentDiamonds + diamondChange);
+
+    // 更新钻石数
+    const { data, error } = await supabase
+        .from('user_profiles')
+        .update({ diamonds: newDiamonds })
+        .eq('id', profileId)
+        .select('diamonds')
+        .single();
+
+    if (error) throw error;
+    return data.diamonds;
+}
+
+/**
+ * 获取用户钻石数量
+ * @param {string} profileId - 档案ID
+ * @returns {Promise<number>} 钻石数量
+ */
+async function getDiamonds(profileId) {
+    const supabase = getSupabaseClient();
+    if (!supabase) throw new Error('Supabase 未初始化');
+
+    const { data, error } = await supabase
+        .from('user_profiles')
+        .select('diamonds, total_xp')
+        .eq('id', profileId)
+        .single();
+
+    if (error) throw error;
+    return { diamonds: data?.diamonds || 0, totalPoints: data?.total_xp || 0 };
 }
 
 // ============================================
@@ -446,7 +540,10 @@ window.BrushingMasterDB = {
     createProfile,
     setActiveProfile,
     updateProfile,
-    getMaxXPForLevel,
+    deleteProfile,
+    getPointsMilestone,
+    updateDiamonds,
+    getDiamonds,
 
     // 刷牙会话
     saveBrushingSession,

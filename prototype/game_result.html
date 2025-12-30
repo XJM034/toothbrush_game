@@ -27,20 +27,34 @@
     </header>
 
     <div class="w-full flex-1 flex flex-col gap-4 min-h-0">
-        <!-- XP Earned Banner -->
-        <div class="kawaii-card bg-white py-3 flex items-center justify-center gap-3">
-            <i class="fas fa-bolt text-2xl text-[var(--accent-yellow)]"></i>
-            <div class="text-left">
-                <span class="text-[10px] font-black text-gray-400 uppercase">获得经验</span>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-2xl font-black text-[var(--primary-green)]" id="xp-earned">+50</span>
-                    <span class="text-sm font-bold text-gray-500">XP</span>
+        <!-- Rewards Earned Banner -->
+        <div class="kawaii-card bg-white py-3 flex items-center justify-center gap-6">
+            <!-- Points -->
+            <div class="flex items-center gap-2">
+                <i class="fas fa-bolt text-2xl text-[var(--accent-yellow)]"></i>
+                <div class="text-left">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">获得积分</span>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-2xl font-black text-[var(--primary-green)]" id="points-earned">+50</span>
+                    </div>
                 </div>
             </div>
-            <div id="streak-bonus"
-                class="hidden ml-2 px-2 py-1 bg-[var(--accent-yellow)] rounded-full text-xs font-black text-[#333]">
-                +连续奖励
+            <!-- Coins -->
+            <div class="flex items-center gap-2">
+                <i class="fas fa-coins text-2xl text-yellow-400"></i>
+                <div class="text-left">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">获得金币</span>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-2xl font-black text-yellow-500" id="coins-earned">+3</span>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Streak Bonus (if any) -->
+        <div id="streak-bonus" class="hidden kawaii-card bg-amber-50 py-2 px-4 flex items-center justify-center gap-2">
+            <i class="fas fa-fire text-orange-500"></i>
+            <span class="font-black text-sm text-orange-600" id="streak-bonus-text">连续 5 天！+10 额外积分</span>
         </div>
 
         <!-- Stats -->
@@ -55,18 +69,23 @@
             </div>
         </div>
 
-        <!-- Reward Drop -->
+        <!-- Shop Hint Card -->
         <div id="reward-container"
-            class="kawaii-card bg-[var(--accent-yellow)] p-4 relative overflow-hidden flex-1 min-h-0 flex flex-col items-center justify-center">
-            <div class="absolute -top-4 -left-4 text-white opacity-20 text-6xl transform -rotate-12">
-                <i class="fas fa-gift"></i>
+            class="kawaii-card bg-gradient-to-br from-yellow-100 to-orange-100 p-4 relative overflow-hidden flex-1 min-h-0 flex flex-col items-center justify-center cursor-pointer hidden"
+            onclick="location.href='collection.html'">
+            <div class="absolute -top-4 -left-4 text-yellow-300 opacity-30 text-6xl transform -rotate-12">
+                <i class="fas fa-coins"></i>
             </div>
-            <h3 class="font-black text-base mb-2 text-[#333] uppercase" id="reward-title">解锁新皮肤！</h3>
+            <h3 class="font-black text-base mb-2 text-[#333] uppercase">前往商店</h3>
             <div id="reward-icon"
-                class="w-20 h-20 bg-white border-4 border-[#333] rounded-3xl flex items-center justify-center mb-2 shadow-[4px_4px_0_#333] overflow-hidden">
-                <i class="fas fa-feather text-4xl text-[#333]"></i>
+                class="w-16 h-16 bg-white border-4 border-[#333] rounded-2xl flex items-center justify-center mb-2 shadow-[4px_4px_0_#333]">
+                <i class="fas fa-store text-3xl text-yellow-500"></i>
             </div>
-            <span class="font-black text-xs text-[#333] uppercase" id="reward-name">翡翠羽毛</span>
+            <span class="font-black text-xs text-gray-500">用金币兑换新皮肤和贴纸</span>
+            <div class="flex items-center gap-1 mt-2 text-yellow-600">
+                <span class="text-xs font-bold">点击进入</span>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </div>
         </div>
     </div>
 
@@ -82,22 +101,24 @@
 
     <script>
         // ===== REWARD SYSTEM CONFIGURATION =====
-        const XP_REWARDS = {
+        // 积分奖励（根据时长）
+        const POINTS_REWARDS = {
             1: 30,  // 1分钟刷牙
             2: 50,  // 2分钟刷牙
             3: 80   // 3分钟刷牙
         };
         const STREAK_BONUS = 10;  // 每连续1天额外加成
-        const GERM_XP_RATE = 0.1; // 每10个细菌 +1 XP
-        const MAX_GERM_XP = 50;   // 击败细菌XP上限
+        const GERM_POINTS_RATE = 0.1; // 每10个细菌 +1 积分
+        const MAX_GERM_POINTS = 50;   // 击败细菌积分上限
 
-        // 皮肤掉落库
-        const SKIN_DROPS = [
-            { id: 'owl', name: '猫头鹰', icon: 'SkinSet/owl.png', rarity: 'common' },
-            { id: 'cat', name: '小猫咪', icon: 'SkinSet/cat.png', rarity: 'rare' },
-            { id: 'dog', name: '小狗狗', icon: 'SkinSet/dog.png', rarity: 'rare' },
-            { id: 'rabbit', name: '小兔子', icon: 'SkinSet/rabbit.png', rarity: 'epic' }
-        ];
+        // 金币奖励（根据时长）
+        const COIN_REWARDS = {
+            1: 1,   // 1分钟: 1金币
+            2: 2,   // 2分钟: 2金币
+            3: 3    // 3分钟: 3金币
+        };
+        const GERM_COIN_RATE = 0.05; // 每20个细菌 +1 金币
+        const MAX_GERM_COINS = 5;    // 击败细菌金币上限
 
         // 全局状态
         let currentProfile = null;
@@ -116,79 +137,87 @@
             };
         }
 
-        // 计算XP
-        function calculateXP(duration, germsKilled, streakDays) {
-            let baseXP = XP_REWARDS[duration] || 50;
-            let streakXP = streakDays > 1 ? (streakDays - 1) * STREAK_BONUS : 0;
-            let germXP = Math.min(Math.floor(germsKilled * GERM_XP_RATE), MAX_GERM_XP);
+        // 计算积分
+        function calculatePoints(duration, germsKilled, streakDays) {
+            let basePoints = POINTS_REWARDS[duration] || 50;
+            let streakPoints = streakDays > 1 ? (streakDays - 1) * STREAK_BONUS : 0;
+            let germPoints = Math.min(Math.floor(germsKilled * GERM_POINTS_RATE), MAX_GERM_POINTS);
             return {
-                base: baseXP,
-                streak: streakXP,
-                germs: germXP,
-                total: baseXP + streakXP + germXP
+                base: basePoints,
+                streak: streakPoints,
+                germs: germPoints,
+                total: basePoints + streakPoints + germPoints
             };
         }
 
-        // 随机皮肤掉落
-        function rollSkinDrop(ownedSkinIds) {
-            if (Math.random() > 0.2) return null;
-            const available = SKIN_DROPS.filter(s => !ownedSkinIds.includes(s.id));
-            if (available.length === 0) return null;
-            return available[Math.floor(Math.random() * available.length)];
+        // 计算金币
+        function calculateCoins(duration, germsKilled) {
+            let baseCoins = COIN_REWARDS[duration] || 1;
+            let germCoins = Math.min(Math.floor(germsKilled * GERM_COIN_RATE), MAX_GERM_COINS);
+            return {
+                base: baseCoins,
+                germs: germCoins,
+                total: baseCoins + germCoins
+            };
         }
 
         // 初始化页面
         async function initResultPage() {
             const result = getGameResult();
-            const xp = calculateXP(result.duration, result.germsKilled, result.streakDays);
+            const points = calculatePoints(result.duration, result.germsKilled, result.streakDays);
+            const coins = calculateCoins(result.duration, result.germsKilled);
 
-            // 更新XP显示
-            document.getElementById('xp-earned').textContent = `+${xp.total}`;
-            if (xp.streak > 0) {
+            // 更新积分和金币显示
+            document.getElementById('points-earned').textContent = `+${points.total}`;
+            document.getElementById('coins-earned').textContent = `+${coins.total}`;
+
+            // 显示连续奖励
+            if (points.streak > 0) {
                 document.getElementById('streak-bonus').classList.remove('hidden');
-                document.getElementById('streak-bonus').textContent = `+${xp.streak} 连续`;
+                document.getElementById('streak-bonus-text').textContent =
+                    `连续 ${result.streakDays} 天！+${points.streak} 额外积分`;
             }
 
             // 更新统计
             document.getElementById('germs-killed').textContent = result.germsKilled;
             document.getElementById('streak-days').textContent = `${result.streakDays} 天`;
 
-            // 尝试从数据库加载数据
-            let ownedSkinIds = ['owl'];
-            let skinDrop = null;
-
             try {
                 const profileId = localStorage.getItem('activeProfileId');
                 console.log('🎮 游戏结果 - activeProfileId:', profileId);
 
                 if (profileId) {
-                    // 获取用户拥有的皮肤
-                    const userSkins = await BrushingMasterDB.getUserSkins(profileId);
-                    console.log('🎨 用户皮肤:', userSkins);
-                    ownedSkinIds = userSkins.map(s => s.skin_id);
+                    // 获取当前用户信息以判断是否显示商店引导
+                    const supabase = BrushingMasterDB.getSupabaseClient();
+                    const { data: profile } = await supabase
+                        .from('user_profiles')
+                        .select('diamonds') // 数据库字段仍为 diamonds
+                        .eq('id', profileId)
+                        .single();
 
-                    // 计算皮肤掉落
-                    skinDrop = rollSkinDrop(ownedSkinIds);
+                    const currentBalance = profile ? (profile.diamonds || 0) : 0;
+                    const totalBalance = currentBalance + coins.total;
 
-                    // 保存刷牙会话到数据库
-                    console.log('💾 正在保存刷牙会话...', { profileId, result, xp, skinDrop });
-                    await saveBrushingSession(profileId, result, xp, skinDrop);
-                    console.log('✅ 刷牙会话保存成功');
-
-                    // 更新用户档案
-                    console.log('📝 正在更新用户档案...');
-                    await updateUserProfileInDB(profileId, result, xp);
-                    console.log('✅ 用户档案更新成功');
-
-                    // 如果有皮肤掉落，添加到数据库
-                    if (skinDrop) {
-                        console.log('🎁 正在保存皮肤掉落...');
-                        await BrushingMasterDB.addUserSkin(profileId, skinDrop.id, 'drop');
-                        console.log('✅ 皮肤掉落保存成功');
+                    // 判断是否有足够的金币购买至少一个皮肤
+                    // 皮肤价格: 10, 15, 20
+                    if (totalBalance >= 10) {
+                        document.getElementById('reward-container').classList.remove('hidden');
+                    } else {
+                        document.getElementById('reward-container').classList.add('hidden');
                     }
 
+                    // 保存刷牙会话到数据库
+                    console.log('💾 正在保存刷牙会话...', { profileId, result, points, coins });
+                    await saveBrushingSession(profileId, result, points, coins);
+                    console.log('✅ 刷牙会话保存成功');
+
+                    // 更新用户档案（积分和金币）
+                    console.log('📝 正在更新用户档案...');
+                    await updateUserProfileInDB(profileId, result, points, coins);
+                    console.log('✅ 用户档案更新成功');
+
                     // 检查成就
-                    await checkAchievements(profileId, result, xp);
+                    await checkAchievements(profileId, result, points);
                 } else {
                     console.error('❌ 没有找到 activeProfileId，无法保存到数据库');
                 }
@@ -196,15 +225,12 @@
                 console.error('❌ 保存数据到后端失败:', error);
                 console.error('错误详情:', error.message, error.stack);
                 // 降级到 localStorage
-                fallbackToLocalStorage(xp);
+                fallbackToLocalStorage(points, coins);
             }
-
-            // 更新掉落显示
-            updateRewardDisplay(skinDrop, xp);
         }
 
         // 保存刷牙会话到数据库
-        async function saveBrushingSession(profileId, result, xp, skinDrop) {
+        async function saveBrushingSession(profileId, result, points, coins) {
             const supabase = BrushingMasterDB.getSupabaseClient();
             const { data, error } = await supabase
                 .from('brushing_sessions')
@@ -212,11 +238,11 @@
                     profile_id: profileId,
                     duration_minutes: result.duration,
                     germs_killed: result.germsKilled,
-                    base_xp: xp.base,
-                    streak_bonus_xp: xp.streak,
-                    germ_bonus_xp: xp.germs,
-                    total_xp: xp.total,
-                    skin_drop: skinDrop?.id || null,
+                    base_xp: points.base,
+                    streak_bonus_xp: points.streak,
+                    germ_bonus_xp: points.germs,
+                    total_xp: points.total,
+                    diamonds_earned: coins.total, // 数据库暂时保留 diamonds_earned 字段名
                     streak_at_session: result.streakDays,
                     completed_at: new Date().toISOString()
                 })
@@ -228,8 +254,8 @@
             return data;
         }
 
-        // 更新用户档案
-        async function updateUserProfileInDB(profileId, result, xp) {
+        // 更新用户档案（积分和金币）
+        async function updateUserProfileInDB(profileId, result, points, coins) {
             const supabase = BrushingMasterDB.getSupabaseClient();
 
             // 先获取当前档案
@@ -241,18 +267,9 @@
 
             if (fetchError) throw fetchError;
 
-            // 计算新的XP和等级
-            let newCurrentXP = (profile.current_xp || 0) + xp.total;
-            let newLevel = profile.level || 1;
-            let newTotalXP = (profile.total_xp || 0) + xp.total;
-
-            // 检查升级
-            let maxXP = BrushingMasterDB.getMaxXPForLevel(newLevel);
-            while (newCurrentXP >= maxXP) {
-                newCurrentXP -= maxXP;
-                newLevel++;
-                maxXP = BrushingMasterDB.getMaxXPForLevel(newLevel);
-            }
+            // 计算新的总积分和金币（不再有等级概念）
+            let newTotalXP = (profile.total_xp || 0) + points.total;
+            let newDiamonds = (profile.diamonds || 0) + coins.total; // DB uses diamonds
 
             // 更新连续天数
             const today = new Date().toISOString().split('T')[0];
@@ -275,13 +292,12 @@
                 }
             }
 
-            // 更新档案
+            // 更新档案（移除level和current_xp）
             const { data, error } = await supabase
                 .from('user_profiles')
                 .update({
-                    level: newLevel,
-                    current_xp: newCurrentXP,
                     total_xp: newTotalXP,
+                    diamonds: newDiamonds,
                     streak_days: newStreakDays,
                     longest_streak: newLongestStreak,
                     last_brush_date: today,
@@ -295,11 +311,28 @@
 
             if (error) throw error;
             console.log('档案已更新:', data);
+
+            // 更新缓存供主页使用
+            if (data) {
+                const cacheData = {
+                    id: data.id,
+                    profile_name: data.profile_name,
+                    avatar_id: data.avatar_id,
+                    total_xp: data.total_xp || 0,
+                    diamonds: data.diamonds || 0,
+                    streak_days: data.streak_days || 0,
+                    total_sessions: data.total_sessions || 0,
+                    total_brush_minutes: data.total_brush_minutes || 0
+                };
+                localStorage.setItem('cachedActiveProfile', JSON.stringify(cacheData));
+                console.log('✅ 档案缓存已更新');
+            }
+
             return data;
         }
 
         // 检查成就
-        async function checkAchievements(profileId, result, xp) {
+        async function checkAchievements(profileId, result, points) {
             try {
                 const supabase = BrushingMasterDB.getSupabaseClient();
 
@@ -336,11 +369,11 @@
                     await BrushingMasterDB.unlockAchievement(profileId, 'germlord');
                 }
 
-                // 检查等级成就
-                if (profile.level >= 10) {
+                // 检查积分里程碑成就（代替等级成就）
+                if (profile.total_xp >= 1000) {
                     await BrushingMasterDB.unlockAchievement(profileId, 'master');
                 }
-                if (profile.level >= 20) {
+                if (profile.total_xp >= 5000) {
                     await BrushingMasterDB.unlockAchievement(profileId, 'legend');
                 }
             } catch (error) {
@@ -349,32 +382,13 @@
         }
 
         // 降级到 localStorage
-        function fallbackToLocalStorage(xp) {
+        function fallbackToLocalStorage(points, coins) {
             const settings = JSON.parse(localStorage.getItem('brushingMasterSettings')) || { profiles: [] };
             const activeProfile = settings.profiles.find(p => p.active);
             if (activeProfile) {
-                activeProfile.currentXP = (activeProfile.currentXP || 0) + xp.total;
-                while (activeProfile.currentXP >= (activeProfile.maxXP || 100)) {
-                    activeProfile.currentXP -= activeProfile.maxXP || 100;
-                    activeProfile.level = (activeProfile.level || 1) + 1;
-                    activeProfile.maxXP = 100 + (activeProfile.level - 1) * 50;
-                }
+                activeProfile.totalPoints = (activeProfile.totalPoints || 0) + points.total;
+                activeProfile.diamonds = (activeProfile.diamonds || 0) + coins.total;
                 localStorage.setItem('brushingMasterSettings', JSON.stringify(settings));
-            }
-        }
-
-        // 更新奖励显示
-        function updateRewardDisplay(skinDrop, xp) {
-            if (skinDrop) {
-                document.getElementById('reward-title').textContent = '解锁新皮肤！';
-                document.getElementById('reward-icon').innerHTML = `<img src="${skinDrop.icon}" class="w-full h-full object-cover" />`;
-                document.getElementById('reward-name').textContent = skinDrop.name;
-            } else {
-                document.getElementById('reward-container').classList.remove('bg-[var(--accent-yellow)]');
-                document.getElementById('reward-container').classList.add('bg-blue-100');
-                document.getElementById('reward-title').textContent = '经验获取！';
-                document.getElementById('reward-icon').innerHTML = `<i class="fas fa-star text-4xl text-[var(--accent-yellow)]"></i>`;
-                document.getElementById('reward-name').textContent = `${xp.total} XP`;
             }
         }
 

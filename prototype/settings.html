@@ -166,7 +166,17 @@
             <div class="relative">
                 <div class="flex gap-4 overflow-x-auto pt-3 pl-2 pb-3 items-end scroll-container"
                     id="profiles-container">
-                    <!-- Profiles will be rendered by JS -->
+                    <!-- Loading skeleton - will be replaced by JS -->
+                    <div class="flex gap-4 animate-pulse" id="profiles-skeleton">
+                        <div class="flex-shrink-0 flex flex-col items-center gap-2" style="padding-top: 10px;">
+                            <div class="w-16 h-16 bg-gray-200 rounded-3xl"></div>
+                            <div class="w-12 h-3 bg-gray-200 rounded"></div>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-center gap-2" style="padding-top: 10px;">
+                            <div class="w-16 h-16 bg-gray-200 rounded-3xl"></div>
+                            <div class="w-10 h-3 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
                 </div>
                 <!-- Scroll Hint with animated arrow -->
                 <div
@@ -229,19 +239,31 @@
                 <div class="hidden mt-4 pt-4 border-t-2 border-gray-200 space-y-4" id="faq-content">
                     <div class="bg-gray-50 rounded-2xl p-4">
                         <div class="font-black text-sm mb-2">📱 如何开始刷牙游戏？</div>
-                        <p class="text-xs text-gray-600">点击主页的"开始刷牙!"按钮，选择时长后即可开始。请确保摄像头能看到你的脸！</p>
+                        <p class="text-xs text-gray-600">点击主页的"开始刷牙!"按钮，选择刷牙时长（1-3分钟），然后点击开始即可。刷牙时需要对准屏幕展示的牙齿区域哦！</p>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-4">
-                        <div class="font-black text-sm mb-2">🎮 皮肤有什么用？</div>
-                        <p class="text-xs text-gray-600">皮肤是装饰性道具，在刷牙时会"戴在你头上"显示。完成刷牙后会随机获得新皮肤！</p>
+                        <div class="font-black text-sm mb-2">🪙 金币有什么用？怎么获得？</div>
+                        <p class="text-xs text-gray-600">金币可以用来兑换新皮肤！每次完成刷牙游戏会获得1-8枚金币，刷牙时间越长、击败细菌越多，金币越多。</p>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-4">
-                        <div class="font-black text-sm mb-2">⏰ 为什么需要等待4小时？</div>
-                        <p class="text-xs text-gray-600">为了保护牙齿健康，避免过度刷牙，两次游戏之间需要间隔4小时。</p>
+                        <div class="font-black text-sm mb-2">🎮 皮肤怎么解锁？</div>
+                        <p class="text-xs text-gray-600">前往「收藏夹」页面，点击锁定的皮肤即可查看价格。攒够金币后点击"确认兑换"即可解锁！猫头鹰是免费默认皮肤。</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">⭐ 积分和里程碑是什么？</div>
+                        <p class="text-xs text-gray-600">积分记录你的总游戏进度。达成100、500、1000等里程碑会有特别标记。连续刷牙还有额外积分奖励！</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">🔥 连续刷牙有什么奖励？</div>
+                        <p class="text-xs text-gray-600">每天坚持刷牙可以累积连续天数！连续7天、30天、60天都有对应成就解锁，同时每天还有额外积分加成。</p>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-4">
                         <div class="font-black text-sm mb-2">👨‍👩‍👧 如何添加多个用户？</div>
-                        <p class="text-xs text-gray-600">在"用户存档"区域点击"+"按钮即可添加新用户（最多5个）。每个用户的进度独立保存。</p>
+                        <p class="text-xs text-gray-600">在「用户存档」区域点击"+"按钮即可添加新用户（最多5个）。长按头像可以编辑或删除用户。每个用户的进度独立保存。</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="font-black text-sm mb-2">📸 如何使用拍照装饰功能？</div>
+                        <p class="text-xs text-gray-600">刷牙完成后可以给照片添加贴纸装饰！点击贴纸添加，拖动调整位置，编辑完成后可以保存或分享。</p>
                     </div>
                 </div>
             </div>
@@ -507,7 +529,7 @@
                 const isActive = profile.active === true;
                 const activeStyle = isActive ? 'box-shadow: 0 0 0 4px #7ed56f !important;' : '';
                 const opacityClass = isActive ? '' : 'opacity-50';
-                const wiggleClass = wiggleProfileId === profile.id ? 'wiggle' : '';
+                const wiggleClass = (wiggleProfileId !== null && String(wiggleProfileId) === String(profile.id)) ? 'wiggle' : '';
 
                 // Get avatar path
                 const avatarSrc = getAvatarPath(profile.avatar);
@@ -555,35 +577,70 @@
 
         async function selectProfile(id) {
             const data = getData();
-            data.profiles.forEach(p => p.active = p.id === id);
+            data.profiles.forEach(p => p.active = (String(p.id) === String(id)));
             saveData(data);
             renderProfiles();
 
-            // 同时同步到数据库
+            // 获取选中的档案
+            const selectedProfile = data.profiles.find(p => String(p.id) === String(id));
+
+            // 立即更新缓存（使用本地数据，确保返回主页时显示正确）
+            if (selectedProfile) {
+                const immediateCache = {
+                    id: selectedProfile.dbId || selectedProfile.id,
+                    profile_name: selectedProfile.name,
+                    avatar_id: selectedProfile.avatar || 'owl',
+                    total_xp: selectedProfile.total_xp || 0,
+                    diamonds: selectedProfile.diamonds || 0,
+                    streak_days: selectedProfile.streak_days || 0,
+                    total_sessions: selectedProfile.total_sessions || 0,
+                    total_brush_minutes: selectedProfile.total_brush_minutes || 0
+                };
+                localStorage.setItem('cachedActiveProfile', JSON.stringify(immediateCache));
+                console.log('✅ 档案缓存已立即更新（本地数据）');
+            }
+
+            // 同时同步到数据库（后台执行，不阻塞用户操作）
             try {
                 const user = BrushingMasterDB.getCurrentUser();
                 if (user) {
                     // 将本地 ID 转换为数据库 profile ID
                     // 检查该 profile 是否在数据库中存在
                     const allDbProfiles = await BrushingMasterDB.getAllProfiles(user.id);
-                    const selectedProfile = data.profiles.find(p => p.id === id);
 
+                    let dbProfile = null;
                     if (selectedProfile && selectedProfile.dbId) {
                         // 使用数据库ID激活
-                        await BrushingMasterDB.setActiveProfile(user.id, selectedProfile.dbId);
+                        dbProfile = await BrushingMasterDB.setActiveProfile(user.id, selectedProfile.dbId);
                         localStorage.setItem('activeProfileId', selectedProfile.dbId);
                         console.log('已同步到数据库: 激活档案', selectedProfile.name);
                     } else if (allDbProfiles.length > 0) {
                         // 尝试匹配名称
                         const matchingDbProfile = allDbProfiles.find(p => p.profile_name === selectedProfile?.name);
                         if (matchingDbProfile) {
-                            await BrushingMasterDB.setActiveProfile(user.id, matchingDbProfile.id);
+                            dbProfile = await BrushingMasterDB.setActiveProfile(user.id, matchingDbProfile.id);
                             localStorage.setItem('activeProfileId', matchingDbProfile.id);
                             // 保存映射
                             selectedProfile.dbId = matchingDbProfile.id;
                             saveData(data);
                             console.log('已同步到数据库: 激活档案', matchingDbProfile.profile_name);
                         }
+                    }
+
+                    // 使用数据库数据更新缓存（更准确的数据）
+                    if (dbProfile) {
+                        const cacheData = {
+                            id: dbProfile.id,
+                            profile_name: dbProfile.profile_name,
+                            avatar_id: dbProfile.avatar_id,
+                            total_xp: dbProfile.total_xp || 0,
+                            diamonds: dbProfile.diamonds || 0,
+                            streak_days: dbProfile.streak_days || 0,
+                            total_sessions: dbProfile.total_sessions || 0,
+                            total_brush_minutes: dbProfile.total_brush_minutes || 0
+                        };
+                        localStorage.setItem('cachedActiveProfile', JSON.stringify(cacheData));
+                        console.log('✅ 档案缓存已更新（数据库数据）');
                     }
                 }
             } catch (error) {
@@ -709,7 +766,7 @@
             if (wiggleProfileId === null) return;
 
             const data = getData();
-            const profile = data.profiles.find(p => p.id === wiggleProfileId);
+            const profile = data.profiles.find(p => String(p.id) === String(wiggleProfileId));
             if (!profile) return;
 
             editingProfileId = wiggleProfileId;
@@ -727,18 +784,39 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function deleteProfile(id) {
+        async function deleteProfile(id) {
             const data = getData();
             if (data.profiles.length <= 1) {
                 showToast('至少需要保留一个用户！');
                 return;
             }
-            data.profiles = data.profiles.filter(p => p.id !== id);
-            if (!data.profiles.some(p => p.active)) {
-                data.profiles[0].active = true;
+
+            // Find the profile to delete (for database sync)
+            const profileToDelete = data.profiles.find(p => String(p.id) === String(id));
+            if (!profileToDelete) {
+                showToast('未找到该用户');
+                return;
             }
-            saveData(data);
-            renderProfiles();
+
+            // Sync to database FIRST (before updating UI)
+            const dbId = profileToDelete.dbId || profileToDelete.id;
+            try {
+                await BrushingMasterDB.deleteProfile(dbId);
+                console.log('已从数据库删除档案:', profileToDelete.name);
+
+                // Only update local data and UI AFTER successful DB delete
+                data.profiles = data.profiles.filter(p => String(p.id) !== String(id));
+                if (!data.profiles.some(p => p.active)) {
+                    data.profiles[0].active = true;
+                }
+                saveData(data);
+                renderProfiles();
+                showToast('角色已删除', 'success');
+            } catch (error) {
+                console.error('从数据库删除档案失败:', error);
+                showToast('删除失败，请重试');
+                throw error; // Re-throw so confirmDeleteUser knows it failed
+            }
         }
 
         let pendingDeleteUserId = null;
@@ -751,13 +829,30 @@
 
         function closeDeleteUserModal() {
             pendingDeleteUserId = null;
+            wiggleProfileId = null; // Stop wiggle animation
             document.getElementById('delete-user-modal').classList.add('hidden');
             document.body.style.overflow = '';
+            renderProfiles(); // Re-render to remove wiggle class
         }
 
-        function confirmDeleteUser() {
+        async function confirmDeleteUser() {
             if (pendingDeleteUserId !== null) {
-                deleteProfile(pendingDeleteUserId);
+                // Show loading state on delete button
+                const deleteBtn = document.querySelector('#delete-user-modal button[onclick="confirmDeleteUser()"]');
+                const originalText = deleteBtn.innerHTML;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>删除中...';
+                deleteBtn.disabled = true;
+
+                try {
+                    await deleteProfile(pendingDeleteUserId);
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    showToast('删除失败，请重试');
+                } finally {
+                    // Reset button state
+                    deleteBtn.innerHTML = originalText;
+                    deleteBtn.disabled = false;
+                }
             }
             wiggleProfileId = null;
             closeDeleteUserModal();
@@ -816,12 +911,30 @@
                 return;
             }
 
+            // Show loading state on confirm button
+            const confirmBtn = document.querySelector('#add-user-modal button[onclick="confirmAddUser()"]');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>创建中...';
+            confirmBtn.disabled = true;
+
             const data = getData();
             const user = BrushingMasterDB.getCurrentUser();
 
+            // Check for duplicate name (exclude current profile if editing)
+            const duplicateProfile = data.profiles.find(p =>
+                p.name.toLowerCase() === name.toLowerCase() &&
+                (editingProfileId === null || String(p.id) !== String(editingProfileId))
+            );
+            if (duplicateProfile) {
+                showToast('已存在同名角色，请使用其他名称！');
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+                return;
+            }
+
             if (editingProfileId !== null) {
                 // Editing existing user
-                const profile = data.profiles.find(p => p.id === editingProfileId);
+                const profile = data.profiles.find(p => String(p.id) === String(editingProfileId));
                 if (profile) {
                     profile.name = name;
                     profile.avatar = selectedAvatar;
@@ -873,11 +986,17 @@
                             }
                         }
                         showToast(errorMsg);
+                        // Reset button state
+                        confirmBtn.innerHTML = originalText;
+                        confirmBtn.disabled = false;
                         return;
                     }
                 } else {
                     console.warn('未登录，无法创建数据库档案');
                     showToast('请先登录账号');
+                    // Reset button state
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.disabled = false;
                     return;
                 }
 
@@ -885,6 +1004,11 @@
             }
 
             saveData(data);
+            // Reset button state before closing
+            confirmBtn.innerHTML = originalText;
+            confirmBtn.disabled = false;
+            // Ensure wiggle mode is off for new profiles
+            wiggleProfileId = null;
             renderProfiles();
             closeAddUserModal();
         }
@@ -1364,7 +1488,11 @@
         async function syncProfilesFromDB() {
             try {
                 const user = BrushingMasterDB.getCurrentUser();
-                if (!user) return;
+                if (!user) {
+                    // No user logged in, just render local data
+                    renderProfiles();
+                    return;
+                }
 
                 const dbProfiles = await BrushingMasterDB.getAllProfiles(user.id);
                 console.log('从数据库同步档案:', dbProfiles);
@@ -1376,8 +1504,25 @@
                     dbId: p.id,
                     name: p.profile_name,
                     avatar: p.avatar_id,
-                    active: p.is_active
+                    active: p.is_active,
+                    total_xp: p.total_xp || 0,
+                    diamonds: p.diamonds || 0,
+                    streak_days: p.streak_days || 0,
+                    total_sessions: p.total_sessions || 0,
+                    total_brush_minutes: p.total_brush_minutes || 0
                 }));
+
+                // 确保至少有一个档案被激活
+                if (localData.profiles.length > 0 && !localData.profiles.some(p => p.active)) {
+                    console.log('没有激活的档案，自动激活第一个');
+                    localData.profiles[0].active = true;
+                    // 同步激活状态到数据库
+                    try {
+                        await BrushingMasterDB.setActiveProfile(user.id, localData.profiles[0].id);
+                    } catch (e) {
+                        console.error('同步激活状态失败:', e);
+                    }
+                }
 
                 saveData(localData);
                 renderProfiles();
@@ -1398,6 +1543,8 @@
 
             } catch (error) {
                 console.error('同步档案失败:', error);
+                // On error, still render from local data to remove skeleton
+                renderProfiles();
             }
         }
 
@@ -1439,12 +1586,13 @@
         }
 
         // ===== INIT =====
-        window.addEventListener('load', () => {
-            renderProfiles();
+        window.addEventListener('load', async () => {
+            // First sync from database, then render
+            await syncProfilesFromDB();
+
+            // Render other components
             renderReminders();
             initDurationSelector();
-
-            syncProfilesFromDB();
         });
 
         // Hide scroll hints after user scrolls

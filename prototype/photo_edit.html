@@ -281,7 +281,7 @@
     </div>
 
     <header class="px-6 flex justify-between items-center mb-3">
-        <button class="kawaii-button kawaii-button-red px-3 py-2 text-xs" onclick="confirmCancel()">
+        <button class="kawaii-button kawaii-button-red px-4 py-2 text-xs" onclick="confirmCancel()">
             取消
         </button>
         <h1 class="text-lg font-black">猫头鹰装饰</h1>
@@ -436,7 +436,12 @@
             }, 2000);
 
             // Get real photo index (0-5) from slide position (0-7)
+            // Added bounds checking to prevent -1/6 display bug
             function getRealIndex(position) {
+                // Clamp position to valid range first
+                if (position < 0) position = 0;
+                if (position > 7) position = 7;
+
                 if (position === 0) return 5;
                 if (position === 7) return 0;
                 return position - 1;
@@ -459,9 +464,21 @@
             }
 
             // Update slider transform with animation
+            // Added isAnimating lock to prevent race conditions
+            let isAnimating = false;
+
             function updateSlider(animate = true) {
                 if (animate) {
                     slider.style.transition = 'transform 0.3s ease-out';
+                    isAnimating = true;
+
+                    // Fallback: if transitionend doesn't fire within 400ms, force handle it
+                    setTimeout(() => {
+                        if (isAnimating) {
+                            handleTransitionEnd();
+                            isAnimating = false;
+                        }
+                    }, 400);
                 } else {
                     slider.style.transition = 'none';
                 }
@@ -471,6 +488,8 @@
 
             // Handle jump-back after reaching clone slides
             function handleTransitionEnd() {
+                isAnimating = false;
+
                 if (currentSlidePosition === 0) {
                     currentSlidePosition = 6;
                     updateSlider(false);
@@ -478,24 +497,36 @@
                     currentSlidePosition = 1;
                     updateSlider(false);
                 }
+
+                // Safety: ensure position is always valid (1-6)
+                if (currentSlidePosition < 1) {
+                    currentSlidePosition = 1;
+                    updateSlider(false);
+                } else if (currentSlidePosition > 6) {
+                    currentSlidePosition = 6;
+                    updateSlider(false);
+                }
             }
 
             slider.addEventListener('transitionend', handleTransitionEnd);
 
-            // Go to next photo (seamless)
+            // Go to next photo (seamless) - with lock check
             function nextPhoto() {
+                if (isAnimating) return; // Prevent rapid clicks
                 currentSlidePosition++;
                 updateSlider(true);
             }
 
-            // Go to previous photo (seamless)
+            // Go to previous photo (seamless) - with lock check
             function prevPhoto() {
+                if (isAnimating) return; // Prevent rapid clicks
                 currentSlidePosition--;
                 updateSlider(true);
             }
 
-            // Go to specific photo (by real index 0-4)
+            // Go to specific photo (by real index 0-5)
             function goToPhoto(realIndex) {
+                if (isAnimating) return;
                 currentSlidePosition = realIndex + 1;
                 updateSlider(true);
             }
