@@ -1,7 +1,7 @@
 // 几何计算工具函数
 
 import { Point, Point3D } from './smoothing';
-import { NormalizedLandmark, WorldLandmark } from '../../types';
+import { NormalizedLandmark } from '../../types';
 
 /**
  * 计算两点之间的欧几里得距离

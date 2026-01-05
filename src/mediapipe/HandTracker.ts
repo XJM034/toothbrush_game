@@ -5,7 +5,7 @@ import {
   type HandLandmarkerResult
 } from '@mediapipe/tasks-vision';
 
-import { HandTrackingResult, NormalizedLandmark, WorldLandmark } from '../types';
+import { HandTrackingResult } from '../types';
 import { mediaPipeConfig } from '../config';
 
 export class HandTracker {

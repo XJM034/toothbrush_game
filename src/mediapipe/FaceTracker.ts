@@ -5,7 +5,7 @@ import {
   type FaceLandmarkerResult
 } from '@mediapipe/tasks-vision';
 
-import { FaceTrackingResult, NormalizedLandmark } from '../types';
+import { FaceTrackingResult } from '../types';
 import { smoothPoint, smoothScalar, Point } from '../core/utils/smoothing';
 import { getFaceTransformFromLandmarks } from '../core/utils/geometry';
 import { mediaPipeConfig } from '../config';

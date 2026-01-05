@@ -10,7 +10,7 @@ const isEmbedBuild = process.env.BUILD_MODE === 'embed'
 export default defineConfig({
   plugins: isEmbedBuild ? [basicSsl()] : [react(), basicSsl()],
   server: {
-    https: true, // 开启 HTTPS（摄像头权限需要）
+    https: {}, // basic-ssl 插件自动生成自签证书
     host: '0.0.0.0', // 允许局域网访问（移动端测试）
     port: 5173
   },
