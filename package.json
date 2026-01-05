@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:embed": "BUILD_MODE=embed vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve:prototype": "vite --config vite.prototype.config.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.17",

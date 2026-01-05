@@ -1,13 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>刷牙游戏 - Toothbrush Game</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0;url=/prototype/home.html">
+    <title>Brushing Master</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+        }
+        .container {
+            text-align: center;
+            color: white;
+        }
+        a {
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>正在跳转到游戏主页...</p>
+        <p><a href="/prototype/home.html">点击此处手动跳转</a></p>
+    </div>
+    <script>
+        // Fallback JS redirect in case meta refresh doesn't work
+        window.location.href = '/prototype/home.html';
+    </script>
+</body>
 </html>

@@ -128,7 +128,11 @@
         function getGameResult() {
             const result = sessionStorage.getItem('lastGameResult');
             if (result) {
-                return JSON.parse(result);
+                const parsed = JSON.parse(result);
+                // 如果有真实游戏分数，使用它
+                // 新增字段: score, successCount, totalBrushTime, accuracy, durationMs
+                console.log('[GameResult] 解析游戏数据:', parsed);
+                return parsed;
             }
             return {
                 duration: 2,
@@ -164,7 +168,24 @@
         // 初始化页面
         async function initResultPage() {
             const result = getGameResult();
-            const points = calculatePoints(result.duration, result.germsKilled, result.streakDays);
+
+            // 如果有真实游戏分数，优先使用
+            let points;
+            if (result.score !== undefined) {
+                // 使用真实游戏分数
+                const streakPoints = result.streakDays > 1 ? (result.streakDays - 1) * STREAK_BONUS : 0;
+                points = {
+                    base: result.score,
+                    streak: streakPoints,
+                    germs: 0,
+                    total: result.score + streakPoints
+                };
+                console.log('[GameResult] 使用真实游戏分数:', result.score);
+            } else {
+                // 使用计算的分数
+                points = calculatePoints(result.duration, result.germsKilled, result.streakDays);
+            }
+
             const coins = calculateCoins(result.duration, result.germsKilled);
 
             // 更新积分和金币显示
