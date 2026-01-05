@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && cp -R prototype dist/prototype",
     "build:embed": "BUILD_MODE=embed vite build",
     "lint": "eslint .",
     "preview": "vite preview",
