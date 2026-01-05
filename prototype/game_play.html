@@ -24,11 +24,13 @@
             pointer-events: none;
         }
 
-        /* 加载遮罩 */
+        /* 加载遮罩 - Kawaii 风格 */
         #loading-overlay {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+            background-color: var(--bg-light);
+            background-image: radial-gradient(rgba(0, 104, 55, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -42,18 +44,95 @@
             pointer-events: none;
         }
 
-        .loading-spinner {
-            width: 64px;
-            height: 64px;
-            border: 6px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* 加载卡片容器 */
+        .loading-card {
+            background: white;
+            border: 4px solid var(--stroke-dark);
+            border-radius: 32px;
+            box-shadow: 8px 8px 0 rgba(44, 62, 80, 0.15);
+            padding: 40px 48px;
+            text-align: center;
+            max-width: 320px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
+        /* 吉祥物动画 */
+        .loading-mascot {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            animation: mascotBounce 1.2s ease-in-out infinite;
+        }
+
+        @keyframes mascotBounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-12px) scale(1.05);
+            }
+        }
+
+        /* 加载进度条 */
+        .loading-progress-container {
+            width: 100%;
+            height: 20px;
+            background: #E5E7EB;
+            border: 3px solid var(--stroke-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
+            border-radius: 7px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .loading-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            right: 4px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* 加载点动画 */
+        .loading-dots {
+            display: inline-flex;
+            gap: 6px;
+            margin-left: 4px;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
             }
         }
 
@@ -143,11 +222,30 @@
     <!-- 游戏画布（摄像头 + 头套渲染） -->
     <canvas id="game-canvas"></canvas>
 
-    <!-- 加载遮罩 -->
+    <!-- 加载遮罩 - Kawaii 风格 -->
     <div id="loading-overlay">
-        <div class="loading-spinner mb-6"></div>
-        <div class="text-white text-xl font-bold" id="loading-text">正在初始化...</div>
-        <div class="text-white text-sm opacity-70 mt-2" id="loading-detail">加载摄像头和识别模型</div>
+        <div class="loading-card">
+            <!-- 吉祥物 -->
+            <div class="loading-mascot">
+                <img src="./owl_mascot.svg" alt="猫头鹰吉祥物" class="w-full h-full object-contain" style="filter: drop-shadow(4px 4px 0 rgba(44, 62, 80, 0.2));" />
+            </div>
+
+            <!-- 进度条 -->
+            <div class="loading-progress-container">
+                <div class="loading-progress-bar" id="loading-progress" style="width: 0%"></div>
+            </div>
+
+            <!-- 状态文字 -->
+            <div class="text-lg font-black text-[var(--stroke-dark)] mb-1">
+                <span id="loading-label">准备中</span>
+                <span class="loading-dots" id="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </div>
+            <div class="text-sm font-bold text-gray-400" id="loading-detail">正在启动摄像头</div>
+        </div>
     </div>
 
     <!-- 权限提示 -->
@@ -283,7 +381,7 @@
         const actionText = document.getElementById('action-text');
         const actionHint = document.getElementById('action-hint');
         const loadingOverlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
+        const loadingLabel = document.getElementById('loading-label');
         const loadingDetail = document.getElementById('loading-detail');
         const permissionOverlay = document.getElementById('permission-overlay');
         const exitBtn = document.getElementById('exit-btn');
@@ -609,13 +707,26 @@
 
                     onProgress: (stage, progress) => {
                         const stageNames = {
-                            'camera': '正在启动摄像头',
-                            'models': '正在加载识别模型',
-                            'avatar': '正在加载头套',
+                            'camera': '启动摄像头',
+                            'models': '加载识别模型',
+                            'avatar': '加载头套',
                             'ready': '准备就绪'
                         };
-                        loadingText.textContent = stageNames[stage] || stage;
-                        loadingDetail.textContent = `进度: ${Math.round(progress * 100)}%`;
+                        const stageDetails = {
+                            'camera': '正在获取摄像头权限',
+                            'models': '正在加载 AI 识别模型',
+                            'avatar': '正在准备头套素材',
+                            'ready': '即将开始游戏'
+                        };
+                        // 更新进度条
+                        const loadingProgressBar = document.getElementById('loading-progress');
+                        if (loadingProgressBar) {
+                            loadingProgressBar.style.width = `${Math.round(progress * 100)}%`;
+                        }
+                        // 更新文字（只改 label 的 textContent，不影响 dots 动画）
+                        const stageName = stageNames[stage] || stage;
+                        loadingLabel.textContent = stageName;
+                        loadingDetail.textContent = stageDetails[stage] || `进度: ${Math.round(progress * 100)}%`;
                     },
 
                     onState: (state, event) => {
@@ -676,8 +787,19 @@
                     loadingOverlay.classList.add('hidden');
                     permissionOverlay.classList.add('show');
                 } else {
-                    loadingText.textContent = '启动失败';
+                    loadingLabel.textContent = '启动失败';
+                    // 隐藏 dots 动画
+                    const loadingDots = document.getElementById('loading-dots');
+                    if (loadingDots) {
+                        loadingDots.style.display = 'none';
+                    }
                     loadingDetail.textContent = getErrorMessage(err);
+                    // 进度条显示红色表示错误
+                    const loadingProgressBar = document.getElementById('loading-progress');
+                    if (loadingProgressBar) {
+                        loadingProgressBar.style.background = 'var(--accent-red)';
+                        loadingProgressBar.style.width = '100%';
+                    }
                 }
             }
         }
