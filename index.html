@@ -139,7 +139,7 @@
         .loading-bar {
             height: 100%;
             background: var(--accent-yellow);
-            border-radius: 4px;
+            /* 移除内层圆角，由外层 overflow:hidden 处理圆角裁剪，避免角落出现空隙 */
             width: 100%;
         }
 
