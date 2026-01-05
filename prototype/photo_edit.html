@@ -197,6 +197,24 @@
             position: absolute;
             pointer-events: none;
         }
+
+        /* Save success modal animation */
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .animate-bounce-in {
+            animation: bounce-in 0.4s ease-out;
+        }
     </style>
 </head>
 
@@ -257,6 +275,56 @@
                 </button>
                 <button class="flex-1 kawaii-button kawaii-button-red py-2 text-sm" onclick="location.href='home.html'">
                     确认取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Success Modal -->
+    <div id="save-success-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[600] p-6">
+        <div class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] p-6 transform animate-bounce-in">
+            <div class="text-center mb-4">
+                <div class="text-6xl mb-3">🎉</div>
+                <h2 class="text-xl font-black mb-2 text-[var(--primary-green)]">操作完成！</h2>
+                <p class="text-sm text-gray-500" id="save-success-msg">已保存 <span id="save-success-count" class="font-black text-[var(--primary-green)]">0</span> 张照片到相册</p>
+            </div>
+            <button class="w-full kawaii-button kawaii-button-primary py-3 text-sm font-black" onclick="closeSaveSuccessModal()">
+                <i class="fas fa-check mr-2"></i>完成
+            </button>
+        </div>
+    </div>
+
+    <!-- iOS Photo Preview Modal -->
+    <div id="ios-preview-modal" class="fixed inset-0 bg-black z-[500] hidden flex flex-col">
+        <div class="flex items-center justify-between p-4 bg-black/80">
+            <span class="text-white font-bold" id="ios-preview-counter">1 / 1</span>
+            <span class="text-white text-sm" id="ios-saved-hint">长按图片保存</span>
+            <button onclick="closeIosPreview()" class="text-white text-2xl px-2">&times;</button>
+        </div>
+        <div class="flex-1 flex items-center justify-center overflow-auto p-4 relative">
+            <!-- iOS 长按保存需要: -webkit-touch-callout:default, user-select:auto -->
+            <img id="ios-preview-image" src="" class="max-w-full max-h-full object-contain rounded-2xl"
+                 style="-webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto;" />
+            <!-- 保存成功提示（覆盖在图片上） -->
+            <div id="ios-save-success-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                <div class="bg-black/70 rounded-3xl px-8 py-6 text-center">
+                    <div class="text-5xl mb-2">✅</div>
+                    <p class="text-white font-bold" id="ios-hint-text">第 1 张 已保存</p>
+                    <p class="text-white/70 text-sm">照片已保存到相册</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-black/80">
+            <p class="text-white text-center text-sm mb-3 opacity-80" id="ios-instruction">
+                <i class="fas fa-hand-pointer mr-1"></i>长按上方图片 → 选择"保存到'照片'"
+            </p>
+            <div class="flex justify-center gap-3">
+                <button onclick="iosPrevPhoto()" class="kawaii-button kawaii-button-yellow px-5 py-2 text-sm" id="ios-prev-btn">
+                    <i class="fas fa-chevron-left mr-1"></i>上一张
+                </button>
+                <button onclick="iosNextPhoto()" class="kawaii-button kawaii-button-primary px-5 py-2 text-sm" id="ios-next-btn">
+                    下一张<i class="fas fa-chevron-right ml-1"></i>
                 </button>
             </div>
         </div>
@@ -630,8 +698,8 @@
                 }, 2000);
             }
 
-            // ===== SAVE MODAL FUNCTIONS =====
-            const photoSources = [
+            // ===== PHOTO SOURCES (动态加载抓拍照片) =====
+            const defaultPhotoSources = [
                 'Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg',
                 'Sample_ima/03ddc3251a33a2da3ac190b368c3e6e6.jpg',
                 'Sample_ima/9ad1c9c090e4b32d700bdda8a1179f95.jpg',
@@ -639,6 +707,48 @@
                 'Sample_ima/f3bd68d0920e6f239d00e877d49d1878.jpg',
                 'Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg'
             ];
+
+            // 从 sessionStorage 加载抓拍照片，不足用默认图片补齐
+            let photoSources = [...defaultPhotoSources];
+
+            function loadCapturedPhotos() {
+                try {
+                    const capturedPhotosJson = sessionStorage.getItem('capturedPhotos');
+                    if (capturedPhotosJson) {
+                        const capturedPhotos = JSON.parse(capturedPhotosJson);
+                        console.log('[PhotoEdit] 加载抓拍照片:', capturedPhotos.length, '张');
+
+                        // 用抓拍照片替换默认照片
+                        for (let i = 0; i < 6; i++) {
+                            if (capturedPhotos[i]) {
+                                photoSources[i] = capturedPhotos[i];
+                            }
+                        }
+
+                        // 更新 slider 中的图片
+                        updateSliderPhotos();
+                    } else {
+                        console.log('[PhotoEdit] 没有抓拍照片，使用默认图片');
+                    }
+                } catch (e) {
+                    console.error('[PhotoEdit] 加载抓拍照片失败:', e);
+                }
+            }
+
+            function updateSliderPhotos() {
+                const slides = document.querySelectorAll('.photo-slide');
+                slides.forEach(slide => {
+                    const index = parseInt(slide.dataset.index);
+                    if (!isNaN(index) && index >= 0 && index < 6) {
+                        const img = slide.querySelector('img');
+                        if (img && photoSources[index]) {
+                            img.src = photoSources[index];
+                        }
+                    }
+                });
+            }
+
+            // ===== SAVE MODAL FUNCTIONS =====
 
             function openSaveModal() {
                 // First, deselect all stickers to hide controls
@@ -685,16 +795,400 @@
                 items[index].classList.toggle('selected');
             }
 
-            function confirmSave() {
+            // iOS 预览相关状态
+            let iosPreviewPhotos = [];
+            let iosCurrentIndex = 0;
+            let iosSavedIndicesSet = new Set(); // 追踪用户长按过哪些照片索引
+
+            // 检测是否是 iOS
+            function isIOS() {
+                return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            }
+
+            async function confirmSave() {
                 const selectedItems = document.querySelectorAll('.photo-select-item.selected');
                 const count = selectedItems.length;
                 if (count === 0) {
                     showToast('请至少选择一张照片');
                     return;
                 }
+
                 closeSaveModal();
-                showToast(`已保存 ${count} 张照片！`);
-                setTimeout(() => location.href = 'home.html', 1200);
+                showToast('正在生成照片...');
+
+                // 收集选中的照片索引
+                const selectedIndices = [];
+                selectedItems.forEach(item => {
+                    selectedIndices.push(parseInt(item.dataset.index));
+                });
+
+                if (isIOS()) {
+                    // iOS: 生成所有图片，然后显示预览让用户逐张点击保存
+                    iosPreviewPhotos = [];
+                    for (const index of selectedIndices) {
+                        try {
+                            const dataUrl = await generatePhotoDataUrl(index);
+                            iosPreviewPhotos.push(dataUrl);
+                        } catch (e) {
+                            console.error(`生成照片 ${index + 1} 失败:`, e);
+                        }
+                    }
+
+                    if (iosPreviewPhotos.length > 0) {
+                        showIosPreview();
+                    } else {
+                        showToast('生成照片失败');
+                    }
+                } else {
+                    // 非 iOS: 直接下载
+                    let savedCount = 0;
+                    for (const index of selectedIndices) {
+                        try {
+                            await downloadPhoto(index);
+                            savedCount++;
+                            // 每张照片之间稍微延迟，避免浏览器阻止
+                            await new Promise(r => setTimeout(r, 300));
+                        } catch (e) {
+                            console.error(`保存照片 ${index + 1} 失败:`, e);
+                        }
+                    }
+
+                    // 显示保存成功弹窗
+                    showSaveSuccessModal(savedCount);
+                }
+            }
+
+            // iOS 预览模式 - 点击保存按钮触发
+            function showIosPreview() {
+                iosCurrentIndex = 0;
+                iosSavedIndicesSet.clear(); // 重置保存追踪
+                updateIosPreview();
+                document.getElementById('ios-preview-modal').classList.remove('hidden');
+            }
+
+            function closeIosPreview() {
+                document.getElementById('ios-preview-modal').classList.add('hidden');
+                const savedCount = iosSavedIndicesSet.size; // 用户实际长按保存的照片数
+                const totalPhotos = iosPreviewPhotos.length;
+                iosPreviewPhotos = [];
+                iosSavedIndicesSet.clear();
+                // 显示保存完成弹窗，使用实际长按保存的数量
+                showIosSaveSuccessModal(savedCount, totalPhotos);
+            }
+
+            function updateIosPreview() {
+                const img = document.getElementById('ios-preview-image');
+                const counter = document.getElementById('ios-preview-counter');
+                const prevBtn = document.getElementById('ios-prev-btn');
+                const nextBtn = document.getElementById('ios-next-btn');
+                const saveBtn = document.getElementById('ios-save-btn');
+
+                img.src = iosPreviewPhotos[iosCurrentIndex];
+                counter.textContent = `${iosCurrentIndex + 1} / ${iosPreviewPhotos.length}`;
+
+                prevBtn.style.visibility = iosCurrentIndex > 0 ? 'visible' : 'hidden';
+
+                // 最后一张时显示"完成"
+                if (iosCurrentIndex < iosPreviewPhotos.length - 1) {
+                    nextBtn.innerHTML = '下一张<i class="fas fa-chevron-right ml-2"></i>';
+                } else {
+                    nextBtn.innerHTML = '<i class="fas fa-check mr-2"></i>完成';
+                }
+            }
+
+            function iosPrevPhoto() {
+                if (iosCurrentIndex > 0) {
+                    iosCurrentIndex--;
+                    updateIosPreview();
+                }
+            }
+
+            function iosNextPhoto() {
+                if (iosCurrentIndex < iosPreviewPhotos.length - 1) {
+                    iosCurrentIndex++;
+                    updateIosPreview();
+                } else {
+                    closeIosPreview();
+                }
+            }
+
+            // iOS 保存当前图片 - 打开新窗口让用户长按
+            function iosSaveCurrentPhoto() {
+                const dataUrl = iosPreviewPhotos[iosCurrentIndex];
+                // 在新窗口中打开图片，用户可以长按保存
+                const newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>长按保存图片</title>
+                            <style>
+                                body {
+                                    margin: 0;
+                                    padding: 20px;
+                                    background: #000;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    min-height: 100vh;
+                                    box-sizing: border-box;
+                                }
+                                img {
+                                    max-width: 100%;
+                                    max-height: 80vh;
+                                    -webkit-touch-callout: default;
+                                    -webkit-user-select: auto;
+                                }
+                                p {
+                                    color: white;
+                                    text-align: center;
+                                    margin-top: 20px;
+                                    font-family: -apple-system, sans-serif;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${dataUrl}" />
+                            <p>👆 长按图片选择"存储图像"</p>
+                        </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
+                    showToast(`已打开第 ${iosCurrentIndex + 1} 张，请长按保存`);
+                } else {
+                    // 如果弹窗被拦截，尝试直接在当前页面显示提示
+                    showToast('请长按上方图片保存');
+                }
+            }
+
+            // iOS 长按保存成功提示（使用 touch 事件检测长按）
+            (function setupIosSaveHint() {
+                const previewImg = document.getElementById('ios-preview-image');
+                const hint = document.getElementById('ios-save-success-hint');
+                const hintText = document.getElementById('ios-hint-text');
+                let hintTimeout = null;
+                let longPressTimer = null;
+                const LONG_PRESS_DURATION = 500; // iOS 长按触发时间约 500ms
+
+                function showSaveHint(photoIndex) {
+                    if (!hint) return;
+
+                    // 更新提示文字
+                    if (hintText) {
+                        hintText.textContent = `第 ${photoIndex + 1} 张 已保存`;
+                    }
+
+                    // 显示保存提示
+                    hint.classList.remove('opacity-0');
+                    hint.classList.add('opacity-100');
+
+                    // 清除之前的定时器
+                    if (hintTimeout) {
+                        clearTimeout(hintTimeout);
+                    }
+
+                    // 2.5秒后自动隐藏
+                    hintTimeout = setTimeout(function() {
+                        hint.classList.remove('opacity-100');
+                        hint.classList.add('opacity-0');
+                    }, 2500);
+                }
+
+                if (previewImg && hint) {
+                    // 方法1: 使用 touchstart/touchend 检测长按
+                    previewImg.addEventListener('touchstart', function(e) {
+                        // 开始计时，如果持续 500ms 则认为是长按
+                        longPressTimer = setTimeout(function() {
+                            longPressTimer = null; // 计时器已触发
+                            // 长按触发 - 记录此照片已保存
+                            iosSavedIndicesSet.add(iosCurrentIndex);
+                            // 显示保存提示
+                            showSaveHint(iosCurrentIndex);
+                        }, LONG_PRESS_DURATION);
+                    }, { passive: true });
+
+                    previewImg.addEventListener('touchend', function(e) {
+                        // 手指抬起，清除计时器（如果还没触发的话）
+                        if (longPressTimer) {
+                            clearTimeout(longPressTimer);
+                            longPressTimer = null;
+                        }
+                    }, { passive: true });
+
+                    previewImg.addEventListener('touchmove', function(e) {
+                        // 手指移动，取消长按检测
+                        if (longPressTimer) {
+                            clearTimeout(longPressTimer);
+                            longPressTimer = null;
+                        }
+                    }, { passive: true });
+
+                    previewImg.addEventListener('touchcancel', function(e) {
+                        // 触摸取消，清除计时器
+                        if (longPressTimer) {
+                            clearTimeout(longPressTimer);
+                            longPressTimer = null;
+                        }
+                    }, { passive: true });
+
+                    // 方法2: contextmenu 作为备用（桌面浏览器）
+                    previewImg.addEventListener('contextmenu', function(e) {
+                        // 记录当前照片已被长按
+                        iosSavedIndicesSet.add(iosCurrentIndex);
+                        // 立即显示提示
+                        showSaveHint(iosCurrentIndex);
+                    });
+                }
+            })();
+
+            // 显示保存成功弹窗（kawaii 风格）
+            function showSaveSuccessModal(count) {
+                const modal = document.getElementById('save-success-modal');
+                const countEl = document.getElementById('save-success-count');
+                countEl.textContent = count;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeSaveSuccessModal() {
+                const modal = document.getElementById('save-success-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                location.href = 'home.html';
+            }
+
+            // iOS 专用保存完成弹窗（显示实际保存数量）
+            function showIosSaveSuccessModal(savedCount, totalPhotos) {
+                const modal = document.getElementById('save-success-modal');
+                const countEl = document.getElementById('save-success-count');
+                const msgEl = document.getElementById('save-success-msg');
+
+                if (savedCount === 0) {
+                    // 用户没有长按任何照片
+                    countEl.textContent = '0';
+                    if (msgEl) {
+                        msgEl.innerHTML = `您未保存任何照片<br><span class="text-xs text-gray-400">提示：长按图片后选择"保存到'照片'"</span>`;
+                    }
+                } else if (savedCount < totalPhotos) {
+                    // 用户只保存了部分照片
+                    countEl.textContent = savedCount;
+                    if (msgEl) {
+                        msgEl.innerHTML = `已操作 <span class="font-black text-[var(--primary-green)]">${savedCount}</span> 张照片（共 ${totalPhotos} 张）`;
+                    }
+                } else {
+                    // 用户保存了所有照片
+                    countEl.textContent = savedCount;
+                    if (msgEl) {
+                        msgEl.textContent = `已操作 ${savedCount} 张照片`;
+                    }
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            // 生成照片 Data URL（含贴纸合成）
+            async function generatePhotoDataUrl(photoIndex) {
+                return new Promise((resolve, reject) => {
+                    const slide = document.querySelector(`.photo-slide:not(.clone)[data-index="${photoIndex}"]`);
+                    if (!slide) {
+                        reject(new Error('找不到照片'));
+                        return;
+                    }
+
+                    const stickerLayer = slide.querySelector('.sticker-layer');
+
+                    // 创建 canvas 合成照片和贴纸
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // 使用固定尺寸（移动端友好）
+                    const targetWidth = 800;
+                    const targetHeight = 1200;
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    // 绘制背景图
+                    const tempImg = new Image();
+                    tempImg.crossOrigin = 'anonymous';
+                    tempImg.onload = () => {
+                        // 计算裁剪区域（cover 模式）
+                        const imgRatio = tempImg.width / tempImg.height;
+                        const canvasRatio = targetWidth / targetHeight;
+
+                        let sx = 0, sy = 0, sw = tempImg.width, sh = tempImg.height;
+                        if (imgRatio > canvasRatio) {
+                            sw = tempImg.height * canvasRatio;
+                            sx = (tempImg.width - sw) / 2;
+                        } else {
+                            sh = tempImg.width / canvasRatio;
+                            sy = (tempImg.height - sh) / 2;
+                        }
+
+                        ctx.drawImage(tempImg, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+
+                        // 绘制贴纸
+                        if (stickerLayer) {
+                            const stickers = stickerLayer.querySelectorAll('.sticker');
+                            const layerRect = stickerLayer.getBoundingClientRect();
+
+                            // 计算 layer 到 canvas 的缩放比例
+                            const scaleX = targetWidth / layerRect.width;
+                            const scaleY = targetHeight / layerRect.height;
+
+                            stickers.forEach(sticker => {
+                                const stickerRect = sticker.getBoundingClientRect();
+
+                                // 获取贴纸内容（只取 emoji，不含按钮）
+                                const emoji = sticker.childNodes[0]?.textContent?.trim() || '';
+                                if (!emoji) return;
+
+                                // 获取贴纸的用户缩放比例
+                                const transform = sticker.style.transform || '';
+                                const scaleMatch = transform.match(/scale\(([\d.]+)\)/);
+                                const userScale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
+
+                                // 计算贴纸在 canvas 中的位置（相对于 layer 左上角）
+                                const x = (stickerRect.left - layerRect.left) * scaleX;
+                                const y = (stickerRect.top - layerRect.top) * scaleY;
+
+                                // 计算贴纸在 canvas 中的字号
+                                // 贴纸基础大小是 text-5xl = 3rem = 48px
+                                // 实际渲染大小 = 48px * userScale
+                                // canvas 上的大小 = 实际渲染大小 * scaleY（使用 Y 方向缩放，因为 emoji 高度更重要）
+                                const baseFontSize = 48; // text-5xl = 3rem = 48px
+                                const fontSize = Math.round(baseFontSize * userScale * scaleY);
+
+                                ctx.font = `${fontSize}px sans-serif`;
+                                ctx.textBaseline = 'top';
+                                ctx.fillText(emoji, x, y);
+                            });
+                        }
+
+                        // 返回 data URL
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                        resolve(dataUrl);
+                    };
+
+                    tempImg.onerror = () => reject(new Error('加载图片失败'));
+                    tempImg.src = photoSources[photoIndex];
+                });
+            }
+
+            // 下载照片（非 iOS）
+            async function downloadPhoto(photoIndex) {
+                const dataUrl = await generatePhotoDataUrl(photoIndex);
+
+                // 创建下载链接
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = `brushing_photo_${photoIndex + 1}_${Date.now()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             }
 
             // ===== STICKER MANAGEMENT =====
@@ -1025,6 +1519,7 @@
         // Initialize
         updateUI();
         loadUserStickers();
+        loadCapturedPhotos(); // 加载抓拍照片
     </script>
 
 </body>

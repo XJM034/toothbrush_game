@@ -12,10 +12,112 @@
     <script src="mobile_fixes.js"></script>
     <title>Game - Brushing Master</title>
     <style>
-        .camera-bg {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1542385151-54070a2f4dc1?q=80&w=1000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+        /* 游戏画布层 - 全屏背景 */
+        #game-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 加载遮罩 */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 64px;
+            height: 64px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 权限提示 */
+        #permission-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 400;
+            padding: 24px;
+        }
+
+        #permission-overlay.show {
+            display: flex;
+        }
+
+        /* 状态提示条 */
+        #status-bar {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #status-bar.show {
+            opacity: 1;
+        }
+
+        /* 得分动画 */
+        .score-popup {
+            position: fixed;
+            font-size: 32px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            animation: scoreFloat 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes scoreFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
         }
 
         .bacteria {
@@ -36,35 +138,65 @@
     </style>
 </head>
 
-<body class="h-screen camera-bg flex flex-col relative overflow-hidden safe-area-top">
+<body class="h-screen flex flex-col relative overflow-hidden safe-area-top">
+
+    <!-- 游戏画布（摄像头 + 头套渲染） -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- 加载遮罩 -->
+    <div id="loading-overlay">
+        <div class="loading-spinner mb-6"></div>
+        <div class="text-white text-xl font-bold" id="loading-text">正在初始化...</div>
+        <div class="text-white text-sm opacity-70 mt-2" id="loading-detail">加载摄像头和识别模型</div>
+    </div>
+
+    <!-- 权限提示 -->
+    <div id="permission-overlay">
+        <div class="text-center">
+            <div class="text-6xl mb-6">📷</div>
+            <h2 class="text-white text-2xl font-bold mb-4">需要摄像头权限</h2>
+            <p class="text-gray-300 mb-6">为了识别您的刷牙动作，我们需要使用摄像头。</p>
+            <button id="retry-permission" class="kawaii-button kawaii-button-primary px-8 py-3 text-lg">
+                授权摄像头
+            </button>
+            <button onclick="location.href='home.html'"
+                class="kawaii-button kawaii-button-red px-8 py-3 text-lg mt-4 block w-full">
+                返回主页
+            </button>
+        </div>
+    </div>
 
     <!-- UI Overlays -->
-    <div class="absolute inset-x-0 top-12 px-6 flex justify-between items-start pointer-events-none">
+    <div class="absolute inset-x-0 top-12 px-6 flex justify-between items-start pointer-events-none z-10">
         <div class="kawaii-card bg-white p-3 flex items-center gap-3">
             <div class="text-xs font-black">
                 <div class="text-xs text-gray-400 uppercase">能量值</div>
-                <div class="text-[var(--primary-green)]" id="timer-display"></div>
+                <div class="text-[var(--primary-green)]" id="timer-display">--:--</div>
             </div>
-            <script>
-                // 立即显示正确的初始时间和进度条（避免闪烁）
-                (function () {
-                    const dur = parseInt(localStorage.getItem('selectedDuration')) || 2;
-                    document.getElementById('timer-display').textContent = dur + ':00';
-                })();
-            </script>
             <div class="w-24 kawaii-progress-bg">
                 <div class="kawaii-progress-fill" id="progress-bar" style="width: 100%"></div>
             </div>
         </div>
-        <div
+        <div id="exit-btn"
             class="kawaii-button kawaii-button-red w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto">
             <i class="fas fa-times"></i>
         </div>
     </div>
 
-    <!-- Bacteria Targets -->
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="grid grid-cols-2 gap-20">
+    <!-- 积分显示 -->
+    <div class="absolute top-28 left-6 z-10">
+        <div class="kawaii-card bg-white bg-opacity-90 px-4 py-2">
+            <div class="text-xs text-gray-400 uppercase">积分</div>
+            <div class="text-2xl font-black text-[var(--primary-green)]" id="score-display">0</div>
+        </div>
+    </div>
+
+    <!-- 状态提示条 -->
+    <div id="status-bar">请露出牙齿</div>
+
+    <!-- Bacteria Targets (装饰) -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-5">
+        <div class="grid grid-cols-2 gap-20 opacity-30">
             <div class="bacteria text-green-400 text-6xl drop-shadow-[0_4px_0_#333]">
                 <i class="fas fa-virus"></i>
             </div>
@@ -80,26 +212,21 @@
         </div>
     </div>
 
-    <!-- Face Guide -->
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="w-64 h-80 border-4 border-dashed border-white opacity-40 rounded-[100px]"></div>
-    </div>
-
     <!-- Bottom Action Info -->
-    <div class="absolute inset-x-0 bottom-12 px-8">
+    <div class="absolute inset-x-0 bottom-12 px-8 z-10">
         <div class="kawaii-card text-center py-4 bg-white bg-opacity-90">
             <div class="flex items-center justify-center gap-4 mb-2">
                 <div
                     class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center overflow-hidden opacity-30">
                     <img src="owl_mascot.svg" class="w-2/3 h-2/3 object-contain" />
                 </div>
-                <div class="text-xl font-black text-[var(--primary-green)] uppercase">猫头鹰特训！</div>
+                <div class="text-xl font-black text-[var(--primary-green)] uppercase" id="action-text">准备开始！</div>
                 <div
                     class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center overflow-hidden opacity-30">
                     <img src="owl_mascot.svg" class="w-2/3 h-2/3 object-contain" />
                 </div>
             </div>
-            <p class="text-xs font-black uppercase text-gray-400">动起来！帮助小猫头鹰变强！</p>
+            <p class="text-xs font-black uppercase text-gray-400" id="action-hint">露出牙齿 → 握拳 → 刷动</p>
         </div>
     </div>
 
@@ -132,25 +259,94 @@
         </div>
     </div>
 
-    <!-- Flash Effect (Mockup) -->
-    <div class="absolute inset-0 bg-white opacity-0 transition-opacity pointer-events-none" id="flash"></div>
+    <!-- 加载 BrushGame 引擎 -->
+    <script src="lib/embed/brushing-engine.umd.js"></script>
 
     <script>
-        // ===== GAME SESSION STATE =====
-        const selectedDuration = parseInt(localStorage.getItem('selectedDuration')) || 2; // 获取选择的时长
-        let energyTime = selectedDuration * 60; // 转换为秒
+        // ===== 游戏配置 =====
+        const selectedDuration = parseInt(localStorage.getItem('selectedDuration')) || 2;
+        const gameDurationMs = selectedDuration * 60 * 1000;
+
+        // 读取皮肤配置
+        function getSelectedSkin() {
+            return sessionStorage.getItem('selectedSkin') ||
+                localStorage.getItem('selectedSkin') ||
+                'owl';
+        }
+
+        // ===== DOM 元素 =====
+        const canvas = document.getElementById('game-canvas');
+        const timerDisplay = document.getElementById('timer-display');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreDisplay = document.getElementById('score-display');
+        const statusBar = document.getElementById('status-bar');
+        const actionText = document.getElementById('action-text');
+        const actionHint = document.getElementById('action-hint');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const loadingDetail = document.getElementById('loading-detail');
+        const permissionOverlay = document.getElementById('permission-overlay');
+        const exitBtn = document.getElementById('exit-btn');
+
+        // ===== 游戏状态 =====
+        let gameHandle = null;
         let germsKilled = 0;
-        let lastGermKillTime = 0;
+        let timerIntervalId = null; // Track interval for cleanup
+        let isGameStarting = false; // Re-entry protection flag
 
-        const energyDisplay = document.querySelector('.text-\\[var\\(--primary-green\\)\\]');
-        const progressFill = document.querySelector('.kawaii-progress-fill');
-        const exitBtn = document.querySelector('.kawaii-button-red');
+        // ===== UI 更新函数 =====
+        function formatTime(ms) {
+            const totalSeconds = Math.ceil(ms / 1000);
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
 
-        exitBtn.onclick = () => {
-            showExitModal();
-        };
+        function updateTimer() {
+            if (!gameHandle) return;
+            const remaining = gameHandle.getRemainingTime();
+            // Clamp remaining to valid range to prevent progress bar overflow/underflow
+            const clampedRemaining = Math.max(0, Math.min(remaining, gameDurationMs));
+            timerDisplay.textContent = formatTime(clampedRemaining);
 
-        // 退出确认弹框函数
+            const progress = (clampedRemaining / gameDurationMs) * 100;
+            progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+        }
+
+        function showStatus(text, duration = 1500) {
+            statusBar.textContent = text;
+            statusBar.classList.add('show');
+            setTimeout(() => {
+                statusBar.classList.remove('show');
+            }, duration);
+        }
+
+        function showScorePopup(points) {
+            const popup = document.createElement('div');
+            popup.className = 'score-popup';
+            popup.textContent = `+${points}`;
+            popup.style.left = `${Math.random() * 60 + 20}%`;
+            popup.style.top = `${Math.random() * 30 + 30}%`;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        function updateGameState(state) {
+            const stateMessages = {
+                'init': { text: '准备开始', hint: '正在初始化...' },
+                'ready': { text: '露出牙齿！', hint: '张大嘴巴露出牙齿' },
+                'playing': { text: '开始刷牙！', hint: '握拳并左右刷动' },
+                'brushing': { text: '继续保持！', hint: '保持刷牙动作' },
+                'success': { text: '太棒了！', hint: '继续加油！' },
+                'gameover': { text: '游戏结束', hint: '正在计算结果...' }
+            };
+
+            const msg = stateMessages[state] || { text: state, hint: '' };
+            actionText.textContent = msg.text;
+            actionHint.textContent = msg.hint;
+        }
+
+        // ===== 退出弹框 =====
         function showExitModal() {
             const modal = document.getElementById('exit-modal');
             const content = document.getElementById('exit-modal-content');
@@ -172,31 +368,25 @@
         }
 
         function confirmExit() {
+            if (gameHandle) {
+                gameHandle.stop();
+            }
             location.href = 'home.html';
         }
 
-        // 模拟击败细菌（每2秒击败1-3个细菌）
-        function simulateGermKill() {
-            const now = Date.now();
-            if (now - lastGermKillTime > 2000) {
-                germsKilled += Math.floor(Math.random() * 3) + 1;
-                lastGermKillTime = now;
-            }
-        }
+        exitBtn.onclick = showExitModal;
 
-        // 获取连续天数
+        // ===== 连续天数 =====
         function getStreakDays() {
             const streak = localStorage.getItem('streakDays');
             return streak ? parseInt(streak) : 1;
         }
 
-        // 更新连续天数
         function updateStreak() {
             const lastBrushDate = localStorage.getItem('lastBrushDate');
             const today = new Date().toISOString().split('T')[0];
 
             if (lastBrushDate === today) {
-                // 今天已经刷过，不更新
                 return getStreakDays();
             }
 
@@ -206,7 +396,6 @@
 
             let streak = 1;
             if (lastBrushDate === yesterdayStr) {
-                // 昨天刷过，连续天数+1
                 streak = getStreakDays() + 1;
             }
 
@@ -215,42 +404,301 @@
             return streak;
         }
 
-        // 游戏结束，跳转到结果页
-        function endGame() {
+        // ===== 游戏结束处理 =====
+        // capturedPhotos and remainingTime are passed in since gameHandle may be null after cleanup
+        function handleGameOver(stats, capturedPhotos, remainingTime) {
             const streakDays = updateStreak();
 
-            // 保存游戏结果到 sessionStorage
-            sessionStorage.setItem('lastGameResult', JSON.stringify({
-                duration: selectedDuration,
-                germsKilled: germsKilled,
-                streakDays: streakDays
-            }));
+            console.log('[Game] 抓拍照片数量:', capturedPhotos.length);
 
-            location.href = 'game_result.html';
+            // 准备游戏结果数据（不含照片，分开存储以减少配额压力）
+            const gameResult = {
+                duration: selectedDuration,
+                germsKilled: stats.successCount * 3, // 每次成功算消灭3个细菌
+                streakDays: streakDays,
+                score: stats.score,
+                successCount: stats.successCount,
+                totalBrushTime: stats.totalBrushTime,
+                accuracy: stats.accuracy,
+                durationMs: gameDurationMs - remainingTime,
+                photosAvailable: false // Will be updated if photos are saved successfully
+            };
+
+            // 尝试保存照片（带降级策略，避免 QuotaExceededError 阻断流程）
+            let photosSaved = false;
+            const photosToSave = compressPhotosForStorage(capturedPhotos, 6);
+
+            if (photosToSave.length > 0) {
+                // 策略1: 尝试保存全部 6 张
+                const fullJson = JSON.stringify(photosToSave);
+                photosSaved = safeStorageSet('capturedPhotos', fullJson);
+
+                // 策略2: 失败则尝试只保存 3 张
+                if (!photosSaved && photosToSave.length > 3) {
+                    console.warn('[Storage] Retrying with fewer photos (3)');
+                    const reducedPhotos = compressPhotosForStorage(photosToSave, 3);
+                    photosSaved = safeStorageSet('capturedPhotos', JSON.stringify(reducedPhotos));
+                }
+
+                // 策略3: 再失败则只保存 1 张
+                if (!photosSaved && photosToSave.length > 1) {
+                    console.warn('[Storage] Retrying with single photo');
+                    photosSaved = safeStorageSet('capturedPhotos', JSON.stringify([photosToSave[0]]));
+                }
+
+                // 策略4: 全部失败，清空照片存储，继续流程
+                if (!photosSaved) {
+                    console.warn('[Storage] All photo save attempts failed, continuing without photos');
+                    try { sessionStorage.removeItem('capturedPhotos'); } catch (e) { /* ignore */ }
+                }
+            }
+
+            // 更新游戏结果中的照片可用性标记
+            gameResult.photosAvailable = photosSaved;
+
+            // 保存游戏结果（不含大体积照片数据）
+            const resultSaved = safeStorageSet('lastGameResult', JSON.stringify(gameResult));
+            if (!resultSaved) {
+                console.error('[Storage] Failed to save game result, but continuing to result page');
+            }
+
+            // 无论存储是否成功，都跳转到结果页（存储失败不阻断用户流程）
+            setTimeout(() => {
+                location.href = 'game_result.html';
+            }, 1500);
         }
 
-        const timer = setInterval(() => {
-            energyTime--;
-            simulateGermKill(); // 模拟击败细菌
+        // ===== Helper: Normalize error to string =====
+        function getErrorMessage(err) {
+            if (err instanceof Error) return err.message;
+            if (typeof err === 'string') return err;
+            if (err && typeof err.message === 'string') return err.message;
+            return String(err);
+        }
 
-            const mins = Math.floor(energyTime / 60);
-            const secs = energyTime % 60;
-            energyDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        // ===== Helper: Get error name safely =====
+        function getErrorName(err) {
+            if (err instanceof Error || err instanceof DOMException) return err.name || '';
+            if (err && typeof err.name === 'string') return err.name;
+            return '';
+        }
 
-            // 更新进度条
-            const totalTime = selectedDuration * 60;
-            const progress = (energyTime / totalTime) * 100;
-            progressFill.style.width = `${progress}%`;
-
-            if (energyTime <= 0) {
-                clearInterval(timer);
-                endGame();
+        // ===== Helper: Check if error is permission denied (multi-signal) =====
+        function isPermissionDenied(err) {
+            // 1. Check error name (highest priority, works on iOS Safari even when message is empty)
+            const name = getErrorName(err);
+            const permissionErrorNames = [
+                'NotAllowedError',      // Standard: user denied permission
+                'SecurityError',        // Some browsers use this for permission issues
+                'PermissionDeniedError' // Legacy/non-standard
+            ];
+            if (permissionErrorNames.includes(name)) {
+                return true;
             }
-        }, 1000);
 
-        // 演示模式：5秒后自动结束（方便测试）
-        // 取消下面的注释可以快速测试
-        // setTimeout(() => { germsKilled = 42; clearInterval(timer); endGame(); }, 5000);
+            // 2. Check if it's a DOMException with permission-related code
+            if (err instanceof DOMException) {
+                // DOMException.SECURITY_ERR = 18, DOMException.NOT_ALLOWED_ERR doesn't have constant
+                if (err.code === 18) return true;
+            }
+
+            // 3. Fallback: check message string (for browsers that don't set name correctly)
+            const msg = getErrorMessage(err).toLowerCase();
+            const permissionKeywords = [
+                'permission', 'notallowed', 'not allowed', 'denied',
+                'getusermedia', 'user denied', 'access denied'
+            ];
+            return permissionKeywords.some(kw => msg.includes(kw));
+        }
+
+        // ===== Helper: Safe sessionStorage write with fallback =====
+        function safeStorageSet(key, value, fallbackValue = null) {
+            try {
+                sessionStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.warn('[Storage] Failed to save', key, ':', e.message || e);
+                // Try with fallback value if provided
+                if (fallbackValue !== null) {
+                    try {
+                        sessionStorage.setItem(key, fallbackValue);
+                        return true;
+                    } catch (e2) {
+                        console.warn('[Storage] Fallback also failed:', e2.message || e2);
+                    }
+                }
+                return false;
+            }
+        }
+
+        // ===== Helper: Compress photos for storage =====
+        // Reduces photo count and quality to fit within storage quota
+        function compressPhotosForStorage(photos, maxCount = 6) {
+            if (!photos || photos.length === 0) return [];
+
+            // Strategy: keep up to maxCount photos, evenly distributed
+            let selected = photos;
+            if (photos.length > maxCount) {
+                const step = photos.length / maxCount;
+                selected = [];
+                for (let i = 0; i < maxCount; i++) {
+                    selected.push(photos[Math.floor(i * step)]);
+                }
+            }
+            return selected;
+        }
+
+        // ===== Helper: Derive base paths relative to current page =====
+        function getBasePaths() {
+            // Get the directory of the current HTML file
+            // e.g., https://example.com/app/prototype/game_play.html → https://example.com/app/prototype/
+            const pageUrl = new URL('.', window.location.href).href;
+            // basePath: current directory (for SkinSet images in same folder)
+            const basePath = pageUrl.replace(/\/$/, '');
+            // modelBasePath: go up one level from prototype to get to the root where /models/ is
+            // e.g., https://example.com/app/prototype/ → https://example.com/app/
+            const modelBasePath = new URL('..', pageUrl).href.replace(/\/$/, '');
+            return { basePath, modelBasePath };
+        }
+
+        // ===== Cleanup previous game resources =====
+        function cleanupGame() {
+            if (timerIntervalId) {
+                clearInterval(timerIntervalId);
+                timerIntervalId = null;
+            }
+            if (gameHandle) {
+                try {
+                    gameHandle.stop();
+                } catch (e) {
+                    console.warn('[Game] Cleanup error:', e);
+                }
+                gameHandle = null;
+            }
+        }
+
+        // ===== 启动游戏 =====
+        async function startGame() {
+            // Re-entry protection: prevent multiple concurrent starts
+            if (isGameStarting) {
+                console.log('[Game] Already starting, ignoring duplicate call');
+                return;
+            }
+
+            // Cleanup any previous game instance
+            cleanupGame();
+
+            isGameStarting = true;
+            const skinId = getSelectedSkin();
+            const { basePath, modelBasePath } = getBasePaths();
+            console.log('[Game] Paths - basePath:', basePath, 'modelBasePath:', modelBasePath);
+
+            // 设置定时器更新
+            timerIntervalId = setInterval(() => {
+                updateTimer();
+            }, 100);
+
+            try {
+                gameHandle = await BrushGame.start({
+                    canvas: canvas,
+                    avatarId: skinId,
+                    gameDurationMs: gameDurationMs,
+                    basePath: basePath,        // 头套图片在 /prototype/SkinSet/
+                    modelBasePath: modelBasePath, // 模型在 /models/
+                    debug: false,
+
+                    onProgress: (stage, progress) => {
+                        const stageNames = {
+                            'camera': '正在启动摄像头',
+                            'models': '正在加载识别模型',
+                            'avatar': '正在加载头套',
+                            'ready': '准备就绪'
+                        };
+                        loadingText.textContent = stageNames[stage] || stage;
+                        loadingDetail.textContent = `进度: ${Math.round(progress * 100)}%`;
+                    },
+
+                    onState: (state, event) => {
+                        console.log('[Game] State:', state, event);
+                        updateGameState(state);
+
+                        if (state === 'ready') {
+                            showStatus('请露出牙齿 😁');
+                        } else if (state === 'playing') {
+                            showStatus('开始刷牙！ 💪');
+                        } else if (state === 'success') {
+                            showStatus('太棒了！ ⭐');
+                        }
+                    },
+
+                    onScore: (stats, points) => {
+                        console.log('[Game] Score:', stats, '+', points);
+                        scoreDisplay.textContent = stats.score;
+                        germsKilled = stats.successCount * 3;
+                        showScorePopup(points);
+                    },
+
+                    onGameOver: (stats) => {
+                        console.log('[Game] Game Over:', stats);
+                        // Extract data BEFORE cleanup (since cleanup sets gameHandle to null)
+                        const capturedPhotos = gameHandle ? gameHandle.getCapturedPhotos() : [];
+                        const remainingTime = gameHandle ? gameHandle.getRemainingTime() : 0;
+                        cleanupGame();
+                        isGameStarting = false;
+                        handleGameOver(stats, capturedPhotos, remainingTime);
+                    },
+
+                    onError: (err) => {
+                        console.error('[Game] Error:', err);
+                        cleanupGame();
+                        isGameStarting = false;
+
+                        if (isPermissionDenied(err)) {
+                            permissionOverlay.classList.add('show');
+                        } else {
+                            alert('游戏出错: ' + getErrorMessage(err));
+                            location.href = 'home.html';
+                        }
+                    }
+                });
+
+                // 隐藏加载遮罩
+                loadingOverlay.classList.add('hidden');
+                isGameStarting = false;
+                updateTimer();
+
+            } catch (err) {
+                console.error('[Game] Failed to start:', err);
+                cleanupGame();
+                isGameStarting = false;
+
+                if (isPermissionDenied(err)) {
+                    loadingOverlay.classList.add('hidden');
+                    permissionOverlay.classList.add('show');
+                } else {
+                    loadingText.textContent = '启动失败';
+                    loadingDetail.textContent = getErrorMessage(err);
+                }
+            }
+        }
+
+        // ===== 权限重试 =====
+        document.getElementById('retry-permission').onclick = async () => {
+            permissionOverlay.classList.remove('show');
+            loadingOverlay.classList.remove('hidden');
+            startGame();
+        };
+
+        // ===== 页面加载时启动游戏 =====
+        // 需要用户手势才能启动摄像头（iOS 要求）
+        // 如果是从其他页面点击进入的，已经有手势上下文
+        document.addEventListener('DOMContentLoaded', () => {
+            // 立即显示初始时间
+            timerDisplay.textContent = formatTime(gameDurationMs);
+
+            // 稍微延迟启动，确保页面完全加载
+            setTimeout(startGame, 100);
+        });
     </script>
 
 </body>

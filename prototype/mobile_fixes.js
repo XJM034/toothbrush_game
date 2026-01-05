@@ -9,12 +9,20 @@ document.addEventListener('contextmenu', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return;
     }
+    // Allow on iOS preview image (for long-press save)
+    if (e.target.id === 'ios-preview-image') {
+        return;
+    }
     e.preventDefault();
 });
 
 // Prevent text selection (except in input fields)
 document.addEventListener('selectstart', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+    // Allow on iOS preview image (for long-press save)
+    if (e.target.id === 'ios-preview-image') {
         return;
     }
     e.preventDefault();
