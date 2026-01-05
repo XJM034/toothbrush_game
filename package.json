@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "prebuild": "node scripts/fetch-models.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build && cp -R prototype dist/prototype",
     "build:embed": "BUILD_MODE=embed vite build",
