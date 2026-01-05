@@ -1,38 +1,313 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0;url=/prototype/home.html">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Brushing Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-green: #006837;
+            --secondary-green: #8DC63F;
+            --accent-yellow: #FDB913;
+            --stroke-dark: #2C3E50;
+            --bg-light: #F8F9FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+            min-height: 100svh;
+            background-color: var(--bg-light);
+            background-image: radial-gradient(rgba(44, 62, 80, 0.05) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            /* 问题3修复：允许纵向滚动，仅禁止横向溢出 */
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        .container {
+
+        .splash-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 问题1修复：动画仅在允许动效时启用 */
+        @media (prefers-reduced-motion: no-preference) {
+            .splash-container {
+                animation: fadeIn 0.5s ease-out;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
+
+        /* Mascot */
+        .mascot-wrapper {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 24px;
+            filter: drop-shadow(8px 8px 0 #333);
+        }
+
+        /* 动画仅在允许动效时启用 */
+        @media (prefers-reduced-motion: no-preference) {
+            .mascot-wrapper {
+                animation: bounce 2s ease-in-out infinite;
+            }
+
+            @keyframes bounce {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-12px);
+                }
+            }
+        }
+
+        .mascot-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Brand */
+        .brand-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            color: var(--stroke-dark);
             text-align: center;
-            color: white;
+            line-height: 1.1;
+            margin-bottom: 8px;
         }
-        a {
+
+        .brand-subtitle {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #6B7280;
+            margin-bottom: 40px;
+        }
+
+        /* Loading indicator */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .loading-bar-wrapper {
+            width: 200px;
+            height: 16px;
+            background: #E5E7EB;
+            border: 3px solid var(--stroke-dark);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: var(--accent-yellow);
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        /* 加载条动画仅在允许动效时启用 */
+        @media (prefers-reduced-motion: no-preference) {
+            .loading-bar {
+                width: 0%;
+                animation: loading 1.5s ease-in-out forwards;
+            }
+
+            @keyframes loading {
+                0% {
+                    width: 0%;
+                }
+
+                100% {
+                    width: 100%;
+                }
+            }
+        }
+
+        .loading-text {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #9CA3AF;
+            letter-spacing: 0.05em;
+        }
+
+        /* 问题1修复：手动跳转链接默认可见(opacity:1)，确保无JS/无动画时可用 */
+        .manual-link {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: var(--primary-green);
             color: white;
-            font-size: 18px;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            border: 4px solid var(--stroke-dark);
+            border-radius: 9999px;
+            box-shadow: 0 6px 0 var(--stroke-dark);
+            /* 默认可见，保证无JS/无动画时用户能看到 */
+            opacity: 1;
+            transition: all 0.1s ease;
+        }
+
+        /* 仅在允许动效时启用延迟显示动画 */
+        @media (prefers-reduced-motion: no-preference) {
+            .manual-link {
+                opacity: 0;
+                animation: showLink 0.3s ease-out 2s forwards;
+            }
+
+            @keyframes showLink {
+                to {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .manual-link:active {
+            transform: translateX(-50%) translateY(4px);
+            box-shadow: 0 2px 0 var(--stroke-dark);
+        }
+
+        /* Decorative elements */
+        .deco {
+            position: fixed;
+            opacity: 0.15;
+            pointer-events: none;
+            font-size: 4rem;
+        }
+
+        .deco-tooth {
+            top: 15%;
+            left: 10%;
+            transform: rotate(-15deg);
+            color: #60A5FA;
+        }
+
+        .deco-star {
+            bottom: 20%;
+            right: 10%;
+            transform: rotate(15deg);
+            color: var(--accent-yellow);
+        }
+
+        .deco-sparkle {
+            top: 25%;
+            right: 15%;
+            font-size: 2.5rem;
+            color: var(--secondary-green);
+        }
+
+        /* 闪光动画仅在允许动效时启用 */
+        @media (prefers-reduced-motion: no-preference) {
+            .deco-sparkle {
+                animation: sparkle 1.5s ease-in-out infinite;
+            }
+
+            @keyframes sparkle {
+
+                0%,
+                100% {
+                    opacity: 0.15;
+                    transform: scale(1);
+                }
+
+                50% {
+                    opacity: 0.3;
+                    transform: scale(1.1);
+                }
+            }
+        }
+
+        /* Safe area */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .manual-link {
+                bottom: calc(40px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* 问题3补充：确保小屏/大字体时内容不被裁切，增加底部间距给fixed链接留空间 */
+        .splash-container {
+            padding-bottom: 120px;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <p>正在跳转到游戏主页...</p>
-        <p><a href="/prototype/home.html">点击此处手动跳转</a></p>
+    <!-- Decorative elements -->
+    <div class="deco deco-tooth">&#129463;</div>
+    <div class="deco deco-star">&#11088;</div>
+    <div class="deco deco-sparkle">&#10024;</div>
+
+    <div class="splash-container">
+        <!-- Mascot -->
+        <div class="mascot-wrapper">
+            <!-- 问题2修复：图片路径改为绝对路径 -->
+            <img src="/prototype/owl_mascot.svg" alt="Brushing Master Mascot" />
+        </div>
+
+        <!-- Brand -->
+        <h1 class="brand-title">Brushing<br>Master</h1>
+        <p class="brand-subtitle">Let's make brushing fun!</p>
+
+        <!-- Loading -->
+        <div class="loading-container">
+            <div class="loading-bar-wrapper">
+                <div class="loading-bar"></div>
+            </div>
+            <span class="loading-text">Loading...</span>
+        </div>
     </div>
+
+    <!-- 问题2修复：手动跳转链接改为绝对路径 -->
+    <a href="/prototype/home.html" class="manual-link">Enter Game</a>
+
     <script>
-        // Fallback JS redirect in case meta refresh doesn't work
-        window.location.href = '/prototype/home.html';
+        // 问题2修复：JS跳转也改为绝对路径
+        setTimeout(function () {
+            window.location.href = '/prototype/home.html';
+        }, 1800);
     </script>
 </body>
+
 </html>
