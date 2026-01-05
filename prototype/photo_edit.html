@@ -457,7 +457,7 @@
     </div>
 
     <!-- Sticker Tray -->
-    <div class="p-4 pt-3 pb-2 bg-white border-t-4 border-[#333] mt-6 rounded-t-[32px]">
+        <div class="p-4 pt-3 pb-2 bg-white border-t-4 border-[#333] mt-6 rounded-t-[32px]">
         <!-- Sticker usage hint -->
         <p class="text-xs text-gray-400 mb-2 text-center">
             <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
@@ -483,16 +483,106 @@
 
         <script>
             // ===== PHOTO GALLERY STATE (INFINITE CAROUSEL) =====
-            let currentSlidePosition = 1;
-            const totalPhotos = 6;
+            let currentSlidePosition = 0;
+            let totalPhotos = 0;
             const slider = document.getElementById('photo-slider');
-            const dots = document.querySelectorAll('.dot');
-            const dotWrappers = document.querySelectorAll('#pagination-dots > div[data-index]');
+            const paginationContainer = document.getElementById('pagination-dots');
             const counter = document.getElementById('photo-counter');
             const canvas = document.getElementById('photo-canvas');
+            let dots = [];
+            let dotWrappers = [];
+            let clonesEnabled = false;
 
-            // Initialize slider at position 1 (the real photo 1)
-            slider.style.transform = `translateX(-${currentSlidePosition * 100}%)`;
+            function createSlide(src, realIndex, isClone = false, isPlaceholder = false) {
+                const slide = document.createElement('div');
+                slide.className = 'photo-slide' + (isClone ? ' clone' : '');
+                slide.dataset.index = realIndex;
+
+                const img = document.createElement('img');
+                img.className = 'w-full h-full object-cover';
+                img.draggable = false;
+                if (src) {
+                    img.src = src;
+                } else {
+                    img.style.opacity = '0.05';
+                    img.alt = '未捕捉到图像';
+                }
+                slide.appendChild(img);
+
+                const layer = document.createElement('div');
+                layer.className = 'sticker-layer';
+                if (!isClone && !isPlaceholder) {
+                    layer.id = `sticker-layer-${realIndex}`;
+                }
+                slide.appendChild(layer);
+
+                if (isPlaceholder) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'absolute inset-0 flex items-center justify-center text-xl font-black text-gray-500';
+                    placeholder.textContent = '未捕捉到图像';
+                    slide.appendChild(placeholder);
+                }
+                return slide;
+            }
+
+            function buildGallery(photoSources) {
+                slider.innerHTML = '';
+                paginationContainer.innerHTML = '';
+
+                totalPhotos = photoSources.length;
+                clonesEnabled = totalPhotos > 1;
+
+                // No photos: show placeholder slide, hide dots/counter
+                if (totalPhotos === 0) {
+                    slider.appendChild(createSlide(null, 0, false, true));
+                    dots = [];
+                    dotWrappers = [];
+                    counter.textContent = '0';
+                    currentSlidePosition = 0;
+                    slider.style.transform = 'translateX(0)';
+                    return;
+                }
+
+                // Add clone (last)
+                if (clonesEnabled) {
+                    slider.appendChild(createSlide(photoSources[totalPhotos - 1], totalPhotos - 1, true));
+                }
+
+                // Real slides + dots
+                photoSources.forEach((src, idx) => {
+                    slider.appendChild(createSlide(src, idx));
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'p-2 cursor-pointer';
+                    wrapper.dataset.index = idx;
+                    const dot = document.createElement('div');
+                    dot.className = 'w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot';
+                    wrapper.appendChild(dot);
+                    paginationContainer.appendChild(wrapper);
+                });
+
+                // Add clone (first)
+                if (clonesEnabled) {
+                    slider.appendChild(createSlide(photoSources[0], 0, true));
+                }
+
+                dots = paginationContainer.querySelectorAll('.dot');
+                dotWrappers = paginationContainer.querySelectorAll('#pagination-dots > div[data-index]');
+
+                // Bind dot click
+                dotWrappers.forEach(wrapper => {
+                    wrapper.onclick = () => {
+                        const idx = parseInt(wrapper.dataset.index);
+                        if (!Number.isNaN(idx)) {
+                            goToPhoto(idx);
+                        }
+                    };
+                });
+
+                currentSlidePosition = clonesEnabled ? 1 : 0;
+                slider.style.transition = 'none';
+                slider.style.transform = `translateX(-${currentSlidePosition * 100}%)`;
+                updateUI();
+            }
 
             // Hide swipe hint after 2 seconds
             setTimeout(() => {
@@ -503,20 +593,22 @@
                 }
             }, 2000);
 
-            // Get real photo index (0-5) from slide position (0-7)
-            // Added bounds checking to prevent -1/6 display bug
+            // Get real photo index from current slide position
             function getRealIndex(position) {
-                // Clamp position to valid range first
-                if (position < 0) position = 0;
-                if (position > 7) position = 7;
-
-                if (position === 0) return 5;
-                if (position === 7) return 0;
+                if (!clonesEnabled) return 0;
+                const maxPosition = totalPhotos + 1;
+                if (position <= 0) return totalPhotos - 1;
+                if (position >= maxPosition) return 0;
                 return position - 1;
             }
 
             // Update UI (dots and counter) based on current position
             function updateUI() {
+                if (totalPhotos === 0) {
+                    counter.textContent = '0';
+                    return;
+                }
+
                 const realIndex = getRealIndex(currentSlidePosition);
                 counter.textContent = realIndex + 1;
 
@@ -557,45 +649,42 @@
             // Handle jump-back after reaching clone slides
             function handleTransitionEnd() {
                 isAnimating = false;
+                if (!clonesEnabled) return;
 
+                const maxPosition = totalPhotos + 1;
                 if (currentSlidePosition === 0) {
-                    currentSlidePosition = 6;
+                    currentSlidePosition = totalPhotos;
                     updateSlider(false);
-                } else if (currentSlidePosition === 7) {
+                } else if (currentSlidePosition === maxPosition) {
                     currentSlidePosition = 1;
                     updateSlider(false);
                 }
 
-                // Safety: ensure position is always valid (1-6)
-                if (currentSlidePosition < 1) {
-                    currentSlidePosition = 1;
-                    updateSlider(false);
-                } else if (currentSlidePosition > 6) {
-                    currentSlidePosition = 6;
-                    updateSlider(false);
-                }
+                // Safety
+                if (currentSlidePosition < 0) currentSlidePosition = 0;
+                if (currentSlidePosition > maxPosition) currentSlidePosition = maxPosition;
             }
 
             slider.addEventListener('transitionend', handleTransitionEnd);
 
             // Go to next photo (seamless) - with lock check
             function nextPhoto() {
-                if (isAnimating) return; // Prevent rapid clicks
+                if (isAnimating || totalPhotos <= 1) return; // Prevent rapid clicks
                 currentSlidePosition++;
                 updateSlider(true);
             }
 
             // Go to previous photo (seamless) - with lock check
             function prevPhoto() {
-                if (isAnimating) return; // Prevent rapid clicks
+                if (isAnimating || totalPhotos <= 1) return; // Prevent rapid clicks
                 currentSlidePosition--;
                 updateSlider(true);
             }
 
             // Go to specific photo (by real index 0-5)
             function goToPhoto(realIndex) {
-                if (isAnimating) return;
-                currentSlidePosition = realIndex + 1;
+                if (isAnimating || totalPhotos === 0) return;
+                currentSlidePosition = clonesEnabled ? realIndex + 1 : 0;
                 updateSlider(true);
             }
 
@@ -699,53 +788,30 @@
             }
 
             // ===== PHOTO SOURCES (动态加载抓拍照片) =====
-            const defaultPhotoSources = [
-                'Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg',
-                'Sample_ima/03ddc3251a33a2da3ac190b368c3e6e6.jpg',
-                'Sample_ima/9ad1c9c090e4b32d700bdda8a1179f95.jpg',
-                'Sample_ima/ba3c9719f84490a9e2257a0ed01d3faa.jpg',
-                'Sample_ima/f3bd68d0920e6f239d00e877d49d1878.jpg',
-                'Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg'
-            ];
-
-            // 从 sessionStorage 加载抓拍照片，不足用默认图片补齐
-            let photoSources = [...defaultPhotoSources];
+            // 从 sessionStorage 加载抓拍照片
+            let photoSources = [];
 
             function loadCapturedPhotos() {
                 try {
                     const capturedPhotosJson = sessionStorage.getItem('capturedPhotos');
+                    photoSources = [];
+
                     if (capturedPhotosJson) {
-                        const capturedPhotos = JSON.parse(capturedPhotosJson);
-                        console.log('[PhotoEdit] 加载抓拍照片:', capturedPhotos.length, '张');
-
-                        // 用抓拍照片替换默认照片
-                        for (let i = 0; i < 6; i++) {
-                            if (capturedPhotos[i]) {
-                                photoSources[i] = capturedPhotos[i];
-                            }
-                        }
-
-                        // 更新 slider 中的图片
-                        updateSliderPhotos();
+                        const capturedPhotos = JSON.parse(capturedPhotosJson) || [];
+                        photoSources = capturedPhotos.filter(Boolean);
+                        console.log('[PhotoEdit] 加载抓拍照片:', photoSources.length, '张');
                     } else {
-                        console.log('[PhotoEdit] 没有抓拍照片，使用默认图片');
+                        console.log('[PhotoEdit] 没有抓拍照片');
+                    }
+
+                    buildGallery(photoSources);
+
+                    if (photoSources.length === 0) {
+                        showToast('未捕捉到图像');
                     }
                 } catch (e) {
                     console.error('[PhotoEdit] 加载抓拍照片失败:', e);
                 }
-            }
-
-            function updateSliderPhotos() {
-                const slides = document.querySelectorAll('.photo-slide');
-                slides.forEach(slide => {
-                    const index = parseInt(slide.dataset.index);
-                    if (!isNaN(index) && index >= 0 && index < 6) {
-                        const img = slide.querySelector('img');
-                        if (img && photoSources[index]) {
-                            img.src = photoSources[index];
-                        }
-                    }
-                });
             }
 
             // ===== SAVE MODAL FUNCTIONS =====
@@ -1093,6 +1159,11 @@
             // 生成照片 Data URL（含贴纸合成）
             async function generatePhotoDataUrl(photoIndex) {
                 return new Promise((resolve, reject) => {
+                    if (!photoSources[photoIndex]) {
+                        reject(new Error('没有可导出的照片'));
+                        return;
+                    }
+
                     const slide = document.querySelector(`.photo-slide:not(.clone)[data-index="${photoIndex}"]`);
                     if (!slide) {
                         reject(new Error('找不到照片'));
@@ -1356,7 +1427,13 @@
             stickerBtns.forEach(btn => {
                 btn.onclick = () => {
                     const stickerEmoji = btn.dataset.sticker;
-                    const currentStickerLayer = document.getElementById(`sticker-layer-${getRealIndex(currentSlidePosition)}`);
+                    const realIdx = getRealIndex(currentSlidePosition);
+                    const currentStickerLayer = document.getElementById(`sticker-layer-${realIdx}`);
+
+                    if (!currentStickerLayer) {
+                        showToast('没有可编辑的照片');
+                        return;
+                    }
 
                     const newSticker = document.createElement('div');
                     newSticker.textContent = stickerEmoji;
@@ -1517,9 +1594,9 @@
         }
 
         // Initialize
+        loadCapturedPhotos(); // 加载抓拍照片并构建画廊
         updateUI();
         loadUserStickers();
-        loadCapturedPhotos(); // 加载抓拍照片
     </script>
 
 </body>
