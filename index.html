@@ -134,8 +134,9 @@
             border-radius: 8px;
             overflow: hidden;
             position: relative;
-            /* 强制 Safari/Chrome 移动端正确渲染圆角裁剪 */
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            /* 强制 Safari/Chrome 移动端触发遮罩渲染，但保持完全不透明，避免边缘被渐变挖掉 */
+            -webkit-mask-image: -webkit-linear-gradient(#fff, #fff);
+            mask-image: linear-gradient(#fff, #fff);
         }
 
         .loading-bar {
