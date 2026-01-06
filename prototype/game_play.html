@@ -81,12 +81,15 @@
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 16px;
+            /* 强制 Safari/Chrome 正确渲染圆角裁剪 */
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
         }
 
         .loading-progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
             transition: width 0.3s ease;
+            /* 不设置内层圆角，完全依赖外层 overflow + mask 裁剪 */
         }
 
         /* 加载点动画 */
