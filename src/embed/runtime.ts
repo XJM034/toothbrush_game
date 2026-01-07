@@ -136,6 +136,20 @@ function getAvatarConfig(opts: StartOptions, basePath: string): AvatarConfig {
   return { ...preset, imgUrl };
 }
 
+function resolveUrl(base: string, path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  const cleanBase = base.replace(/\/$/, '');
+  if (path.startsWith('/')) return cleanBase + path;
+  return cleanBase + '/' + path;
+}
+
+function resolveCandidateList(base: string, paths: string[]): string[] {
+  const resolved = paths
+    .filter(Boolean)
+    .map(path => resolveUrl(base, path));
+  return Array.from(new Set(resolved));
+}
+
 async function setupCamera(
   video: HTMLVideoElement,
   onProgress?: (stage: string, progress: number) => void
@@ -247,13 +261,19 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
     // 2. 初始化 MediaPipe 模型
     onProgress?.('models', 0);
 
-    // 构建模型路径（使用 modelBasePath，不是 basePath）
-    const faceModelPath = modelBasePath + mediaPipeConfig.models.face;
-    const handModelPath = modelBasePath + mediaPipeConfig.models.hand;
+    const wasmCandidates = resolveCandidateList(modelBasePath, mediaPipeConfig.wasmPaths);
+    const faceModelCandidates = resolveCandidateList(
+      modelBasePath,
+      [mediaPipeConfig.models.face, ...(mediaPipeConfig.models.fallback?.face || [])]
+    );
+    const handModelCandidates = resolveCandidateList(
+      modelBasePath,
+      [mediaPipeConfig.models.hand, ...(mediaPipeConfig.models.fallback?.hand || [])]
+    );
 
     await Promise.all([
-      faceTracker.initialize(faceModelPath, mediaPipeConfig.wasmPath),
-      handTracker.initialize(handModelPath, mediaPipeConfig.wasmPath)
+      faceTracker.initialize(faceModelCandidates, wasmCandidates),
+      handTracker.initialize(handModelCandidates, wasmCandidates)
     ]);
     onProgress?.('models', 1.0);
 
