@@ -15,9 +15,9 @@
     <title>Collection - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12 safe-area-top">
+<body class="app-shell safe-area-top pt-12 bg-[var(--bg-light)]">
 
-    <header class="px-6 flex items-center justify-between mb-4">
+    <header class="px-6 flex items-center justify-between mb-4 flex-shrink-0">
         <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
             onclick="location.href='home.html'">
             <i class="fas fa-arrow-left"></i>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Skins Grid -->
-    <div class="flex-1 overflow-y-auto px-6 pb-20" id="skins-content">
+    <div class="app-scroll px-6 pb-20" id="skins-content">
         <div class="grid grid-cols-3 gap-6" id="skins-grid">
             <!-- Unlocked Skins -->
             <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="owl">
@@ -128,7 +128,7 @@
         </div>
     </div>
     <!-- Achievements Grid (Hidden by default) -->
-    <div class="flex-1 overflow-y-auto px-6 pb-20 hidden" id="achievements-content">
+    <div class="app-scroll px-6 pb-20 hidden" id="achievements-content">
         <div class="grid grid-cols-1 gap-4" id="achievements-grid">
             <!-- 成就将由 JavaScript 动态生成 -->
         </div>
@@ -818,7 +818,7 @@
     </script>
 
     <!-- Progress Summary -->
-    <div class="p-6 bg-white border-t-4 border-[#333]">
+    <div class="p-6 bg-white border-t-4 border-[#333] flex-shrink-0">
         <div class="justify-between items-center mb-2 flex">
             <span class="font-black text-xs" id="progress-label">收藏进度</span>
             <span class="font-black text-xs text-[var(--primary-green)]" id="progress-value">-/-</span>

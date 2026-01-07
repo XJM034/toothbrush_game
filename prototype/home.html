@@ -15,10 +15,10 @@
     <title>Home - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12 safe-area-top no-scroll">
+<body class="app-shell safe-area-all px-6 pt-12 bg-[var(--bg-light)]">
 
     <!-- Top Nav -->
-    <div class="px-6 flex justify-between items-center">
+    <div class="flex justify-between items-center flex-shrink-0">
         <div class="kawaii-card p-3 rounded-full flex items-center gap-2">
             <div class="w-10 h-10 flex items-center justify-center user-avatar">
                 <i class="fas fa-spinner fa-spin text-gray-400"></i>
@@ -31,11 +31,12 @@
         </div>
     </div>
 
-    <!-- Hero Area -->
-    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center min-h-0">
-        <div class="relative mb-4 mt-6">
+    <!-- Hero Area (scrollable content) -->
+    <div class="flex flex-col items-center justify-center text-center min-h-0 flex-1 home-hero pb-4">
+        <div class="relative mb-4 mt-6 home-mascot-wrap">
             <!-- Mascot - larger for impact -->
-            <div class="w-52 h-52 flex items-center justify-center" style="filter: drop-shadow(8px 8px 0 #333)">
+            <div class="w-52 h-52 flex items-center justify-center home-mascot"
+                style="filter: drop-shadow(8px 8px 0 #333)">
                 <img src="owl_mascot.svg" class="w-full h-full object-contain" />
             </div>
             <!-- Floating Sticker - positioned outside owl -->
@@ -46,7 +47,7 @@
         </div>
 
         <h2 class="text-2xl font-black mb-2 tracking-tight leading-tight text-center">准备好<br>拯救牙齿吗？</h2>
-        <p class="text-sm font-bold text-gray-500 mb-6 text-center">打败细菌，解锁超酷头套！</p>
+        <p class="text-sm font-bold text-gray-500 mb-4 text-center">打败细菌，解锁超酷头套！</p>
 
         <!-- Main Action -->
         <button class="kawaii-button kawaii-button-primary text-lg px-10 py-3"
@@ -56,7 +57,7 @@
     </div>
 
     <!-- Bottom Nav -->
-    <div class="px-6 pb-4 grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-2 gap-3 flex-shrink-0 mt-auto">
         <button class="kawaii-button kawaii-button-yellow py-2 flex flex-col gap-1 items-center"
             onclick="location.href='collection.html'">
             <i class="fas fa-box-open text-base"></i>
@@ -70,7 +71,7 @@
     </div>
 
     <!-- Points & Diamonds Display -->
-    <div class="pb-6 px-6 safe-area-bottom">
+    <div class="pb-app-safe flex-shrink-0 mt-3">
         <div class="flex justify-between items-center mb-2">
             <!-- Total Points -->
             <div class="flex items-center gap-2">

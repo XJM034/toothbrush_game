@@ -15,40 +15,40 @@
     <title>Prep - Brushing Master</title>
 </head>
 
-<body class="h-screen flex flex-col pt-12 px-6 safe-area-top no-scroll">
+<body class="app-shell safe-area-top px-6 pt-12 bg-[var(--bg-light)]">
 
-    <header class="mb-10 text-center">
+    <header class="mb-6 text-center flex-shrink-0">
         <h1 class="text-3xl font-black uppercase">准备战斗！</h1>
         <p class="font-bold text-gray-400">选择你的刷牙训练时长</p>
     </header>
 
-    <div class="flex-1 flex flex-col gap-6">
+    <div class="app-scroll flex flex-col gap-4 pt-4">
 
         <!-- Time Selector -->
-        <div class="grid grid-cols-3 gap-4" id="time-selector">
-            <div class="kawaii-card border-[var(--accent-yellow)] border-[6px] flex flex-col items-center justify-center py-6 cursor-pointer transform scale-105 active-time"
+        <div class="grid grid-cols-3 gap-3 px-[7px] overflow-visible" id="time-selector">
+            <div class="kawaii-card border-[var(--accent-yellow)] border-[6px] flex flex-col items-center justify-center py-5 cursor-pointer transform scale-[1.03] active-time"
                 data-time="1">
-                <span class="text-4xl font-black">1</span>
+                <span class="text-3xl font-black">1</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
-            <div class="kawaii-card flex flex-col items-center justify-center py-6 cursor-pointer" data-time="2">
-                <span class="text-4xl font-black">2</span>
+            <div class="kawaii-card flex flex-col items-center justify-center py-5 cursor-pointer" data-time="2">
+                <span class="text-3xl font-black">2</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
-            <div class="kawaii-card flex flex-col items-center justify-center py-6 cursor-pointer" data-time="3">
-                <span class="text-4xl font-black">3</span>
+            <div class="kawaii-card flex flex-col items-center justify-center py-5 cursor-pointer" data-time="3">
+                <span class="text-3xl font-black">3</span>
                 <span class="text-xs font-black">分钟</span>
             </div>
         </div>
 
         <!-- Instruction Card -->
-        <div class="kawaii-card bg-[var(--primary-green)] text-white">
+        <div class="kawaii-card bg-[var(--primary-green)] text-white mx-[7px]">
             <h3 class="font-black text-lg mb-2"><i class="fas fa-camera mr-2"></i> 摄像头检查</h3>
             <p class="text-xs font-bold leading-relaxed text-white text-opacity-90">请将手机放在与视线平齐的位置，并确保你的脸出现在画面正中！</p>
         </div>
 
         <!-- Character Preview -->
-        <div class="kawaii-card flex items-center justify-between">
+        <div class="kawaii-card flex items-center justify-between mx-[7px]">
             <div class="flex items-center gap-3">
                 <div id="current-skin-icon"
                     class="w-12 h-12 bg-[var(--primary-green)] border-4 border-[#333] rounded-full flex items-center justify-center overflow-hidden">
@@ -64,8 +64,8 @@
 
     </div>
 
-    <!-- Start Button -->
-    <div class="pb-20 text-center">
+    <!-- Start Button - sticky bottom with safe area -->
+    <div class="sticky-bottom-safe text-center pt-4 flex-shrink-0 bg-[var(--bg-light)] px-[7px]">
         <button class="kawaii-button kawaii-button-primary text-2xl w-full py-5" onclick="startGame()">
             开始 <i class="fas fa-bolt ml-2"></i>
         </button>
@@ -126,7 +126,7 @@
 
                 if (time === selectedDuration) {
                     // 选中状态：黄色边框 + 黑色文字 + 放大
-                    card.classList.add('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-105');
+                    card.classList.add('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-[1.03]');
                     card.classList.remove('opacity-50');
                     if (numEl) {
                         numEl.classList.remove('text-gray-400');
@@ -138,7 +138,7 @@
                     }
                 } else {
                     // 未选中状态：灰色边框 + 灰色文字 + 半透明
-                    card.classList.remove('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-105');
+                    card.classList.remove('border-[var(--accent-yellow)]', 'border-[6px]', 'scale-[1.03]');
                     card.classList.add('opacity-50');
                     if (numEl) {
                         numEl.classList.remove('text-gray-700');

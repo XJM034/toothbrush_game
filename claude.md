@@ -167,3 +167,49 @@ _更新：2026-01-05 · 目标分支：main · 工作目录：/Users/minxian/con
 - 构建产物：`prototype/lib/embed/brushing-engine.{umd,esm}.js`
 
 详细清理计划见 `.context/cleanup_plan.md`
+
+---
+
+## 10. Android/Chrome 视口条叠加导致模块积压的适配方案（2026-01-07）
+问题表现：在 Android Chrome 等默认显示地址栏/底栏的浏览器里，`h-screen`/`no-scroll` + `100vh` 布局被强行压缩，导致首页、时长选择页、游戏页、结果页、装饰页底部模块被遮挡或重叠；iOS Safari 由于 `svh` 支持正常。
+
+### 10.1 全局改造（shared_styles.css + mobile_fixes.js）
+- 新增视口变量：在 `mobile_fixes.js` 里监听 `visualViewport`/`resize`，计算并写入  
+  `--app-height` = `visualViewport.height`（fallback `innerHeight`）、  
+  `--app-safe-top` = `visualViewport.offsetTop`（fallback `env(safe-area-inset-top)`）、  
+  `--app-safe-bottom` = `max(0, innerHeight - (offsetTop + height))`（fallback `env(safe-area-inset-bottom)`)。  
+  这样 Chrome 的上下栏可见/隐藏都会实时刷新。
+- 新增通用壳样式：在 `shared_styles.css` 增加 `.app-shell { min-height: var(--app-height, 100vh); background: var(--bg-light); display: flex; flex-direction: column; }`，替换所有页面的 `h-screen`；新增 `.app-scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }`，用于中部内容滚动。
+- 固定/悬浮元素统一使用变量：将原 `top-12` / `bottom-12` 改为 `top: calc(var(--app-safe-top, 0px) + 12px);`，`bottom: calc(var(--app-safe-bottom, 0px) + 12px);`；边距/内边距用 `padding-bottom: calc(var(--app-safe-bottom, 0px) + 16px);`。
+- 画布/全屏遮罩：`#game-canvas, .page-overlay` 统一使用 `height: var(--app-height, 100vh); width: 100vw; inset: 0;`，避免被 Chrome 底栏裁剪。
+- `no-scroll` 语义收紧：仅游戏页保留全屏沉浸；其他页面改用 `.app-shell + .app-scroll`，允许在被压缩时自然滚动，不再硬锁高度。
+
+### 10.2 页面级调整建议
+- **home.html**  
+  - `<body>` 改为 `class="app-shell safe-area-all px-6 pt-12"`；将主体区包一层 `.app-scroll`（含吉祥物+主 CTA），底部积分区放在 body 末尾并加 `padding-bottom: calc(var(--app-safe-bottom)+12px)`。  
+  - Hero 区使用 `flex-1 justify-center min-h-0`，保证在压缩时先收缩留白而不是挤压按钮。
+- **game_ready.html**  
+  - `<body>` 改为 `app-shell safe-area-top px-6 pt-12`; 中部内容包 `.app-scroll gap-4`。  
+  - 底部 “开始” 区改为 `position: sticky; bottom: calc(var(--app-safe-bottom)+8px); background: var(--bg-light); padding-bottom: calc(var(--app-safe-bottom)+12px);`，移除硬编码 `pb-20`。  
+  - 将卡片最小高度改为 `min-height: 120px` 以避免在极小视口被挤瘪。
+- **game_play.html**（沉浸式）  
+  - `<body>` 改为 `class="app-shell relative overflow-hidden safe-area-top"`；`#game-canvas` 改用 `height: var(--app-height)`。  
+  - 顶部能量条容器设为 `top: calc(var(--app-safe-top)+12px); left/right: 12px;` 并加 `gap` 而非 `justify-between` 强撑宽度。  
+  - 底部提示卡改为 `bottom: calc(var(--app-safe-bottom)+12px); margin: 0 12px;`，再加 `max-width: 560px; width: calc(100% - 24px);`，避免被底栏遮挡。  
+  - `#loading-overlay` / `#permission-overlay` 使用 `min-height: var(--app-height)`；退出弹窗用 `max-height: calc(var(--app-height) - 40px)` 防止溢出。  
+  - 当检测到 `visualViewport.height < 540`（横屏/极限压缩）时自动启用简化 UI：隐藏装饰细菌层，缩小头套缩放系数 10-15%，避免头像遮挡 HUD。
+- **game_result.html**  
+  - `<body>` 改为 `app-shell safe-area-top safe-area-bottom bg-[var(--primary-green)]`；主体包 `.app-scroll`，CTA 区域用 sticky bottom safe-area。  
+  - 奖励卡片 `max-width: 520px; margin: 0 auto; padding-bottom` 使用 safe-area，确保底部“再刷一把”可点。
+- **photo_edit.html**  
+  - `<body>` 用 `app-shell safe-area-top safe-area-bottom bg-[#F8F9FA]`; 主编辑区 `.app-scroll`，使工具栏在被地址栏压缩时可滚动访问。  
+  - 预览舞台设 `max-height: min(70vh, calc(var(--app-height) - 240px)); aspect-ratio: 3/4;`，避免被底部贴纸栏/Chrome 底栏遮住。  
+  - 底部贴纸/操作栏改为 sticky bottom safe-area，并允许横向滚动（`overflow-x:auto;`）。
+- **collection.html / settings.html / login.html**  
+  - 统一使用 `app-shell + app-scroll`，顶部保留 `safe-area-top`，底部按钮区加 safe-area 内边距；登录页保留 `no-scroll` 但高度用 `var(--app-height)` 以防表单被键盘或底栏截断。
+
+### 10.3 实施顺序
+1) 在 `shared_styles.css`/`mobile_fixes.js` 增加视口变量与 `.app-shell/.app-scroll` 工具类，替换 `h-screen`、`no-scroll` 的使用。  
+2) 按页面落地 sticky 底部区和 safe-area 填充，检查每页的 CTA/底栏是否依赖旧的 `pb-*` 魔法数字并移除。  
+3) Game Play 落地简化 UI 开关与 canvas 高度修正，横竖屏/地址栏收起展开各测一次。  
+4) 最后在 Android Chrome 实机（有地址栏和底栏状态）逐页回归；iOS Safari 再次确认无回归。
