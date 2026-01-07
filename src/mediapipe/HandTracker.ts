@@ -21,33 +21,59 @@ export class HandTracker {
    * 初始化 HandLandmarker
    */
   async initialize(
-    modelPath: string,
-    wasmPath?: string
+    modelPath: string | string[],
+    wasmPath?: string | string[]
   ): Promise<void> {
     try {
       console.log('[HandTracker] 初始化中...');
 
-      // 解析 WASM 文件集合
-      const wasmUrl = wasmPath || mediaPipeConfig.wasmPath;
-      const filesetResolver = await FilesetResolver.forVisionTasks(wasmUrl);
-
-      console.log('[HandTracker] WASM 已加载');
-
-      // 创建 HandLandmarker
-      const handOptions = {
-        baseOptions: {
-          modelAssetPath: modelPath
-        },
-        runningMode: 'VIDEO' as const,
-        ...mediaPipeConfig.handOptions
-      };
-      this.handLandmarker = await HandLandmarker.createFromOptions(
-        filesetResolver,
-        handOptions
+      const modelCandidates = normalizeCandidates(modelPath);
+      const wasmCandidates = normalizeCandidates(
+        wasmPath,
+        Array.isArray(wasmPath) ? [] : mediaPipeConfig.wasmPaths
       );
+      if (wasmCandidates.length === 0) {
+        throw new Error('[HandTracker] 无可用 WASM 路径');
+      }
+      if (modelCandidates.length === 0) {
+        throw new Error('[HandTracker] 无可用模型路径');
+      }
 
-      console.log('[HandTracker] HandLandmarker 初始化完成');
-      this.isInitialized = true;
+      let lastError: unknown = null;
+      for (const wasmUrl of wasmCandidates) {
+        try {
+          const filesetResolver = await FilesetResolver.forVisionTasks(wasmUrl);
+          console.log('[HandTracker] WASM 已加载:', wasmUrl);
+
+          for (const modelUrl of modelCandidates) {
+            try {
+              const handOptions = {
+                baseOptions: {
+                  modelAssetPath: modelUrl
+                },
+                runningMode: 'VIDEO' as const,
+                ...mediaPipeConfig.handOptions
+              };
+              this.handLandmarker = await HandLandmarker.createFromOptions(
+                filesetResolver,
+                handOptions
+              );
+
+              console.log('[HandTracker] HandLandmarker 初始化完成:', modelUrl);
+              this.isInitialized = true;
+              return;
+            } catch (err) {
+              lastError = err;
+              console.warn('[HandTracker] 模型加载失败，尝试下一个:', modelUrl, err);
+            }
+          }
+        } catch (err) {
+          lastError = err;
+          console.warn('[HandTracker] WASM 加载失败，尝试下一个:', wasmUrl, err);
+        }
+      }
+
+      throw lastError || new Error('[HandTracker] 初始化失败');
     } catch (error) {
       console.error('[HandTracker] 初始化失败:', error);
       throw error;
@@ -165,4 +191,22 @@ export class HandTracker {
   isReady(): boolean {
     return this.isInitialized;
   }
+}
+
+function normalizeCandidates(
+  primary?: string | string[],
+  fallback: string[] = []
+): string[] {
+  const list: string[] = [];
+  if (primary) {
+    if (Array.isArray(primary)) {
+      list.push(...primary);
+    } else {
+      list.push(primary);
+    }
+  }
+  if (fallback && fallback.length > 0) {
+    list.push(...fallback);
+  }
+  return Array.from(new Set(list.filter(Boolean)));
 }
