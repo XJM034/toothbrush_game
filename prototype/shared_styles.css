@@ -301,3 +301,98 @@ body {
         min-height: 100vh;
     }
 }
+
+/* ===== APP SHELL LAYOUT FOR ANDROID/CHROME VIEWPORT ADAPTATION ===== */
+
+/**
+ * .app-shell - Main container that uses --app-height from mobile_fixes.js
+ * This adapts to Chrome's address bar visibility state in real-time
+ */
+.app-shell {
+    min-height: var(--app-height, 100vh);
+    max-height: var(--app-height, 100vh);
+    height: var(--app-height, 100vh);
+    /* background removed - let pages control their own background via body/element classes */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/**
+ * .app-scroll - Scrollable content area within app-shell
+ * Allows content to scroll when compressed by browser UI
+ */
+.app-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+/**
+ * Utility for fixed/sticky elements using dynamic safe area variables
+ */
+.top-app-safe {
+    top: calc(var(--app-safe-top, 0px) + 12px);
+}
+
+.bottom-app-safe {
+    bottom: calc(var(--app-safe-bottom, 0px) + 12px);
+}
+
+.pb-app-safe {
+    padding-bottom: calc(var(--app-safe-bottom, 0px) + 16px);
+}
+
+.pt-app-safe {
+    padding-top: calc(var(--app-safe-top, 0px) + 12px);
+}
+
+/**
+ * Sticky bottom area with safe area support
+ */
+.sticky-bottom-safe {
+    position: sticky;
+    bottom: 0;
+    /* background removed - let elements control their own background via explicit classes */
+    padding-bottom: calc(var(--app-safe-bottom, 0px) + 12px);
+    z-index: 10;
+}
+
+/**
+ * Full-screen canvas/overlay using app-height
+ */
+.full-app-height {
+    height: var(--app-height, 100vh);
+    width: 100vw;
+}
+
+/**
+ * Game canvas specific - pointer-events none to avoid blocking UI
+ */
+.game-canvas-layer {
+    height: var(--app-height, 100vh);
+    width: 100vw;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Home page: reduce vertical squeeze when visual viewport is compact */
+.home-hero {
+    padding-bottom: 16px;
+    overflow: hidden;
+}
+
+.viewport-compact .home-hero {
+    justify-content: flex-start;
+    padding-top: 20px;
+    padding-bottom: 16px;
+}
+
+.viewport-compact .home-mascot-wrap {
+    margin-top: 12px;
+    margin-bottom: 14px;
+}

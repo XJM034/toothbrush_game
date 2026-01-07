@@ -137,7 +137,7 @@
     </style>
 </head>
 
-<body class="h-screen flex flex-col pt-12 safe-area-top">
+<body class="app-shell safe-area-top pt-12 bg-[var(--bg-light)]">
 
     <!-- Toast Notification -->
     <div id="toast"
@@ -149,7 +149,7 @@
     </div>
 
 
-    <header class="px-6 flex items-center justify-between mb-8">
+    <header class="px-6 flex items-center justify-between mb-8 flex-shrink-0">
         <button class="kawaii-button kawaii-button-yellow p-3 rounded-full w-10 h-10 flex items-center justify-center"
             onclick="location.href='home.html'">
             <i class="fas fa-arrow-left"></i>
@@ -158,7 +158,7 @@
         <div class="w-10"></div>
     </header>
 
-    <div class="flex-1 overflow-y-auto px-6 pb-20 space-y-8">
+    <div class="app-scroll px-6 pb-20 space-y-8">
 
         <!-- Profiles Section -->
         <section>
