@@ -50,7 +50,7 @@
         <p class="text-sm font-bold text-gray-500 mb-4 text-center">打败细菌，解锁超酷头套！</p>
 
         <!-- Main Action -->
-        <button class="kawaii-button kawaii-button-primary text-lg px-10 py-3"
+        <button class="kawaii-button kawaii-button-primary text-lg px-10 py-3 home-cta"
             onclick="location.href='game_ready.html'">
             <i class="fas fa-play mr-2"></i> 开始刷牙！
         </button>
@@ -609,8 +609,35 @@
             }
         }
 
+        function adjustHomeHeroSpacing() {
+            const hero = document.querySelector('.home-hero');
+            if (!hero) return;
+            hero.classList.remove('home-hero-tight', 'home-hero-compact');
+
+            const needsTight = hero.scrollHeight > hero.clientHeight + 2;
+            if (needsTight) {
+                hero.classList.add('home-hero-tight');
+            }
+
+            requestAnimationFrame(() => {
+                const stillOverflow = hero.scrollHeight > hero.clientHeight + 2;
+                if (stillOverflow) {
+                    hero.classList.add('home-hero-compact');
+                }
+            });
+        }
+
+        let heroAdjustTimer = null;
+        function scheduleHomeHeroAdjust() {
+            if (heroAdjustTimer) {
+                clearTimeout(heroAdjustTimer);
+            }
+            heroAdjustTimer = setTimeout(adjustHomeHeroSpacing, 60);
+        }
+
         // 立即执行（不等待 load 事件）
         loadImmediateProfile();
+        scheduleHomeHeroAdjust();
 
         // 使用 DOMContentLoaded 更快加载数据库数据
         document.addEventListener('DOMContentLoaded', async () => {
@@ -620,7 +647,11 @@
                 updateHomeProfile(profile);
                 cacheProfile(profile); // 缓存供下次使用
             }
+            scheduleHomeHeroAdjust();
         });
+
+        window.addEventListener('load', adjustHomeHeroSpacing);
+        window.addEventListener('resize', scheduleHomeHeroAdjust);
     </script>
 </body>
 

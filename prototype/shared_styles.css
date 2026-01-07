@@ -396,3 +396,33 @@ body {
     margin-top: 12px;
     margin-bottom: 14px;
 }
+
+/* Home page: tighten spacing only when hero content overflows */
+.home-hero-tight {
+    padding-bottom: 10px;
+}
+
+.home-hero-tight .home-mascot-wrap {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.home-hero-tight h2 {
+    margin-bottom: 6px;
+}
+
+.home-hero-tight p {
+    margin-bottom: 10px;
+}
+
+/* Last-resort compact: reduce mascot/button only if still overflowing */
+.home-hero-compact .home-mascot {
+    width: 11.5rem;
+    height: 11.5rem;
+}
+
+.home-hero-compact .home-cta {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 1rem;
+}
