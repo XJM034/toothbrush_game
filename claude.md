@@ -1,5 +1,5 @@
-# 🦷 Brushing Game Web — CLAUDE 作战手册  
-_更新：2026-01-05 · 目标分支：main · 工作目录：/Users/minxian/conductor/workspaces/toothbrush_game/macau_
+# 🦷 Brushing Game Web — CLAUDE 作战手册
+_更新：2026-01-13 · 目标分支：main · 工作目录：/Users/minxian/conductor/workspaces/toothbrush_game/hartford_
 
 本手册聚焦**把已完成的动作识别/头套跟随能力接入 prototype 的移动端游戏页面**，交付一个可登录、可交互、在手机浏览器端完整可玩的网页版本，并新增“局内抓拍 → 结果后装饰”闭环。
 
@@ -213,3 +213,100 @@ _更新：2026-01-05 · 目标分支：main · 工作目录：/Users/minxian/con
 2) 按页面落地 sticky 底部区和 safe-area 填充，检查每页的 CTA/底栏是否依赖旧的 `pb-*` 魔法数字并移除。  
 3) Game Play 落地简化 UI 开关与 canvas 高度修正，横竖屏/地址栏收起展开各测一次。  
 4) 最后在 Android Chrome 实机（有地址栏和底栏状态）逐页回归；iOS Safari 再次确认无回归。
+
+---
+
+## 11. 游戏体验优化（幼儿友好模式）（2026-01-13）
+
+针对幼儿用户的游戏体验优化，包括规则弱化、得分简化和正反馈增强。
+
+### 11.1 简化得分体系（移除积分，保留金币）
+
+**已修改文件**：
+- `prototype/home.html`：移除积分显示、里程碑进度条、底部金币显示（金币只在收藏夹展示）；底部导航添加 `mb-6` 边距
+- `prototype/game_play.html`：移除左上角积分卡片和 `.score-popup` 相关代码
+- `prototype/game_result.html`：移除积分显示区块和 `POINTS_REWARDS`/`calculatePoints()` 相关计算
+- `prototype/collection.html`：移除成就 Tab 按钮、成就弹窗 HTML、`achievementData` 对象及相关函数，只保留皮肤展示
+
+### 11.2 弱化游戏执行规则
+
+**核心改动**：
+- `src/core/detectors/BrushGesture.ts`：
+  - 露牙只需一次，整局游戏保持锁定（移除超时解锁逻辑）
+  - 闭嘴状态下继续握拳刷动仍可得分
+
+**UI 提示更新**：
+- `prototype/game_play.html`：提示文字改为"握拳并上下或左右刷动"，支持竖直刷动
+
+### 11.3 幼儿友好检测参数调整
+
+**BrushGesture.ts 构造函数**：
+```typescript
+// 幼儿友好模式：大幅降低检测门槛
+this.fist = new Fist(2); // 只需 2 根手指弯曲即可（原 3 根）
+this.shake = new Shake(0.008, 500, 0.06, 80, 30);
+// Shake 参数: speedThreshold=0.008 (原 0.02), highSpeedRatio=0.06 (原 0.15), stableMs=80 (原 133)
+```
+
+**时间阈值**：
+```typescript
+private minBrushingDuration = 300;  // 幼儿友好：300ms 即可完成（原 800ms）
+```
+
+**Fist.ts 手指弯曲判定**：
+```typescript
+// 幼儿友好：阈值从 0.4 提高到 0.55，手指轻微弯曲即可
+return fingerLength < wristToBase * 0.55;
+```
+
+### 11.4 正反馈系统
+
+**新增功能**（`prototype/game_play.html`）：
+- 首次得分庆祝：星星动画 + 震动反馈
+- 连击鼓励系统：5秒窗口内连续得分显示连击提示（x2/x3/x4...），消息升级
+- CSS 动画：`.celebration-effect`（星星弹出）、`.combo-effect`（连击滑入）
+
+**相关代码**：
+```javascript
+let hasShownFirstSuccess = false;
+let consecutiveStreak = 0;
+let lastSuccessTime = 0;
+const STREAK_TIMEOUT = 5000; // 5秒窗口内算连击
+
+function handleBrushSuccess(stats) {
+    // 首次得分鼓励
+    if (stats.successCount === 1) showFirstSuccessEncouragement();
+    // 连击检测
+    if (now - lastSuccessTime < STREAK_TIMEOUT && lastSuccessTime > 0) {
+        consecutiveStreak++;
+        if (consecutiveStreak >= 2) showStreakEncouragement(consecutiveStreak);
+    }
+    // 震动反馈
+    if ('vibrate' in navigator) navigator.vibrate(50);
+}
+```
+
+### 11.5 验证要点
+
+**规则弱化验证**：
+1. 露牙一次后闭嘴，继续握拳刷动应能正常得分
+2. 等待 10+ 秒闭嘴状态，仍能得分
+3. 上下刷动应与左右刷动效果相同
+
+**幼儿友好验证**：
+1. 手指轻微弯曲（非完全握拳）应识别为握拳
+2. 缓慢晃动应能触发刷牙识别
+3. 300ms 内即可完成一次得分
+
+**积分移除验证**：
+1. 首页只显示用户信息，无积分/金币/里程碑
+2. 游戏中无积分卡片
+3. 结果页只显示获得金币
+4. 收藏夹只有皮肤 Tab，无成就
+
+### 11.6 重新构建
+
+修改检测参数后需重新构建引擎：
+```bash
+npm run build:embed
+```

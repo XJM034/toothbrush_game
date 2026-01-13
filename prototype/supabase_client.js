@@ -113,9 +113,6 @@ async function createProfile(userId, profileName, avatarId = 'owl') {
             user_id: userId,
             profile_name: profileName,
             avatar_id: avatarId,
-            level: 1,
-            current_xp: 0,
-            total_xp: 0,
             diamonds: 0,  // 金币初始化为0
             streak_days: 0,
             selected_skin: 'owl',
@@ -286,12 +283,12 @@ async function getDiamonds(profileId) {
 
     const { data, error } = await supabase
         .from('user_profiles')
-        .select('diamonds, total_xp')
+        .select('diamonds')
         .eq('id', profileId)
         .single();
 
     if (error) throw error;
-    return { diamonds: data?.diamonds || 0, totalPoints: data?.total_xp || 0 };
+    return { diamonds: data?.diamonds || 0, totalPoints: 0 };
 }
 
 // ============================================
@@ -312,10 +309,6 @@ async function saveBrushingSession(profileId, sessionData) {
             profile_id: profileId,
             duration_minutes: sessionData.duration,
             germs_killed: sessionData.germsKilled,
-            base_xp: sessionData.baseXP,
-            streak_bonus_xp: sessionData.streakBonusXP,
-            germ_bonus_xp: sessionData.germBonusXP,
-            total_xp: sessionData.totalXP,
             skin_drop: sessionData.skinDrop,
             sticker_drop: sessionData.stickerDrop,
             streak_at_session: sessionData.streakDays,

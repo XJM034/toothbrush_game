@@ -77,7 +77,7 @@ export class Fist {
   }
 
   /**
-   * 判断单根手指是否弯曲
+   * 判断单根手指是否弯曲（幼儿友好：阈值放宽）
    */
   private isFingerCurled(
     basePoint: any,
@@ -90,9 +90,9 @@ export class Fist {
     // 计算手腕到基部的距离（用作参考）
     const wristToBase = distance(wristPoint, basePoint);
 
-    // 如果手指长度 < 手腕到基部距离的 0.4，则认为手指弯曲
+    // 幼儿友好：阈值从 0.4 提高到 0.55，手指轻微弯曲即可
     // （弯曲时顶端会靠近基部）
-    return fingerLength < wristToBase * 0.4;
+    return fingerLength < wristToBase * 0.55;
   }
 
   /**

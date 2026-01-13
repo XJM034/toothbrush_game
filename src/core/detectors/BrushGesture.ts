@@ -27,19 +27,19 @@ export class BrushGesture {
   private maxMovementHistory = 15;  // ~500ms @ 30fps
 
   // 刷牙动作状态机
-  private lastTeethOpenTime = 0;
   private brushingStartTime = 0;
   private completionCount = 0;
   private teethConfirmed = false;  // 露牙已确认（锁定状态，设计文档要求）
 
-  // 时间阈值（按照设计文档）
-  private teethLockTimeout = 3000;  // 露牙锁定超时：3秒没露牙则解锁
-  private minBrushingDuration = 800;  // 设计文档 5.3: 800ms 滑窗
+  // 时间阈值（幼儿友好优化）
+  private minBrushingDuration = 300;  // 幼儿友好：300ms 即可完成（原 800ms）
 
   constructor() {
     this.teethGate = new TeethGate(0.4, 0.05, 167, 30); // jawOpenThreshold 改为 0.4
-    this.fist = new Fist(3); // 设计文档: "至少 4 根手指满足'卷曲'即可认为握拳"，用 3 更宽松
-    this.shake = new Shake(0.02, 500, 0.15, 133, 30);
+    // 幼儿友好模式：大幅降低检测门槛
+    this.fist = new Fist(2); // 只需 2 根手指弯曲即可（原 3 根）
+    // Shake 参数: speedThreshold=0.008 (原 0.02), highSpeedRatio=0.06 (原 0.15), stableMs=80 (原 133)
+    this.shake = new Shake(0.008, 500, 0.06, 80, 30);
   }
 
   /**
@@ -81,19 +81,12 @@ export class BrushGesture {
     let isBrushing = false;
 
     // ========== 阶段 1: 露牙检测与锁定管理 ==========
+    // 改进：一旦露牙确认，整局游戏保持锁定（闭嘴刷牙也合理）
     if (teethGateResult.isOpen) {
-      // 用户正在露牙，更新时间戳并锁定
-      this.lastTeethOpenTime = now;
+      // 用户正在露牙，锁定状态
       this.teethConfirmed = true;
-    } else if (this.teethConfirmed) {
-      // 用户没有露牙，检查是否超时解锁
-      const timeSinceTeeth = now - this.lastTeethOpenTime;
-      if (timeSinceTeeth > this.teethLockTimeout) {
-        console.log('[BrushGesture] 露牙超时解锁（', timeSinceTeeth, 'ms 未露牙）');
-        this.teethConfirmed = false;
-        this.brushingStartTime = 0;
-      }
     }
+    // 注意：移除了超时解锁逻辑，teethConfirmed 一旦为 true 就保持到游戏结束
 
     // ========== 阶段 2: 根据锁定状态决定 stage ==========
     if (this.teethConfirmed) {
@@ -122,7 +115,6 @@ export class BrushGesture {
           // 重置刷牙计时，但不重置 teethConfirmed，允许连续得分
           this.brushingStartTime = 0;
           // 注意：保持 teethConfirmed = true，用户可以立即开始下一次刷牙
-          // 只有超时（3秒没露牙）才会解锁
         }
       } else if (this.brushingStartTime > 0) {
         // 动作中断，检查是否已达到时长要求
@@ -284,7 +276,6 @@ export class BrushGesture {
     this.teethGate.reset();
     this.fist.reset();
     this.shake.reset();
-    this.lastTeethOpenTime = 0;
     this.brushingStartTime = 0;
     this.teethConfirmed = false;
     this.movementHistory = [];

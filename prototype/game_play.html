@@ -186,6 +186,71 @@
                 transform: translateY(-10px);
             }
         }
+
+        /* 正反馈动画 - 首次成功庆祝 */
+        .celebration-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            color: var(--accent-yellow);
+            animation: celebrationPop 1.5s ease-out forwards;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes celebrationPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* 正反馈动画 - 连击效果 */
+        .combo-effect {
+            position: fixed;
+            top: 30%;
+            right: 20px;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--combo-color, #FFD700);
+            text-shadow: 4px 4px 0 #333;
+            animation: comboSlide 1s ease-out forwards;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes comboSlide {
+            0% {
+                transform: translateX(50px) scale(0.5);
+                opacity: 0;
+            }
+
+            20% {
+                transform: translateX(0) scale(1.2);
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -248,13 +313,7 @@
         </div>
     </div>
 
-    <!-- 积分显示 - 使用动态 safe-area -->
-    <div class="absolute left-3 z-10" style="top: calc(var(--app-safe-top, 0px) + 80px);">
-        <div class="kawaii-card bg-white bg-opacity-90 px-4 py-2">
-            <div class="text-xs text-gray-400 uppercase">积分</div>
-            <div class="text-2xl font-black text-[var(--primary-green)]" id="score-display">0</div>
-        </div>
-    </div>
+    <!-- 积分显示已移除 - 简化得分体系 -->
 
     <!-- 状态提示条 -->
     <div id="status-bar">请露出牙齿</div>
@@ -291,7 +350,7 @@
                     <img src="owl_mascot.svg" class="w-2/3 h-2/3 object-contain" />
                 </div>
             </div>
-            <p class="text-xs font-black uppercase text-gray-400" id="action-hint">露出牙齿 → 握拳 → 刷动</p>
+            <p class="text-xs font-black uppercase text-gray-400" id="action-hint">露出牙齿 → 握拳 → 上下/左右刷动</p>
         </div>
     </div>
 
@@ -343,7 +402,7 @@
         const canvas = document.getElementById('game-canvas');
         const timerDisplay = document.getElementById('timer-display');
         const progressBar = document.getElementById('progress-bar');
-        const scoreDisplay = document.getElementById('score-display');
+        // scoreDisplay 已移除 - 简化得分体系
         const statusBar = document.getElementById('status-bar');
         const actionText = document.getElementById('action-text');
         const actionHint = document.getElementById('action-hint');
@@ -358,6 +417,82 @@
         let germsKilled = 0;
         let timerIntervalId = null; // Track interval for cleanup
         let isGameStarting = false; // Re-entry protection flag
+
+        // ===== 正反馈系统状态 =====
+        let hasShownFirstSuccess = false;
+        let consecutiveStreak = 0;
+        let lastSuccessTime = 0;
+        const STREAK_TIMEOUT = 5000; // 5秒窗口内算连击
+
+        // ===== 正反馈系统函数 =====
+        function handleBrushSuccess(stats) {
+            const now = Date.now();
+
+            // 首次得分鼓励
+            if (stats.successCount === 1) {
+                showFirstSuccessEncouragement();
+            }
+
+            // 连击检测
+            if (now - lastSuccessTime < STREAK_TIMEOUT && lastSuccessTime > 0) {
+                consecutiveStreak++;
+                if (consecutiveStreak >= 2) {
+                    showStreakEncouragement(consecutiveStreak);
+                }
+            } else {
+                consecutiveStreak = 1;
+            }
+            lastSuccessTime = now;
+
+            // 震动反馈（移动端）
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function showFirstSuccessEncouragement() {
+            if (hasShownFirstSuccess) return;
+            hasShownFirstSuccess = true;
+            showStatus('棒极了！继续保持！ ⭐', 2000);
+            showCelebrationEffect();
+        }
+
+        function showStreakEncouragement(streak) {
+            const messages = {
+                2: '连击 x2！太厉害了！',
+                3: '连击 x3！无人能挡！',
+                4: '连击 x4！超级刷牙王！',
+                5: '连击 x5！传说降临！'
+            };
+            const msg = messages[streak] || `连击 x${streak}！神级操作！`;
+            showStatus(msg, 1500);
+            showComboEffect(streak);
+        }
+
+        function showCelebrationEffect() {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration-effect';
+            celebration.innerHTML = '<i class="fas fa-star"></i>';
+            document.body.appendChild(celebration);
+            setTimeout(() => celebration.remove(), 1500);
+        }
+
+        function showComboEffect(streak) {
+            const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#A855F7', '#F97316'];
+            const colorIndex = Math.min(streak - 2, colors.length - 1);
+            const effect = document.createElement('div');
+            effect.className = 'combo-effect';
+            effect.style.setProperty('--combo-color', colors[colorIndex]);
+            effect.textContent = `x${streak}`;
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        function resetFeedbackState() {
+            hasShownFirstSuccess = false;
+            consecutiveStreak = 0;
+            lastSuccessTime = 0;
+        }
 
         // ===== UI 更新函数 =====
         function formatTime(ms) {
@@ -386,21 +521,13 @@
             }, duration);
         }
 
-        function showScorePopup(points) {
-            const popup = document.createElement('div');
-            popup.className = 'score-popup';
-            popup.textContent = `+${points}`;
-            popup.style.left = `${Math.random() * 60 + 20}%`;
-            popup.style.top = `${Math.random() * 30 + 30}%`;
-            document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 1000);
-        }
+        // showScorePopup 已移除 - 简化得分体系
 
         function updateGameState(state) {
             const stateMessages = {
                 'init': { text: '准备开始', hint: '正在初始化...' },
                 'ready': { text: '露出牙齿！', hint: '张大嘴巴露出牙齿' },
-                'playing': { text: '开始刷牙！', hint: '握拳并左右刷动' },
+                'playing': { text: '开始刷牙！', hint: '握拳并上下或左右刷动' },
                 'brushing': { text: '继续保持！', hint: '保持刷牙动作' },
                 'success': { text: '太棒了！', hint: '继续加油！' },
                 'gameover': { text: '游戏结束', hint: '正在计算结果...' }
@@ -706,9 +833,10 @@
 
                     onScore: (stats, points) => {
                         console.log('[Game] Score:', stats, '+', points);
-                        scoreDisplay.textContent = stats.score;
+                        // 简化得分体系：移除积分显示，只更新击败细菌数
                         germsKilled = stats.successCount * 3;
-                        showScorePopup(points);
+                        // 调用正反馈系统
+                        handleBrushSuccess(stats);
                     },
 
                     onGameOver: (stats) => {
