@@ -27,18 +27,8 @@
     </header>
 
     <div class="app-scroll flex flex-col gap-4 min-h-0">
-        <!-- Rewards Earned Banner -->
-        <div class="kawaii-card bg-white py-3 flex items-center justify-center gap-6">
-            <!-- Points -->
-            <div class="flex items-center gap-2">
-                <i class="fas fa-bolt text-2xl text-[var(--accent-yellow)]"></i>
-                <div class="text-left">
-                    <span class="text-[10px] font-black text-gray-400 uppercase">获得积分</span>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-2xl font-black text-[var(--primary-green)]" id="points-earned">+50</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Rewards Earned Banner（简化得分体系：只显示金币） -->
+        <div class="kawaii-card bg-white py-3 flex items-center justify-center">
             <!-- Coins -->
             <div class="flex items-center gap-2">
                 <i class="fas fa-coins text-2xl text-yellow-400"></i>
@@ -54,7 +44,7 @@
         <!-- Streak Bonus (if any) -->
         <div id="streak-bonus" class="hidden kawaii-card bg-amber-50 py-2 px-4 flex items-center justify-center gap-2">
             <i class="fas fa-fire text-orange-500"></i>
-            <span class="font-black text-sm text-orange-600" id="streak-bonus-text">连续 5 天！+10 额外积分</span>
+            <span class="font-black text-sm text-orange-600" id="streak-bonus-text">连续 5 天！</span>
         </div>
 
         <!-- Stats -->
@@ -101,16 +91,7 @@
     </div>
 
     <script>
-        // ===== REWARD SYSTEM CONFIGURATION =====
-        // 积分奖励（根据时长）
-        const POINTS_REWARDS = {
-            1: 30,  // 1分钟刷牙
-            2: 50,  // 2分钟刷牙
-            3: 80   // 3分钟刷牙
-        };
-        const STREAK_BONUS = 10;  // 每连续1天额外加成
-        const GERM_POINTS_RATE = 0.1; // 每10个细菌 +1 积分
-        const MAX_GERM_POINTS = 50;   // 击败细菌积分上限
+        // ===== 简化得分体系：只保留金币奖励 =====
 
         // 金币奖励（根据时长）
         const COIN_REWARDS = {
@@ -130,8 +111,6 @@
             const result = sessionStorage.getItem('lastGameResult');
             if (result) {
                 const parsed = JSON.parse(result);
-                // 如果有真实游戏分数，使用它
-                // 新增字段: score, successCount, totalBrushTime, accuracy, durationMs
                 console.log('[GameResult] 解析游戏数据:', parsed);
                 return parsed;
             }
@@ -139,19 +118,6 @@
                 duration: 2,
                 germsKilled: Math.floor(Math.random() * 50) + 30,
                 streakDays: Math.floor(Math.random() * 10) + 1
-            };
-        }
-
-        // 计算积分
-        function calculatePoints(duration, germsKilled, streakDays) {
-            let basePoints = POINTS_REWARDS[duration] || 50;
-            let streakPoints = streakDays > 1 ? (streakDays - 1) * STREAK_BONUS : 0;
-            let germPoints = Math.min(Math.floor(germsKilled * GERM_POINTS_RATE), MAX_GERM_POINTS);
-            return {
-                base: basePoints,
-                streak: streakPoints,
-                germs: germPoints,
-                total: basePoints + streakPoints + germPoints
             };
         }
 
@@ -169,35 +135,16 @@
         // 初始化页面
         async function initResultPage() {
             const result = getGameResult();
-
-            // 如果有真实游戏分数，优先使用
-            let points;
-            if (result.score !== undefined) {
-                // 使用真实游戏分数
-                const streakPoints = result.streakDays > 1 ? (result.streakDays - 1) * STREAK_BONUS : 0;
-                points = {
-                    base: result.score,
-                    streak: streakPoints,
-                    germs: 0,
-                    total: result.score + streakPoints
-                };
-                console.log('[GameResult] 使用真实游戏分数:', result.score);
-            } else {
-                // 使用计算的分数
-                points = calculatePoints(result.duration, result.germsKilled, result.streakDays);
-            }
-
             const coins = calculateCoins(result.duration, result.germsKilled);
 
-            // 更新积分和金币显示
-            document.getElementById('points-earned').textContent = `+${points.total}`;
+            // 更新金币显示
             document.getElementById('coins-earned').textContent = `+${coins.total}`;
 
-            // 显示连续奖励
-            if (points.streak > 0) {
+            // 显示连续奖励（不再显示额外积分）
+            if (result.streakDays > 1) {
                 document.getElementById('streak-bonus').classList.remove('hidden');
                 document.getElementById('streak-bonus-text').textContent =
-                    `连续 ${result.streakDays} 天！+${points.streak} 额外积分`;
+                    `连续 ${result.streakDays} 天！`;
             }
 
             // 更新统计
@@ -229,17 +176,14 @@
                     }
 
                     // 保存刷牙会话到数据库
-                    console.log('💾 正在保存刷牙会话...', { profileId, result, points, coins });
-                    await saveBrushingSession(profileId, result, points, coins);
+                    console.log('💾 正在保存刷牙会话...', { profileId, result, coins });
+                    await saveBrushingSession(profileId, result, coins);
                     console.log('✅ 刷牙会话保存成功');
 
-                    // 更新用户档案（积分和金币）
+                    // 更新用户档案（仅金币/统计）
                     console.log('📝 正在更新用户档案...');
-                    await updateUserProfileInDB(profileId, result, points, coins);
+                    await updateUserProfileInDB(profileId, result, coins);
                     console.log('✅ 用户档案更新成功');
-
-                    // 检查成就
-                    await checkAchievements(profileId, result, points);
                 } else {
                     console.error('❌ 没有找到 activeProfileId，无法保存到数据库');
                 }
@@ -247,12 +191,12 @@
                 console.error('❌ 保存数据到后端失败:', error);
                 console.error('错误详情:', error.message, error.stack);
                 // 降级到 localStorage
-                fallbackToLocalStorage(points, coins);
+                fallbackToLocalStorage(coins);
             }
         }
 
         // 保存刷牙会话到数据库
-        async function saveBrushingSession(profileId, result, points, coins) {
+        async function saveBrushingSession(profileId, result, coins) {
             const supabase = BrushingMasterDB.getSupabaseClient();
             const { data, error } = await supabase
                 .from('brushing_sessions')
@@ -260,10 +204,6 @@
                     profile_id: profileId,
                     duration_minutes: result.duration,
                     germs_killed: result.germsKilled,
-                    base_xp: points.base,
-                    streak_bonus_xp: points.streak,
-                    germ_bonus_xp: points.germs,
-                    total_xp: points.total,
                     diamonds_earned: coins.total, // 数据库暂时保留 diamonds_earned 字段名
                     streak_at_session: result.streakDays,
                     completed_at: new Date().toISOString()
@@ -276,8 +216,8 @@
             return data;
         }
 
-        // 更新用户档案（积分和金币）
-        async function updateUserProfileInDB(profileId, result, points, coins) {
+        // 更新用户档案（仅金币/统计）
+        async function updateUserProfileInDB(profileId, result, coins) {
             const supabase = BrushingMasterDB.getSupabaseClient();
 
             // 先获取当前档案
@@ -289,8 +229,7 @@
 
             if (fetchError) throw fetchError;
 
-            // 计算新的总积分和金币（不再有等级概念）
-            let newTotalXP = (profile.total_xp || 0) + points.total;
+            // 计算新的金币
             let newDiamonds = (profile.diamonds || 0) + coins.total; // DB uses diamonds
 
             // 更新连续天数
@@ -318,7 +257,6 @@
             const { data, error } = await supabase
                 .from('user_profiles')
                 .update({
-                    total_xp: newTotalXP,
                     diamonds: newDiamonds,
                     streak_days: newStreakDays,
                     longest_streak: newLongestStreak,
@@ -353,62 +291,11 @@
             return data;
         }
 
-        // 检查成就
-        async function checkAchievements(profileId, result, points) {
-            try {
-                const supabase = BrushingMasterDB.getSupabaseClient();
-
-                // 获取更新后的档案
-                const { data: profile } = await supabase
-                    .from('user_profiles')
-                    .select('*')
-                    .eq('id', profileId)
-                    .single();
-
-                if (!profile) return;
-
-                // 检查新手成就
-                if (profile.total_sessions === 1) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'newbie');
-                }
-
-                // 检查连续天数成就
-                if (profile.streak_days >= 7) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'streak7');
-                }
-                if (profile.streak_days >= 30) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'streak30');
-                }
-                if (profile.streak_days >= 60) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'streak60');
-                }
-
-                // 检查细菌成就
-                if (profile.total_germs_killed >= 1000) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'germbuster');
-                }
-                if (profile.total_germs_killed >= 10000) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'germlord');
-                }
-
-                // 检查积分里程碑成就（代替等级成就）
-                if (profile.total_xp >= 1000) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'master');
-                }
-                if (profile.total_xp >= 5000) {
-                    await BrushingMasterDB.unlockAchievement(profileId, 'legend');
-                }
-            } catch (error) {
-                console.error('检查成就失败:', error);
-            }
-        }
-
         // 降级到 localStorage
-        function fallbackToLocalStorage(points, coins) {
+        function fallbackToLocalStorage(coins) {
             const settings = JSON.parse(localStorage.getItem('brushingMasterSettings')) || { profiles: [] };
             const activeProfile = settings.profiles.find(p => p.active);
             if (activeProfile) {
-                activeProfile.totalPoints = (activeProfile.totalPoints || 0) + points.total;
                 activeProfile.diamonds = (activeProfile.diamonds || 0) + coins.total;
                 localStorage.setItem('brushingMasterSettings', JSON.stringify(settings));
             }

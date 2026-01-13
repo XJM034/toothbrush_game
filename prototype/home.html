@@ -57,7 +57,7 @@
     </div>
 
     <!-- Bottom Nav -->
-    <div class="grid grid-cols-2 gap-3 flex-shrink-0 mt-auto">
+    <div class="grid grid-cols-2 gap-3 flex-shrink-0 mt-auto mb-6">
         <button class="kawaii-button kawaii-button-yellow py-2 flex flex-col gap-1 items-center"
             onclick="location.href='collection.html'">
             <i class="fas fa-box-open text-base"></i>
@@ -70,37 +70,7 @@
         </button>
     </div>
 
-    <!-- Points & Diamonds Display -->
-    <div class="pb-app-safe flex-shrink-0 mt-3">
-        <div class="flex justify-between items-center mb-2">
-            <!-- Total Points -->
-            <div class="flex items-center gap-2">
-                <i class="fas fa-bolt text-lg text-[var(--accent-yellow)]"></i>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-lg font-black text-[var(--primary-green)]" id="total-points">0</span>
-                    <span class="text-xs font-bold text-gray-400">积分</span>
-                </div>
-            </div>
-            <!-- Coins -->
-            <div class="flex items-center gap-2">
-                <i class="fas fa-coins text-lg text-yellow-500"></i>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-lg font-black text-yellow-600" id="total-diamonds">0</span>
-                    <span class="text-xs font-bold text-gray-400">金币</span>
-                </div>
-            </div>
-        </div>
-        <!-- Progress to next milestone -->
-        <div class="h-3 bg-gray-100 rounded-full overflow-hidden border-2 border-[#eee] relative shadow-inner">
-            <div class="h-full bg-[var(--accent-yellow)] transition-all duration-1000 ease-out flex items-center justify-end pr-1"
-                id="progress-bar" style="width: 0%">
-                <div class="w-1 h-2 bg-white opacity-30 rounded-full mr-1"></div>
-            </div>
-        </div>
-        <div class="flex justify-end mt-1">
-            <span class="text-xs font-bold text-gray-400" id="milestone-text">下一里程碑: 100 分</span>
-        </div>
-    </div>
+    <!-- 金币显示已移除 - 只在收藏夹显示 -->
 
     <!-- 退出确认弹框 (Dashboard) -->
 
@@ -349,23 +319,10 @@
             }
             dashTitle.textContent = title;
 
-            // 更新积分和钻石显示
-            const totalPointsEl = document.getElementById('total-points');
+            // 更新金币显示（简化得分体系：移除积分和里程碑）
             const totalDiamondsEl = document.getElementById('total-diamonds');
-            const progressBar = document.getElementById('progress-bar');
-            const milestoneText = document.getElementById('milestone-text');
-
-            const totalPoints = profile.total_xp || 0;
             const diamonds = profile.diamonds || 0;
-            const milestone = BrushingMasterDB.getPointsMilestone(totalPoints);
-
-            totalPointsEl.textContent = totalPoints;
             totalDiamondsEl.textContent = diamonds;
-            milestoneText.textContent = `下一里程碑: ${milestone.next} 分`;
-
-            setTimeout(() => {
-                progressBar.style.width = `${milestone.progress}%`;
-            }, 100);
         }
 
         // ============================================
