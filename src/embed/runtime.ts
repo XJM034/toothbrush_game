@@ -150,6 +150,41 @@ function resolveCandidateList(base: string, paths: string[]): string[] {
   return Array.from(new Set(resolved));
 }
 
+async function requestUserMediaWithTimeout(
+  constraints: MediaStreamConstraints,
+  timeoutMs: number
+): Promise<MediaStream> {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error('Camera API not available. Use a secure (https) context.');
+  }
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error('Camera permission timeout'));
+    }, timeoutMs);
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        if (settled) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        settled = true;
+        clearTimeout(timeout);
+        resolve(stream);
+      })
+      .catch(err => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        reject(err);
+      });
+  });
+}
+
 async function setupCamera(
   video: HTMLVideoElement,
   onProgress?: (stage: string, progress: number) => void
@@ -165,7 +200,7 @@ async function setupCamera(
     audio: false
   };
 
-  const stream = await navigator.mediaDevices.getUserMedia(constraints);
+  const stream = await requestUserMediaWithTimeout(constraints, 15000);
   video.srcObject = stream;
 
   onProgress?.('camera', 0.5);
