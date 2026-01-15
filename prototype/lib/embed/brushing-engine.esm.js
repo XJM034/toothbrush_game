@@ -2,13 +2,13 @@ var w2 = Object.defineProperty;
 var b2 = (e, t, n) => t in e ? w2(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[t] = n;
 var _ = (e, t, n) => b2(e, typeof t != "symbol" ? t + "" : t, n);
 var _t = typeof self < "u" ? self : {};
-function pt() {
+function mt() {
   throw Error("Invalid UTF8");
 }
 function li(e, t) {
   return t = String.fromCharCode.apply(null, t), e == null ? t : e + t;
 }
-let gn, ms;
+let gn, ps;
 const v2 = typeof TextDecoder < "u";
 let E2;
 const A2 = typeof TextEncoder < "u";
@@ -53,7 +53,7 @@ e: {
 }
 var an, fi = Fn && Fn[610401301];
 Ys = fi != null && fi;
-const pi = _t.navigator;
+const mi = _t.navigator;
 function Ms(e) {
   return !!Ys && !!an && an.brands.some((({ brand: t }) => t && t.indexOf(e) != -1));
 }
@@ -70,7 +70,7 @@ function _s() {
 function qs(e) {
   return qs[" "](e), e;
 }
-an = pi && pi.userAgentData || null, qs[" "] = function() {
+an = mi && mi.userAgentData || null, qs[" "] = function() {
 };
 var k2 = !st() && (_e("Trident") || _e("MSIE"));
 !_e("Android") || _s(), _s(), _e("Safari") && (_s() || !st() && _e("Coast") || !st() && _e("Opera") || !st() && _e("Edge") || (st() ? Ms("Microsoft Edge") : _e("Edg/")) || st() && Ms("Opera"));
@@ -116,7 +116,7 @@ function So() {
   }
 }
 var To = typeof Uint8Array < "u", Fo = !k2 && typeof btoa == "function";
-function mi(e) {
+function pi(e) {
   if (!Fo) {
     var t;
     t === void 0 && (t = 0), So(), t = ko[t];
@@ -151,12 +151,12 @@ function Lo(e) {
 function ln(e) {
   return To && e != null && e instanceof Uint8Array;
 }
-var Ot = {};
+var It = {};
 function wt() {
-  return L2 || (L2 = new We(null, Ot));
+  return L2 || (L2 = new We(null, It));
 }
 function Js(e) {
-  xo(Ot);
+  xo(It);
   var t = e.g;
   return (t = t == null || ln(t) ? t : typeof t == "string" ? Lo(t) : null) == null ? t : e.g = t;
 }
@@ -170,7 +170,7 @@ var We = class {
 };
 let L2, x2;
 function xo(e) {
-  if (e !== Ot) throw Error("illegal external caller");
+  if (e !== It) throw Error("illegal external caller");
 }
 function Mo(e, t) {
   e.__closure__error__context__984382 || (e.__closure__error__context__984382 = {}), e.__closure__error__context__984382.severity = t;
@@ -182,21 +182,21 @@ var Nn = typeof Symbol == "function" && typeof Symbol() == "symbol", M2 = /* @__
 function dn(e, t, n = !1, s = !1) {
   return e = typeof Symbol == "function" && typeof Symbol() == "symbol" ? s && Symbol.for && e ? Symbol.for(e) : e != null ? Symbol(e) : Symbol() : t, n && M2.add(e), e;
 }
-var C2 = dn("jas", void 0, !0, !0), yi = dn(void 0, "0di"), ws = dn(void 0, "2ex"), Qt = dn(void 0, "1oa", !0), It = dn(void 0, Symbol(), !0);
-const g = Nn ? C2 : "Ga", Co = { Ga: { value: 0, configurable: !0, writable: !0, enumerable: !1 } }, Oo = Object.defineProperties;
+var C2 = dn("jas", void 0, !0, !0), yi = dn(void 0, "0di"), ws = dn(void 0, "2ex"), Qt = dn(void 0, "1oa", !0), Ot = dn(void 0, Symbol(), !0);
+const g = Nn ? C2 : "Ga", Co = { Ga: { value: 0, configurable: !0, writable: !0, enumerable: !1 } }, Io = Object.defineProperties;
 function Un(e, t) {
-  Nn || g in e || Oo(e, Co), e[g] |= t;
+  Nn || g in e || Io(e, Co), e[g] |= t;
 }
 function G(e, t) {
-  Nn || g in e || Oo(e, Co), e[g] = t;
+  Nn || g in e || Io(e, Co), e[g] = t;
 }
 function Vt(e) {
   return Un(e, 34), e;
 }
-function O2(e, t) {
+function I2(e, t) {
   G(t, -30975 & (0 | e));
 }
-function Os(e, t) {
+function Is(e, t) {
   G(t, -30941 & (34 | e));
 }
 function Zs() {
@@ -205,17 +205,17 @@ function Zs() {
 function re(e) {
   return Array.prototype.slice.call(e);
 }
-var Qs, fn = {}, Io = {};
+var Qs, fn = {}, Oo = {};
 function _i(e) {
-  return !(!e || typeof e != "object" || e.Ia !== Io);
+  return !(!e || typeof e != "object" || e.Ia !== Oo);
 }
 function er(e) {
   return e !== null && typeof e == "object" && !Array.isArray(e) && e.constructor === Object;
 }
 function tr(e, t) {
   if (e != null) {
-    if (typeof e == "string") e = e ? new We(e, Ot) : wt();
-    else if (e.constructor !== We) if (ln(e)) e = e.length ? new We(new Uint8Array(e), Ot) : wt();
+    if (typeof e == "string") e = e ? new We(e, It) : wt();
+    else if (e.constructor !== We) if (ln(e)) e = e.length ? new We(new Uint8Array(e), It) : wt();
     else {
       if (!t) throw Error();
       e = void 0;
@@ -247,13 +247,13 @@ class xn {
   }
 }
 function nr(e) {
-  return It ? e[It] : void 0;
+  return Ot ? e[Ot] : void 0;
 }
-var I2 = Object.freeze({});
+var O2 = Object.freeze({});
 function Gn(e) {
   return e.Qa = !0, e;
 }
-var P2 = Gn(((e) => typeof e == "number")), bi = Gn(((e) => typeof e == "string")), R2 = Gn(((e) => typeof e == "boolean")), Hn = typeof _t.BigInt == "function" && typeof _t.BigInt(0) == "bigint", Is = Gn(((e) => Hn ? e >= B2 && e <= U2 : e[0] === "-" ? vi(e, D2) : vi(e, N2)));
+var P2 = Gn(((e) => typeof e == "number")), bi = Gn(((e) => typeof e == "string")), R2 = Gn(((e) => typeof e == "boolean")), Hn = typeof _t.BigInt == "function" && typeof _t.BigInt(0) == "bigint", Os = Gn(((e) => Hn ? e >= B2 && e <= U2 : e[0] === "-" ? vi(e, D2) : vi(e, N2)));
 const D2 = Number.MIN_SAFE_INTEGER.toString(), B2 = Hn ? BigInt(Number.MIN_SAFE_INTEGER) : void 0, N2 = Number.MAX_SAFE_INTEGER.toString(), U2 = Hn ? BigInt(Number.MAX_SAFE_INTEGER) : void 0;
 function vi(e, t) {
   if (e.length > t.length) return !1;
@@ -369,7 +369,7 @@ function cr(e) {
   return e;
 }
 function Cn(e) {
-  return e == null ? e : typeof e == "bigint" ? (Is(e) ? e = Number(e) : (e = ar(64, e), e = Is(e) ? Number(e) : String(e)), e) : zn(e) ? typeof e == "number" ? hr(e) : cr(e) : void 0;
+  return e == null ? e : typeof e == "bigint" ? (Os(e) ? e = Number(e) : (e = ar(64, e), e = Os(e) ? Number(e) : String(e)), e) : zn(e) ? typeof e == "number" ? hr(e) : cr(e) : void 0;
 }
 function j2(e) {
   if (e == null) return e;
@@ -579,7 +579,7 @@ function dr(e, t, n, s, r) {
   const i = s || n ? 0 | e[g] : 0, o = s ? !!(32 & i) : void 0;
   s = re(e);
   for (let a = 0; a < s.length; a++) s[a] = lr(s[a], t, n, o, r);
-  return n && ((e = nr(e)) && (s[It] = re(e)), n(i, s)), s;
+  return n && ((e = nr(e)) && (s[Ot] = re(e)), n(i, s)), s;
 }
 function Z2(e) {
   return lr(e, Uo, void 0, void 0, !1);
@@ -590,17 +590,17 @@ function Uo(e) {
       case "number":
         return isFinite(t) ? t : String(t);
       case "bigint":
-        return Is(t) ? Number(t) : String(t);
+        return Os(t) ? Number(t) : String(t);
       case "boolean":
         return t ? 1 : 0;
       case "object":
         if (t) if (Array.isArray(t)) {
           if (Ln(t)) return;
         } else {
-          if (ln(t)) return mi(t);
+          if (ln(t)) return pi(t);
           if (t instanceof We) {
             const n = t.g;
-            return n == null ? "" : typeof n == "string" ? n : t.g = mi(n);
+            return n == null ? "" : typeof n == "string" ? n : t.g = pi(n);
           }
           if (t instanceof be) return t.na();
         }
@@ -640,18 +640,18 @@ function Ho(e, t, n, s) {
   }
   return G(e, r), e;
 }
-function Ps(e, t, n = Os) {
+function Ps(e, t, n = Is) {
   if (e != null) {
     if (To && e instanceof Uint8Array) return t ? e : new Uint8Array(e);
     if (Array.isArray(e)) {
       var s = 0 | e[g];
-      return 2 & s ? e : (t && (t = s === 0 || !!(32 & s) && !(64 & s || !(16 & s))), t ? (G(e, -12293 & (34 | s)), e) : dr(e, Ps, 4 & s ? Os : n, !0, !0));
+      return 2 & s ? e : (t && (t = s === 0 || !!(32 & s) && !(64 & s || !(16 & s))), t ? (G(e, -12293 & (34 | s)), e) : dr(e, Ps, 4 & s ? Is : n, !0, !0));
     }
     return e.W === fn ? e = 2 & (s = 0 | (n = e.u)[g]) ? e : new e.constructor(Wn(n, s, !0)) : e instanceof be && !(2 & e.L) && (n = Vt(e.X(Ps)), e = new be(n, e.S, e.R, e.Y)), e;
   }
 }
 function Wn(e, t, n) {
-  const s = n || 2 & t ? Os : O2, r = !!(32 & t);
+  const s = n || 2 & t ? Is : I2, r = !!(32 & t);
   return e = (function(i, o, a) {
     const h = re(i);
     var c = h.length;
@@ -661,7 +661,7 @@ function Wn(e, t, n) {
       o = h[o] = {};
       for (const l in u) o[l] = a(u[l]);
     }
-    return (i = nr(i)) && (h[It] = re(i)), h;
+    return (i = nr(i)) && (h[Ot] = re(i)), h;
   })(e, t, ((i) => Ps(i, r, s))), Un(e, 32 | (n ? 2 : 0)), e;
 }
 function Xn(e) {
@@ -701,8 +701,8 @@ function Vo(e) {
   const n = qe(e, t, 1), s = tr(n, !0);
   return s != null && s !== n && R(e, t, 1, s), s;
 }
-function mt() {
-  return I2 === void 0 ? 2 : 4;
+function pt() {
+  return O2 === void 0 ? 2 : 4;
 }
 function gt(e, t, n, s, r) {
   const i = e.u, o = 2 & (e = 0 | i[g]) ? 1 : s;
@@ -715,14 +715,14 @@ function gt(e, t, n, s, r) {
       const u = n(s[h]);
       u != null && (s[c++] = u);
     }
-    c < h && (s.length = c), a = pr(a, e), n = -4097 & (20 | a), a = n &= -8193, G(s, a), 2 & a && Object.freeze(s);
+    c < h && (s.length = c), a = mr(a, e), n = -4097 & (20 | a), a = n &= -8193, G(s, a), 2 & a && Object.freeze(s);
   }
   return o === 1 || o === 4 && 32 & a ? je(a) || (r = a, a |= 2, a !== r && G(s, a), Object.freeze(s)) : (o === 2 && je(a) && (s = re(s), a = Xe(a, e), a = ot(a, e, r), G(s, a), e = R(i, e, t, s)), je(a) || (t = a, a = ot(a, e, r), a !== t && G(s, a))), s;
 }
 function fr(e, t, n, s) {
   return e = qe(e, t, n, s), Array.isArray(e) ? e : Qs;
 }
-function pr(e, t) {
+function mr(e, t) {
   return e === 0 && (e = Xe(e, t)), 1 | e;
 }
 function je(e) {
@@ -746,22 +746,22 @@ function Wt(e, t, n, s, r) {
   const o = (r = fr(e, t, n, r)) !== Qs;
   if (i || !o) {
     let a = i = o ? 0 | r[g] : 0;
-    (!o || 2 & a || je(a) || 4 & a && !(32 & a)) && (r = re(r), a = Xe(a, t), t = R(e, t, n, r)), a = -13 & pr(a, t), a = ot(s ? -17 & a : 16 | a, t, !0), a !== i && G(r, a);
+    (!o || 2 & a || je(a) || 4 & a && !(32 & a)) && (r = re(r), a = Xe(a, t), t = R(e, t, n, r)), a = -13 & mr(a, t), a = ot(s ? -17 & a : 16 | a, t, !0), a !== i && G(r, a);
   }
   return r;
 }
 function Es(e, t) {
-  var n = Oa;
-  return gr(mr(e = e.u), e, 0 | e[g], n) === t ? t : -1;
+  var n = Ia;
+  return gr(pr(e = e.u), e, 0 | e[g], n) === t ? t : -1;
 }
-function mr(e) {
+function pr(e) {
   if (Nn) return e[Qt] ?? (e[Qt] = /* @__PURE__ */ new Map());
   if (Qt in e) return e[Qt];
   const t = /* @__PURE__ */ new Map();
   return Object.defineProperty(e, Qt, { value: t }), t;
 }
 function zo(e, t, n, s) {
-  const r = mr(e), i = gr(r, e, t, n);
+  const r = pr(e), i = gr(r, e, t, n);
   return i !== s && (i && (t = R(e, t, i)), r.set(n, s)), t;
 }
 function gr(e, t, n, s) {
@@ -803,20 +803,20 @@ function Xo(e, t, n, s, r, i, o) {
   var c = 0 | (r = fr(e, t, s))[g];
   if (!(a = !!(4 & c))) {
     var u = r, l = t;
-    const w = !!(2 & (c = pr(c, t)));
+    const w = !!(2 & (c = mr(c, t)));
     w && (l |= 2);
-    let I = !w, K = !0, J = 0, $ = 0;
+    let O = !w, K = !0, J = 0, $ = 0;
     for (; J < u.length; J++) {
       const te = ur(u[J], n, !1, l);
       if (te instanceof n) {
         if (!w) {
           const Ce = !!(2 & (0 | te.u[g]));
-          I && (I = !Ce), K && (K = Ce);
+          O && (O = !Ce), K && (K = Ce);
         }
         u[$++] = te;
       }
     }
-    $ < J && (u.length = $), c |= 4, c = K ? 16 | c : -17 & c, G(u, c = I ? 8 | c : -9 & c), w && Object.freeze(u);
+    $ < J && (u.length = $), c |= 4, c = K ? 16 | c : -17 & c, G(u, c = O ? 8 | c : -9 & c), w && Object.freeze(u);
   }
   if (o && !(8 & c || !r.length && (h === 1 || h === 4 && 32 & c))) {
     for (je(c) && (r = re(r), c = Xe(c, t), t = R(e, t, s, r)), n = r, o = c, u = 0; u < n.length; u++) (c = n[u]) !== (l = Xn(c)) && (n[u] = l);
@@ -826,7 +826,7 @@ function Xo(e, t, n, s, r, i, o) {
 }
 function Ke(e, t, n) {
   const s = 0 | e.u[g];
-  return Xo(e, s, t, n, mt(), !1, !(2 & s));
+  return Xo(e, s, t, n, pt(), !1, !(2 & s));
 }
 function y(e, t, n, s) {
   return s == null && (s = void 0), F(e, n, s);
@@ -836,7 +836,7 @@ function sn(e, t, n, s) {
   e: {
     let r = 0 | (e = e.u)[g];
     if (ct(r), s == null) {
-      const i = mr(e);
+      const i = pr(e);
       if (gr(i, e, r, n) !== t) break e;
       i.set(n, 0);
     } else r = zo(e, r, n, t);
@@ -849,7 +849,7 @@ function Xe(e, t) {
 function ot(e, t, n) {
   return 32 & t && n || (e &= -33), e;
 }
-function On(e, t, n, s) {
+function In(e, t, n, s) {
   const r = 0 | e.u[g];
   ct(r), e = Xo(e, r, n, t, 2, !0), s = s ?? new n(), e.push(s), e[g] = 2 & (0 | s.u[g]) ? -9 & e[g] : -17 & e[g];
 }
@@ -873,11 +873,11 @@ function Ue(e, t, n) {
   }
   F(e, t, n);
 }
-function p(e, t, n) {
+function m(e, t, n) {
   if (n != null && typeof n != "number") throw Error(`Value of float/double field must be a number, found ${typeof n}: ${n}`);
   F(e, t, n);
 }
-function In(e, t, n) {
+function On(e, t, n) {
   {
     const o = e.u;
     let a = 0 | o[g];
@@ -971,9 +971,9 @@ function Yo(e, t) {
 function qo(e, t) {
   if (t == 0) return wt();
   var n = Yo(e, t);
-  return e.ba && e.m ? n = e.h.subarray(n, n + t) : (e = e.h, n = n === (t = n + t) ? new Uint8Array(0) : G2 ? e.slice(n, t) : new Uint8Array(e.subarray(n, t))), n.length == 0 ? wt() : new We(n, Ot);
+  return e.ba && e.m ? n = e.h.subarray(n, n + t) : (e = e.h, n = n === (t = n + t) ? new Uint8Array(0) : G2 ? e.slice(n, t) : new Uint8Array(e.subarray(n, t))), n.length == 0 ? wt() : new We(n, It);
 }
-be.prototype.toJSON = void 0, be.prototype.Ia = Io;
+be.prototype.toJSON = void 0, be.prototype.Ia = Oo;
 var Li = [];
 function Jo(e) {
   var t = e.g;
@@ -1016,7 +1016,7 @@ function En(e) {
       throw $o(e.h, e.l);
   }
 }
-function pn(e, t, n) {
+function mn(e, t, n) {
   const s = e.g.l, r = Ye(e.g), i = e.g.g + r;
   let o = i - s;
   if (o <= 0 && (e.g.l = i, n(t, e, void 0, void 0, void 0), o = i - e.g.g), o) throw Error(`Message parsing ended unexpectedly. Expected to read ${r} bytes, instead read ${r - o} bytes, either the data ended unexpectedly or the message misreported its own length`);
@@ -1026,7 +1026,7 @@ function Er(e) {
   var t = Ye(e.g), n = Yo(e = e.g, t);
   if (e = e.h, v2) {
     var s, r = e;
-    (s = ms) || (s = ms = new TextDecoder("utf-8", { fatal: !0 })), t = n + t, r = n === 0 && t === r.length ? r : r.subarray(n, t);
+    (s = ps) || (s = ps = new TextDecoder("utf-8", { fatal: !0 })), t = n + t, r = n === 0 && t === r.length ? r : r.subarray(n, t);
     try {
       var i = s.decode(r);
     } catch (a) {
@@ -1041,14 +1041,14 @@ function Er(e) {
           gn = !1;
         }
       }
-      throw !gn && (ms = void 0), a;
+      throw !gn && (ps = void 0), a;
     }
   } else {
     t = (i = n) + t, n = [];
     let a, h = null;
     for (; i < t; ) {
       var o = e[i++];
-      o < 128 ? n.push(o) : o < 224 ? i >= t ? pt() : (a = e[i++], o < 194 || (192 & a) != 128 ? (i--, pt()) : n.push((31 & o) << 6 | 63 & a)) : o < 240 ? i >= t - 1 ? pt() : (a = e[i++], (192 & a) != 128 || o === 224 && a < 160 || o === 237 && a >= 160 || (192 & (s = e[i++])) != 128 ? (i--, pt()) : n.push((15 & o) << 12 | (63 & a) << 6 | 63 & s)) : o <= 244 ? i >= t - 2 ? pt() : (a = e[i++], (192 & a) != 128 || a - 144 + (o << 28) >> 30 != 0 || (192 & (s = e[i++])) != 128 || (192 & (r = e[i++])) != 128 ? (i--, pt()) : (o = (7 & o) << 18 | (63 & a) << 12 | (63 & s) << 6 | 63 & r, o -= 65536, n.push(55296 + (o >> 10 & 1023), 56320 + (1023 & o)))) : pt(), n.length >= 8192 && (h = li(h, n), n.length = 0);
+      o < 128 ? n.push(o) : o < 224 ? i >= t ? mt() : (a = e[i++], o < 194 || (192 & a) != 128 ? (i--, mt()) : n.push((31 & o) << 6 | 63 & a)) : o < 240 ? i >= t - 1 ? mt() : (a = e[i++], (192 & a) != 128 || o === 224 && a < 160 || o === 237 && a >= 160 || (192 & (s = e[i++])) != 128 ? (i--, mt()) : n.push((15 & o) << 12 | (63 & a) << 6 | 63 & s)) : o <= 244 ? i >= t - 2 ? mt() : (a = e[i++], (192 & a) != 128 || a - 144 + (o << 28) >> 30 != 0 || (192 & (s = e[i++])) != 128 || (192 & (r = e[i++])) != 128 ? (i--, mt()) : (o = (7 & o) << 18 | (63 & a) << 12 | (63 & s) << 6 | 63 & r, o -= 65536, n.push(55296 + (o >> 10 & 1023), 56320 + (1023 & o)))) : mt(), n.length >= 8192 && (h = li(h, n), n.length = 0);
     }
     i = li(h, n);
   }
@@ -1204,11 +1204,11 @@ function ia(e, t, n, s, r) {
   Pn(e, n, ca(t, s), r);
 }
 const s1 = Jn((function(e, t, n, s, r) {
-  return e.h === 2 && (pn(e, yr(t, s, n), r), !0);
+  return e.h === 2 && (mn(e, yr(t, s, n), r), !0);
 }), ia), r1 = Jn((function(e, t, n, s, r) {
-  return e.h === 2 && (pn(e, yr(t, s, n, !0), r), !0);
+  return e.h === 2 && (mn(e, yr(t, s, n, !0), r), !0);
 }), ia);
-var Zn = Symbol(), xr = Symbol(), Ci = Symbol(), Oi = Symbol();
+var Zn = Symbol(), xr = Symbol(), Ci = Symbol(), Ii = Symbol();
 let oa, aa;
 function bt(e, t, n, s) {
   var r = s[e];
@@ -1262,9 +1262,9 @@ function Mr(e, t, n, s) {
 function Cr(e, t, n, s, r) {
   const i = n.g;
   let o, a;
-  e[t] = (h, c, u) => i(h, c, u, a || (a = bt(xr, Mr, Cr, s).V), o || (o = Or(s)), r);
+  e[t] = (h, c, u) => i(h, c, u, a || (a = bt(xr, Mr, Cr, s).V), o || (o = Ir(s)), r);
 }
-function Or(e) {
+function Ir(e) {
   let t = e[Ci];
   if (t != null) return t;
   const n = bt(xr, Mr, Cr, e);
@@ -1276,7 +1276,7 @@ function Or(e) {
         var h = n.ga;
         h && (h = h[o]) && (h = i1(h)) != null && (a = n[o] = h);
       }
-      a != null && a(r, s, o) || (o = (a = r).l, En(a), a.fa ? a = void 0 : (h = a.g.g - o, a.g.g = o, a = qo(a.g, h)), o = s, a && ((h = o[It]) ? h.push(a) : o[It] = [a]));
+      a != null && a(r, s, o) || (o = (a = r).l, En(a), a.fa ? a = void 0 : (h = a.g.g - o, a.g.g = o, a = qo(a.g, h)), o = s, a && ((h = o[Ot]) ? h.push(a) : o[Ot] = [a]));
     }
     return 16384 & i && Vt(s), !0;
   }, e[Ci] = t;
@@ -1284,7 +1284,7 @@ function Or(e) {
 function i1(e) {
   const t = (e = ha(e))[0].g;
   if (e = e[1]) {
-    const n = Or(e), s = bt(xr, Mr, Cr, e).V;
+    const n = Ir(e), s = bt(xr, Mr, Cr, e).V;
     return (r, i, o) => t(r, i, o, s, n);
   }
   return t;
@@ -1298,10 +1298,10 @@ function es(e, t, n, s) {
   e[t] = (a, h, c) => o(a, h, c, i || (i = bt(Zn, Qn, es, s).V), r || (r = ua(s)));
 }
 function ua(e) {
-  let t = e[Oi];
+  let t = e[Ii];
   if (!t) {
     const n = bt(Zn, Qn, es, e);
-    t = (s, r) => la(s, r, n), e[Oi] = t;
+    t = (s, r) => la(s, r, n), e[Ii] = t;
   }
   return t;
 }
@@ -1309,16 +1309,16 @@ function la(e, t, n) {
   for (var s = 0 | e[g], r = 512 & s ? 0 : -1, i = e.length, o = 512 & s ? 1 : 0, a = i + (256 & s ? -1 : 0); o < a; o++) {
     const h = e[o];
     if (h == null) continue;
-    const c = o - r, u = Ii(n, c);
+    const c = o - r, u = Oi(n, c);
     u && u(t, h, c);
   }
   if (256 & s) {
     s = e[i - 1];
-    for (const h in s) r = +h, Number.isNaN(r) || (i = s[r]) != null && (a = Ii(n, r)) && a(t, i, r);
+    for (const h in s) r = +h, Number.isNaN(r) || (i = s[r]) != null && (a = Oi(n, r)) && a(t, i, r);
   }
   if (e = nr(e)) for (Bt(t, t.g.end()), n = 0; n < e.length; n++) Bt(t, Js(e[n]) || new Uint8Array(0));
 }
-function Ii(e, t) {
+function Oi(e, t) {
   var n = e[t];
   if (n) return n;
   if ((n = e.ga) && (n = n[t])) {
@@ -1351,7 +1351,7 @@ function ee(e, t, n) {
   R(e, 0 | e[g], t, n);
 }
 var o1 = Jn((function(e, t, n, s, r) {
-  return e.h === 2 && (e = pn(e, it([void 0, void 0], s, !0), r), ct(s = 0 | t[g]), (r = qe(t, s, n)) instanceof be ? (2 & r.L) != 0 ? ((r = r.X()).push(e), R(t, s, n, r)) : r.Na(e) : Array.isArray(r) ? (2 & (0 | r[g]) && R(t, s, n, r = jo(r)), r.push(e)) : R(t, s, n, [e]), !0);
+  return e.h === 2 && (e = mn(e, it([void 0, void 0], s, !0), r), ct(s = 0 | t[g]), (r = qe(t, s, n)) instanceof be ? (2 & r.L) != 0 ? ((r = r.X()).push(e), R(t, s, n, r)) : r.Na(e) : Array.isArray(r) ? (2 & (0 | r[g]) && R(t, s, n, r = jo(r)), r.push(e)) : R(t, s, n, [e]), !0);
 }), (function(e, t, n, s, r) {
   if (t instanceof be) t.forEach(((i, o) => {
     Pn(e, n, it([o, i], s, !1), r);
@@ -1385,10 +1385,10 @@ function da(e, t, n) {
 function fa(e, t, n) {
   (t = jt(t)) != null && t != null && (le(e, n, 0), Yn(e.g, t));
 }
-function pa(e, t, n) {
+function ma(e, t, n) {
   (t = Ro(t)) != null && (le(e, n, 0), e.g.g.push(t ? 1 : 0));
 }
-function ma(e, t, n) {
+function pa(e, t, n) {
   (t = Rt(t)) != null && qn(e, n, Ao(t));
 }
 function ga(e, t, n, s, r) {
@@ -1419,7 +1419,7 @@ var He = Q((function(e, t, n) {
     var s = e, r = n, i = t[o];
     i != null && (le(s, r, 5), s = s.g, sr(i), un(s, T));
   }
-}), Lr), Ir = Yt(_a, (function(e, t, n) {
+}), Lr), Or = Yt(_a, (function(e, t, n) {
   if ((t = Kt(ut, t)) != null && t.length) {
     le(e, n, 2), Xt(e.g, 4 * t.length);
     for (let s = 0; s < t.length; s++) n = e.g, sr(t[s]), un(n, T);
@@ -1456,9 +1456,9 @@ var He = Q((function(e, t, n) {
   return e.h === 0 && (ee(t, n, (e = at(e.g)) === 0 ? void 0 : e), !0);
 }), fa, Fr), C = Q((function(e, t, n) {
   return e.h === 0 && (ee(t, n, vr(e.g)), !0);
-}), pa, ea), Mt = Q((function(e, t, n) {
+}), ma, ea), Mt = Q((function(e, t, n) {
   return e.h === 0 && (ee(t, n, (e = vr(e.g)) === !1 ? void 0 : e), !0);
-}), pa, ea), q = Yt((function(e, t, n) {
+}), ma, ea), q = Yt((function(e, t, n) {
   return e.h === 2 && (e = Er(e), Wt(t, 0 | t[g], n, !1).push(e), !0);
 }), (function(e, t, n) {
   if ((t = Kt(Rt, t)) != null) for (let o = 0; o < t.length; o++) {
@@ -1467,16 +1467,16 @@ var He = Q((function(e, t, n) {
   }
 }), Tr), rt = Q((function(e, t, n) {
   return e.h === 2 && (ee(t, n, (e = Er(e)) === "" ? void 0 : e), !0);
-}), ma, Tr), k = Q((function(e, t, n) {
+}), pa, Tr), k = Q((function(e, t, n) {
   return e.h === 2 && (ee(t, n, Er(e)), !0);
-}), ma, Tr), z = (function(e, t, n = Sr) {
+}), pa, Tr), z = (function(e, t, n = Sr) {
   return new $t(e, t, n);
 })((function(e, t, n, s, r) {
-  return e.h === 2 && (s = it(void 0, s, !0), Wt(t, 0 | t[g], n, !0).push(s), pn(e, s, r), !0);
+  return e.h === 2 && (s = it(void 0, s, !0), Wt(t, 0 | t[g], n, !0).push(s), mn(e, s, r), !0);
 }), (function(e, t, n, s, r) {
   if (Array.isArray(t)) for (let i = 0; i < t.length; i++) ga(e, t[i], n, s, r);
 })), S = Jn((function(e, t, n, s, r, i) {
-  return e.h === 2 && (zo(t, 0 | t[g], i, n), pn(e, t = yr(t, s, n), r), !0);
+  return e.h === 2 && (zo(t, 0 | t[g], i, n), mn(e, t = yr(t, s, n), r), !0);
 }), ga), wa = Q((function(e, t, n) {
   return e.h === 2 && (ee(t, n, Zo(e)), !0);
 }), ya, sa), c1 = Yt((function(e, t, n) {
@@ -1529,7 +1529,7 @@ function lt(e, t) {
     }(n, s);
     try {
       const i = new e(), o = i.u;
-      Or(t)(o, n);
+      Ir(t)(o, n);
       var r = i;
     } finally {
       n.g.clear(), n.m = -1, n.h = -1, yn.length < 100 && yn.push(n);
@@ -1650,7 +1650,7 @@ var Z = class extends f {
   }
 }, rn = [-1, {}], Gi = [0, k, 1, rn], Hi = [0, k, q, rn];
 function fe(e, t) {
-  On(e, 1, Z, t);
+  In(e, 1, Z, t);
 }
 function x(e, t) {
   $n(e, 10, t);
@@ -1667,7 +1667,7 @@ var oe = class extends f {
   }
 }, Sa = [-500, z, [-500, rt, -1, q, -3, [-2, V, C], z, Ri, Tt, -1, Gi, Hi, z, [0, rt, Mt], rt, Ui, Tt, q, 987, q], 4, z, [-500, k, -1, [-1, {}], 998, k], z, [-500, k, q, -1, [-2, {}, C], 997, q, -1], Tt, z, [-500, k, q, rn, 998, q], q, Tt, Gi, Hi, z, [0, rt, -1, rn], q, -2, Ui, rt, -1, Mt, [0, Mt, u1], 978, rn, z, Ri];
 oe.prototype.g = ns(Sa);
-var p1 = lt(oe, Sa), m1 = class extends f {
+var m1 = lt(oe, Sa), p1 = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1676,7 +1676,7 @@ var p1 = lt(oe, Sa), m1 = class extends f {
     super(e);
   }
   g() {
-    return Ke(this, m1, 1);
+    return Ke(this, p1, 1);
   }
 }, Fa = [0, z, [0, B, H, k, -1]], ss = lt(Ta, Fa), g1 = class extends f {
   constructor(e) {
@@ -1700,7 +1700,7 @@ var p1 = lt(oe, Sa), m1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, [0, q, ts, Ir, [0, Ee, [0, B, -3], [0, H, -3], [0, B, -1, [0, z, [0, B, -2]]], z, [0, H, -1, k, H]], k, -1, ht, z, [0, B, H], q, ht]), xa = class extends f {
+}, [0, q, ts, Or, [0, Ee, [0, B, -3], [0, H, -3], [0, B, -1, [0, z, [0, B, -2]]], z, [0, H, -1, k, H]], k, -1, ht, z, [0, B, H], q, ht]), xa = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1712,7 +1712,7 @@ var p1 = lt(oe, Sa), m1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, mn = lt(class extends f {
+}, pn = lt(class extends f {
   constructor(e) {
     super(e);
   }
@@ -1720,7 +1720,7 @@ var p1 = lt(oe, Sa), m1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, w1 = [0, B, -1, Ir, Ee], Ca = class extends f {
+}, w1 = [0, B, -1, Or, Ee], Ca = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1750,15 +1750,15 @@ var b1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, Oa = [1, 2], k1 = lt(class extends f {
+}, Ia = [1, 2], k1 = lt(class extends f {
   constructor(e) {
     super(e);
   }
-}, [0, z, [0, Oa, S, [0, Ir], S, [0, wa], B, k], ht]), Pr = class extends f {
+}, [0, z, [0, Ia, S, [0, Or], S, [0, wa], B, k], ht]), Pr = class extends f {
   constructor(e) {
     super(e);
   }
-}, Ia = [0, k, B, H, q, -1], ji = class extends f {
+}, Oa = [0, k, B, H, q, -1], ji = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1776,7 +1776,7 @@ var b1 = class extends f {
   h() {
     return ve(this, 2) != null;
   }
-}, O = class extends f {
+}, I = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1819,7 +1819,7 @@ var kt = class extends f {
   g() {
     F(this, 2);
   }
-}, Ua = [0, U, Ia];
+}, Ua = [0, U, Oa];
 V[478825465] = Ua;
 var M1 = class extends f {
   constructor(e) {
@@ -1843,9 +1843,9 @@ var M1 = class extends f {
   }
 }, Wi = [0, U, [0, U], Ua, -1], Va = [0, U, H, B], Ur = [0, U, H], ja = [0, U, Va, Ur, H], C1 = xe(479097054, Ha);
 V[479097054] = [0, U, ja, Wi], V[463370452] = Wi, V[464864288] = Va;
-var O1 = xe(462713202, Nr);
+var I1 = xe(462713202, Nr);
 V[462713202] = ja, V[474472470] = Ur;
-var I1 = class extends f {
+var O1 = class extends f {
   constructor(e) {
     super(e);
   }
@@ -1868,7 +1868,7 @@ var $a = class extends f {
     super(e);
   }
 }, P1 = xe(456383383, $a);
-V[456383383] = [0, U, Ia];
+V[456383383] = [0, U, Oa];
 var Ka = class extends f {
   constructor(e) {
     super(e);
@@ -1928,14 +1928,14 @@ var Qa = class extends f {
   }
 }, N1 = xe(516587230, Qa);
 function Hs(e, t) {
-  return t = t ? t.clone() : new Pr(), e.displayNamesLocale !== void 0 ? F(t, 1, zt(e.displayNamesLocale)) : e.displayNamesLocale === void 0 && F(t, 1), e.maxResults !== void 0 ? Ue(t, 2, e.maxResults) : "maxResults" in e && F(t, 2), e.scoreThreshold !== void 0 ? p(t, 3, e.scoreThreshold) : "scoreThreshold" in e && F(t, 3), e.categoryAllowlist !== void 0 ? In(t, 4, e.categoryAllowlist) : "categoryAllowlist" in e && F(t, 4), e.categoryDenylist !== void 0 ? In(t, 5, e.categoryDenylist) : "categoryDenylist" in e && F(t, 5), t;
+  return t = t ? t.clone() : new Pr(), e.displayNamesLocale !== void 0 ? F(t, 1, zt(e.displayNamesLocale)) : e.displayNamesLocale === void 0 && F(t, 1), e.maxResults !== void 0 ? Ue(t, 2, e.maxResults) : "maxResults" in e && F(t, 2), e.scoreThreshold !== void 0 ? m(t, 3, e.scoreThreshold) : "scoreThreshold" in e && F(t, 3), e.categoryAllowlist !== void 0 ? On(t, 4, e.categoryAllowlist) : "categoryAllowlist" in e && F(t, 4), e.categoryDenylist !== void 0 ? On(t, 5, e.categoryDenylist) : "categoryDenylist" in e && F(t, 5), t;
 }
 function Vr(e, t = -1, n = "") {
   return { categories: e.map(((s) => ({ index: we(s, 1) ?? 0 ?? -1, score: N(s, 2) ?? 0, categoryName: ve(s, 3) ?? "" ?? "", displayName: ve(s, 4) ?? "" ?? "" }))), headIndex: t, headName: n };
 }
 function e2(e) {
   var o, a;
-  var t = gt(e, 3, ut, mt()), n = gt(e, 2, jt, mt()), s = gt(e, 1, Rt, mt()), r = gt(e, 9, Rt, mt());
+  var t = gt(e, 3, ut, pt()), n = gt(e, 2, jt, pt()), s = gt(e, 1, Rt, pt()), r = gt(e, 9, Rt, pt());
   const i = { categories: [], keypoints: [] };
   for (let h = 0; h < t.length; h++) i.categories.push({ score: t[h], index: n[h] ?? -1, categoryName: s[h] ?? "", displayName: r[h] ?? "" });
   if ((t = (o = E(e, Ts, 4)) == null ? void 0 : o.h()) && (i.boundingBox = { originX: we(t, 1) ?? 0, originY: we(t, 2) ?? 0, width: we(t, 3) ?? 0, height: we(t, 4) ?? 0, angle: 0 }), (a = E(e, Ts, 4)) == null ? void 0 : a.g().length) for (const h of E(e, Ts, 4).g()) i.keypoints.push({ x: vn(h, 1) ?? 0, y: vn(h, 2) ?? 0, score: vn(h, 4) ?? 0, label: ve(h, 3) ?? "" });
@@ -2000,7 +2000,7 @@ async function Yi(e) {
 function s2(e) {
   return e.videoWidth !== void 0 ? [e.videoWidth, e.videoHeight] : e.naturalWidth !== void 0 ? [e.naturalWidth, e.naturalHeight] : e.displayWidth !== void 0 ? [e.displayWidth, e.displayHeight] : [e.width, e.height];
 }
-function m(e, t, n) {
+function p(e, t, n) {
   e.m || console.error("No wasm multistream support detected: ensure dependency inclusion of :gl_graph_runner_internal_multi_input target"), n(t = e.i.stringToNewUTF8(t)), e.i._free(t);
 }
 function qi(e, t, n) {
@@ -2084,8 +2084,8 @@ var kn = class {
       if ((function(c, u) {
         let l = E(c.baseOptions, zi, 3);
         if (!l) {
-          var w = l = new zi(), I = new Ni();
-          sn(w, 4, An, I);
+          var w = l = new zi(), O = new Ni();
+          sn(w, 4, An, O);
         }
         "delegate" in u && (u.delegate === "GPU" ? (u = l, w = new f1(), sn(u, 2, An, w)) : (u = l, w = new Ni(), sn(u, 4, An, w))), y(c.baseOptions, 0, 3, l);
       })(this, h), h.modelAssetPath) return fetch(h.modelAssetPath.toString()).then(((c) => {
@@ -2102,9 +2102,9 @@ var kn = class {
       else if (h.modelAssetBuffer) return (async function(c) {
         const u = [];
         for (var l = 0; ; ) {
-          const { done: w, value: I } = await c.read();
+          const { done: w, value: O } = await c.read();
           if (w) break;
-          u.push(I), l += I.length;
+          u.push(O), l += O.length;
         }
         if (u.length === 0) return new Uint8Array(0);
         if (u.length === 1) return u[0];
@@ -2122,7 +2122,7 @@ var kn = class {
   da() {
     let e;
     if (this.g.da(((t) => {
-      e = p1(t);
+      e = m1(t);
     })), !e) throw Error("Failed to retrieve CalculatorGraphConfig");
     return e;
   }
@@ -2468,8 +2468,8 @@ const V1 = /* @__PURE__ */ (function(e) {
     this.i.HEAPU8.set(e, s), t ? this.i._changeBinaryGraph(n, s) : this.i._changeTextGraph(n, s), this.i._free(s);
   }
   configureAudio(e, t, n, s, r) {
-    this.i._configureAudio || console.warn('Attempting to use configureAudio without support for input audio. Is build dep ":gl_graph_runner_audio" missing?'), m(this, s || "input_audio", ((i) => {
-      m(this, r = r || "audio_header", ((o) => {
+    this.i._configureAudio || console.warn('Attempting to use configureAudio without support for input audio. Is build dep ":gl_graph_runner_audio" missing?'), p(this, s || "input_audio", ((i) => {
+      p(this, r = r || "audio_header", ((o) => {
         this.i._configureAudio(i, o, e, t ?? 0, n);
       }));
     }));
@@ -2486,7 +2486,7 @@ const V1 = /* @__PURE__ */ (function(e) {
   da(e) {
     Pe(this, "__graph_config__", ((t) => {
       e(t);
-    })), m(this, "__graph_config__", ((t) => {
+    })), p(this, "__graph_config__", ((t) => {
       this.i._getGraphConfig(t, void 0);
     })), delete this.i.simpleListeners.__graph_config__;
   }
@@ -2501,50 +2501,50 @@ const V1 = /* @__PURE__ */ (function(e) {
   }
   addAudioToStreamWithShape(e, t, n, s, r) {
     const i = 4 * e.length;
-    this.h !== i && (this.g && this.i._free(this.g), this.g = this.i._malloc(i), this.h = i), this.i.HEAPF32.set(e, this.g / 4), m(this, s, ((o) => {
+    this.h !== i && (this.g && this.i._free(this.g), this.g = this.i._malloc(i), this.h = i), this.i.HEAPF32.set(e, this.g / 4), p(this, s, ((o) => {
       this.i._addAudioToInputStream(this.g, t, n, o, r);
     }));
   }
   addGpuBufferToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const [r, i] = qi(this, e, s);
       this.i._addBoundTextureToStream(s, r, i, n);
     }));
   }
   addBoolToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       this.i._addBoolToInputStream(e, s, n);
     }));
   }
   addDoubleToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       this.i._addDoubleToInputStream(e, s, n);
     }));
   }
   addFloatToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       this.i._addFloatToInputStream(e, s, n);
     }));
   }
   addIntToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       this.i._addIntToInputStream(e, s, n);
     }));
   }
   addUintToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       this.i._addUintToInputStream(e, s, n);
     }));
   }
   addStringToStream(e, t, n) {
-    m(this, t, ((s) => {
-      m(this, e, ((r) => {
+    p(this, t, ((s) => {
+      p(this, e, ((r) => {
         this.i._addStringToInputStream(r, s, n);
       }));
     }));
   }
   addStringRecordToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       Ji(this, Object.keys(e), ((r) => {
         Ji(this, Object.values(e), ((i) => {
           this.i._addFlatHashMapToInputStream(r, i, Object.keys(e).length, s, n);
@@ -2553,20 +2553,20 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addProtoToStream(e, t, n, s) {
-    m(this, n, ((r) => {
-      m(this, t, ((i) => {
+    p(this, n, ((r) => {
+      p(this, t, ((i) => {
         const o = this.i._malloc(e.length);
         this.i.HEAPU8.set(e, o), this.i._addProtoToInputStream(o, e.length, i, r, s), this.i._free(o);
       }));
     }));
   }
   addEmptyPacketToStream(e, t) {
-    m(this, e, ((n) => {
+    p(this, e, ((n) => {
       this.i._addEmptyPacketToInputStream(n, t);
     }));
   }
   addBoolVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateBoolVector(e.length);
       if (!r) throw Error("Unable to allocate new bool vector on heap.");
       for (const i of e) this.i._addBoolVectorEntry(r, i);
@@ -2574,7 +2574,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addDoubleVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateDoubleVector(e.length);
       if (!r) throw Error("Unable to allocate new double vector on heap.");
       for (const i of e) this.i._addDoubleVectorEntry(r, i);
@@ -2582,7 +2582,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addFloatVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateFloatVector(e.length);
       if (!r) throw Error("Unable to allocate new float vector on heap.");
       for (const i of e) this.i._addFloatVectorEntry(r, i);
@@ -2590,7 +2590,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addIntVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateIntVector(e.length);
       if (!r) throw Error("Unable to allocate new int vector on heap.");
       for (const i of e) this.i._addIntVectorEntry(r, i);
@@ -2598,7 +2598,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addUintVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateUintVector(e.length);
       if (!r) throw Error("Unable to allocate new unsigned int vector on heap.");
       for (const i of e) this.i._addUintVectorEntry(r, i);
@@ -2606,57 +2606,57 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addStringVectorToStream(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const r = this.i._allocateStringVector(e.length);
       if (!r) throw Error("Unable to allocate new string vector on heap.");
-      for (const i of e) m(this, i, ((o) => {
+      for (const i of e) p(this, i, ((o) => {
         this.i._addStringVectorEntry(r, o);
       }));
       this.i._addStringVectorToInputStream(r, s, n);
     }));
   }
   addBoolToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       this.i._addBoolToInputSidePacket(e, n);
     }));
   }
   addDoubleToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       this.i._addDoubleToInputSidePacket(e, n);
     }));
   }
   addFloatToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       this.i._addFloatToInputSidePacket(e, n);
     }));
   }
   addIntToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       this.i._addIntToInputSidePacket(e, n);
     }));
   }
   addUintToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       this.i._addUintToInputSidePacket(e, n);
     }));
   }
   addStringToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
-      m(this, e, ((s) => {
+    p(this, t, ((n) => {
+      p(this, e, ((s) => {
         this.i._addStringToInputSidePacket(s, n);
       }));
     }));
   }
   addProtoToInputSidePacket(e, t, n) {
-    m(this, n, ((s) => {
-      m(this, t, ((r) => {
+    p(this, n, ((s) => {
+      p(this, t, ((r) => {
         const i = this.i._malloc(e.length);
         this.i.HEAPU8.set(e, i), this.i._addProtoToInputSidePacket(i, e.length, r, s), this.i._free(i);
       }));
     }));
   }
   addBoolVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateBoolVector(e.length);
       if (!s) throw Error("Unable to allocate new bool vector on heap.");
       for (const r of e) this.i._addBoolVectorEntry(s, r);
@@ -2664,7 +2664,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addDoubleVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateDoubleVector(e.length);
       if (!s) throw Error("Unable to allocate new double vector on heap.");
       for (const r of e) this.i._addDoubleVectorEntry(s, r);
@@ -2672,7 +2672,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addFloatVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateFloatVector(e.length);
       if (!s) throw Error("Unable to allocate new float vector on heap.");
       for (const r of e) this.i._addFloatVectorEntry(s, r);
@@ -2680,7 +2680,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addIntVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateIntVector(e.length);
       if (!s) throw Error("Unable to allocate new int vector on heap.");
       for (const r of e) this.i._addIntVectorEntry(s, r);
@@ -2688,7 +2688,7 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addUintVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateUintVector(e.length);
       if (!s) throw Error("Unable to allocate new unsigned int vector on heap.");
       for (const r of e) this.i._addUintVectorEntry(s, r);
@@ -2696,89 +2696,89 @@ const V1 = /* @__PURE__ */ (function(e) {
     }));
   }
   addStringVectorToInputSidePacket(e, t) {
-    m(this, t, ((n) => {
+    p(this, t, ((n) => {
       const s = this.i._allocateStringVector(e.length);
       if (!s) throw Error("Unable to allocate new string vector on heap.");
-      for (const r of e) m(this, r, ((i) => {
+      for (const r of e) p(this, r, ((i) => {
         this.i._addStringVectorEntry(s, i);
       }));
       this.i._addStringVectorToInputSidePacket(s, n);
     }));
   }
   attachBoolListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachBoolListener(n);
     }));
   }
   attachBoolVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachBoolVectorListener(n);
     }));
   }
   attachIntListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachIntListener(n);
     }));
   }
   attachIntVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachIntVectorListener(n);
     }));
   }
   attachUintListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachUintListener(n);
     }));
   }
   attachUintVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachUintVectorListener(n);
     }));
   }
   attachDoubleListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachDoubleListener(n);
     }));
   }
   attachDoubleVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachDoubleVectorListener(n);
     }));
   }
   attachFloatListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachFloatListener(n);
     }));
   }
   attachFloatVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachFloatVectorListener(n);
     }));
   }
   attachStringListener(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.i._attachStringListener(n);
     }));
   }
   attachStringVectorListener(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.i._attachStringVectorListener(n);
     }));
   }
   attachProtoListener(e, t, n) {
-    Pe(this, e, t), m(this, e, ((s) => {
+    Pe(this, e, t), p(this, e, ((s) => {
       this.i._attachProtoListener(s, n || !1);
     }));
   }
   attachProtoVectorListener(e, t, n) {
-    tt(this, e, t), m(this, e, ((s) => {
+    tt(this, e, t), p(this, e, ((s) => {
       this.i._attachProtoVectorListener(s, n || !1);
     }));
   }
   attachAudioListener(e, t, n) {
     this.i._attachAudioListener || console.warn('Attempting to use attachAudioListener without support for output audio. Is build dep ":gl_graph_runner_audio_out" missing?'), Pe(this, e, ((s, r) => {
       s = new Float32Array(s.buffer, s.byteOffset, s.length / 4), t(s, r);
-    })), m(this, e, ((s) => {
+    })), p(this, e, ((s) => {
       this.i._attachAudioListener(s, n || !1);
     }));
   }
@@ -2793,18 +2793,18 @@ const V1 = /* @__PURE__ */ (function(e) {
     return this.i;
   }
   qa(e, t, n) {
-    m(this, t, ((s) => {
+    p(this, t, ((s) => {
       const [r, i] = qi(this, e, s);
       this.ea._addBoundTextureAsImageToStream(s, r, i, n);
     }));
   }
   U(e, t) {
-    Pe(this, e, t), m(this, e, ((n) => {
+    Pe(this, e, t), p(this, e, ((n) => {
       this.ea._attachImageListener(n);
     }));
   }
   ca(e, t) {
-    tt(this, e, t), m(this, e, ((n) => {
+    tt(this, e, t), p(this, e, ((n) => {
       this.ea._attachImageVectorListener(n);
     }));
   }
@@ -2824,13 +2824,13 @@ function h2(e, t, n, s) {
       var r = n.regionOfInterest;
       if (r.left >= r.right || r.top >= r.bottom) throw Error("Expected RectF with left < right and top < bottom.");
       if (r.left < 0 || r.top < 0 || r.right > 1 || r.bottom > 1) throw Error("Expected RectF values to be in [0,1].");
-      p(i, 1, (r.left + r.right) / 2), p(i, 2, (r.top + r.bottom) / 2), p(i, 4, r.right - r.left), p(i, 3, r.bottom - r.top);
-    } else p(i, 1, 0.5), p(i, 2, 0.5), p(i, 4, 1), p(i, 3, 1);
+      m(i, 1, (r.left + r.right) / 2), m(i, 2, (r.top + r.bottom) / 2), m(i, 4, r.right - r.left), m(i, 3, r.bottom - r.top);
+    } else m(i, 1, 0.5), m(i, 2, 0.5), m(i, 4, 1), m(i, 3, 1);
     if (n != null && n.rotationDegrees) {
       if ((n == null ? void 0 : n.rotationDegrees) % 90 != 0) throw Error("Expected rotation to be a multiple of 90°.");
-      if (p(i, 5, -Math.PI * n.rotationDegrees / 180), (n == null ? void 0 : n.rotationDegrees) % 180 != 0) {
+      if (m(i, 5, -Math.PI * n.rotationDegrees / 180), (n == null ? void 0 : n.rotationDegrees) % 180 != 0) {
         const [o, a] = s2(t);
-        n = N(i, 3) * a / o, r = N(i, 4) * o / a, p(i, 4, n), p(i, 3, r);
+        n = N(i, 3) * a / o, r = N(i, 4) * o / a, m(i, 4, n), m(i, 3, r);
       }
     }
     e.g.addProtoToStream(i.g(), "mediapipe.NormalizedRect", e.T, s);
@@ -2866,18 +2866,18 @@ var ie = class extends kn {
   }
 };
 ie.prototype.close = ie.prototype.close;
-var me = class extends ie {
+var pe = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect_in", !1), this.j = { detections: [] }, y(e = this.h = new rs(), 0, 1, t = new O()), p(this.h, 2, 0.5), p(this.h, 3, 0.3);
+    super(new Ae(e, t), "image_in", "norm_rect_in", !1), this.j = { detections: [] }, y(e = this.h = new rs(), 0, 1, t = new I()), m(this.h, 2, 0.5), m(this.h, 3, 0.3);
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
   }
   o(e) {
-    return "minDetectionConfidence" in e && p(this.h, 2, e.minDetectionConfidence ?? 0.5), "minSuppressionThreshold" in e && p(this.h, 3, e.minSuppressionThreshold ?? 0.3), this.l(e);
+    return "minDetectionConfidence" in e && m(this.h, 2, e.minDetectionConfidence ?? 0.5), "minSuppressionThreshold" in e && m(this.h, 3, e.minSuppressionThreshold ?? 0.3), this.l(e);
   }
   D(e, t) {
     return this.j = { detections: [] }, ke(this, e, t), this.j;
@@ -2899,12 +2899,12 @@ var me = class extends ie {
     })), e = e.g(), this.setGraph(new Uint8Array(e), !0);
   }
 };
-me.prototype.detectForVideo = me.prototype.F, me.prototype.detect = me.prototype.D, me.prototype.setOptions = me.prototype.o, me.createFromModelPath = async function(e, t) {
-  return b(me, e, { baseOptions: { modelAssetPath: t } });
-}, me.createFromModelBuffer = function(e, t) {
-  return b(me, e, { baseOptions: { modelAssetBuffer: t } });
-}, me.createFromOptions = function(e, t) {
-  return b(me, e, t);
+pe.prototype.detectForVideo = pe.prototype.F, pe.prototype.detect = pe.prototype.D, pe.prototype.setOptions = pe.prototype.o, pe.createFromModelPath = async function(e, t) {
+  return b(pe, e, { baseOptions: { modelAssetPath: t } });
+}, pe.createFromModelBuffer = function(e, t) {
+  return b(pe, e, { baseOptions: { modelAssetBuffer: t } });
+}, pe.createFromOptions = function(e, t) {
+  return b(pe, e, t);
 };
 var Kr = Me([61, 146], [146, 91], [91, 181], [181, 84], [84, 17], [17, 314], [314, 405], [405, 321], [321, 375], [375, 291], [61, 185], [185, 40], [40, 39], [39, 37], [37, 0], [0, 267], [267, 269], [269, 270], [270, 409], [409, 291], [78, 95], [95, 88], [88, 178], [178, 87], [87, 14], [14, 317], [317, 402], [402, 318], [318, 324], [324, 308], [78, 191], [191, 80], [80, 81], [81, 82], [82, 13], [13, 312], [312, 311], [311, 310], [310, 415], [415, 308]), Yr = Me([263, 249], [249, 390], [390, 373], [373, 374], [374, 380], [380, 381], [381, 382], [382, 362], [263, 466], [466, 388], [388, 387], [387, 386], [386, 385], [385, 384], [384, 398], [398, 362]), qr = Me([276, 283], [283, 282], [282, 295], [295, 285], [300, 293], [293, 334], [334, 296], [296, 336]), c2 = Me([474, 475], [475, 476], [476, 477], [477, 474]), Jr = Me([33, 7], [7, 163], [163, 144], [144, 145], [145, 153], [153, 154], [154, 155], [155, 133], [33, 246], [246, 161], [161, 160], [160, 159], [159, 158], [158, 157], [157, 173], [173, 133]), Zr = Me([46, 53], [53, 52], [52, 65], [65, 55], [70, 63], [63, 105], [105, 66], [66, 107]), u2 = Me([469, 470], [470, 471], [471, 472], [472, 469]), Qr = Me([10, 338], [338, 297], [297, 332], [332, 284], [284, 251], [251, 389], [389, 356], [356, 454], [454, 323], [323, 361], [361, 288], [288, 397], [397, 365], [365, 379], [379, 378], [378, 400], [400, 377], [377, 152], [152, 148], [148, 176], [176, 149], [149, 150], [150, 136], [136, 172], [172, 58], [58, 132], [132, 93], [93, 234], [234, 127], [127, 162], [162, 21], [21, 54], [54, 103], [103, 67], [67, 109], [109, 10]), l2 = [...Kr, ...Yr, ...qr, ...Jr, ...Zr, ...Qr], d2 = Me([127, 34], [34, 139], [139, 127], [11, 0], [0, 37], [37, 11], [232, 231], [231, 120], [120, 232], [72, 37], [37, 39], [39, 72], [128, 121], [121, 47], [47, 128], [232, 121], [121, 128], [128, 232], [104, 69], [69, 67], [67, 104], [175, 171], [171, 148], [148, 175], [118, 50], [50, 101], [101, 118], [73, 39], [39, 40], [40, 73], [9, 151], [151, 108], [108, 9], [48, 115], [115, 131], [131, 48], [194, 204], [204, 211], [211, 194], [74, 40], [40, 185], [185, 74], [80, 42], [42, 183], [183, 80], [40, 92], [92, 186], [186, 40], [230, 229], [229, 118], [118, 230], [202, 212], [212, 214], [214, 202], [83, 18], [18, 17], [17, 83], [76, 61], [61, 146], [146, 76], [160, 29], [29, 30], [30, 160], [56, 157], [157, 173], [173, 56], [106, 204], [204, 194], [194, 106], [135, 214], [214, 192], [192, 135], [203, 165], [165, 98], [98, 203], [21, 71], [71, 68], [68, 21], [51, 45], [45, 4], [4, 51], [144, 24], [24, 23], [23, 144], [77, 146], [146, 91], [91, 77], [205, 50], [50, 187], [187, 205], [201, 200], [200, 18], [18, 201], [91, 106], [106, 182], [182, 91], [90, 91], [91, 181], [181, 90], [85, 84], [84, 17], [17, 85], [206, 203], [203, 36], [36, 206], [148, 171], [171, 140], [140, 148], [92, 40], [40, 39], [39, 92], [193, 189], [189, 244], [244, 193], [159, 158], [158, 28], [28, 159], [247, 246], [246, 161], [161, 247], [236, 3], [3, 196], [196, 236], [54, 68], [68, 104], [104, 54], [193, 168], [168, 8], [8, 193], [117, 228], [228, 31], [31, 117], [189, 193], [193, 55], [55, 189], [98, 97], [97, 99], [99, 98], [126, 47], [47, 100], [100, 126], [166, 79], [79, 218], [218, 166], [155, 154], [154, 26], [26, 155], [209, 49], [49, 131], [131, 209], [135, 136], [136, 150], [150, 135], [47, 126], [126, 217], [217, 47], [223, 52], [52, 53], [53, 223], [45, 51], [51, 134], [134, 45], [211, 170], [170, 140], [140, 211], [67, 69], [69, 108], [108, 67], [43, 106], [106, 91], [91, 43], [230, 119], [119, 120], [120, 230], [226, 130], [130, 247], [247, 226], [63, 53], [53, 52], [52, 63], [238, 20], [20, 242], [242, 238], [46, 70], [70, 156], [156, 46], [78, 62], [62, 96], [96, 78], [46, 53], [53, 63], [63, 46], [143, 34], [34, 227], [227, 143], [123, 117], [117, 111], [111, 123], [44, 125], [125, 19], [19, 44], [236, 134], [134, 51], [51, 236], [216, 206], [206, 205], [205, 216], [154, 153], [153, 22], [22, 154], [39, 37], [37, 167], [167, 39], [200, 201], [201, 208], [208, 200], [36, 142], [142, 100], [100, 36], [57, 212], [212, 202], [202, 57], [20, 60], [60, 99], [99, 20], [28, 158], [158, 157], [157, 28], [35, 226], [226, 113], [113, 35], [160, 159], [159, 27], [27, 160], [204, 202], [202, 210], [210, 204], [113, 225], [225, 46], [46, 113], [43, 202], [202, 204], [204, 43], [62, 76], [76, 77], [77, 62], [137, 123], [123, 116], [116, 137], [41, 38], [38, 72], [72, 41], [203, 129], [129, 142], [142, 203], [64, 98], [98, 240], [240, 64], [49, 102], [102, 64], [64, 49], [41, 73], [73, 74], [74, 41], [212, 216], [216, 207], [207, 212], [42, 74], [74, 184], [184, 42], [169, 170], [170, 211], [211, 169], [170, 149], [149, 176], [176, 170], [105, 66], [66, 69], [69, 105], [122, 6], [6, 168], [168, 122], [123, 147], [147, 187], [187, 123], [96, 77], [77, 90], [90, 96], [65, 55], [55, 107], [107, 65], [89, 90], [90, 180], [180, 89], [101, 100], [100, 120], [120, 101], [63, 105], [105, 104], [104, 63], [93, 137], [137, 227], [227, 93], [15, 86], [86, 85], [85, 15], [129, 102], [102, 49], [49, 129], [14, 87], [87, 86], [86, 14], [55, 8], [8, 9], [9, 55], [100, 47], [47, 121], [121, 100], [145, 23], [23, 22], [22, 145], [88, 89], [89, 179], [179, 88], [6, 122], [122, 196], [196, 6], [88, 95], [95, 96], [96, 88], [138, 172], [172, 136], [136, 138], [215, 58], [58, 172], [172, 215], [115, 48], [48, 219], [219, 115], [42, 80], [80, 81], [81, 42], [195, 3], [3, 51], [51, 195], [43, 146], [146, 61], [61, 43], [171, 175], [175, 199], [199, 171], [81, 82], [82, 38], [38, 81], [53, 46], [46, 225], [225, 53], [144, 163], [163, 110], [110, 144], [52, 65], [65, 66], [66, 52], [229, 228], [228, 117], [117, 229], [34, 127], [127, 234], [234, 34], [107, 108], [108, 69], [69, 107], [109, 108], [108, 151], [151, 109], [48, 64], [64, 235], [235, 48], [62, 78], [78, 191], [191, 62], [129, 209], [209, 126], [126, 129], [111, 35], [35, 143], [143, 111], [117, 123], [123, 50], [50, 117], [222, 65], [65, 52], [52, 222], [19, 125], [125, 141], [141, 19], [221, 55], [55, 65], [65, 221], [3, 195], [195, 197], [197, 3], [25, 7], [7, 33], [33, 25], [220, 237], [237, 44], [44, 220], [70, 71], [71, 139], [139, 70], [122, 193], [193, 245], [245, 122], [247, 130], [130, 33], [33, 247], [71, 21], [21, 162], [162, 71], [170, 169], [169, 150], [150, 170], [188, 174], [174, 196], [196, 188], [216, 186], [186, 92], [92, 216], [2, 97], [97, 167], [167, 2], [141, 125], [125, 241], [241, 141], [164, 167], [167, 37], [37, 164], [72, 38], [38, 12], [12, 72], [38, 82], [82, 13], [13, 38], [63, 68], [68, 71], [71, 63], [226, 35], [35, 111], [111, 226], [101, 50], [50, 205], [205, 101], [206, 92], [92, 165], [165, 206], [209, 198], [198, 217], [217, 209], [165, 167], [167, 97], [97, 165], [220, 115], [115, 218], [218, 220], [133, 112], [112, 243], [243, 133], [239, 238], [238, 241], [241, 239], [214, 135], [135, 169], [169, 214], [190, 173], [173, 133], [133, 190], [171, 208], [208, 32], [32, 171], [125, 44], [44, 237], [237, 125], [86, 87], [87, 178], [178, 86], [85, 86], [86, 179], [179, 85], [84, 85], [85, 180], [180, 84], [83, 84], [84, 181], [181, 83], [201, 83], [83, 182], [182, 201], [137, 93], [93, 132], [132, 137], [76, 62], [62, 183], [183, 76], [61, 76], [76, 184], [184, 61], [57, 61], [61, 185], [185, 57], [212, 57], [57, 186], [186, 212], [214, 207], [207, 187], [187, 214], [34, 143], [143, 156], [156, 34], [79, 239], [239, 237], [237, 79], [123, 137], [137, 177], [177, 123], [44, 1], [1, 4], [4, 44], [201, 194], [194, 32], [32, 201], [64, 102], [102, 129], [129, 64], [213, 215], [215, 138], [138, 213], [59, 166], [166, 219], [219, 59], [242, 99], [99, 97], [97, 242], [2, 94], [94, 141], [141, 2], [75, 59], [59, 235], [235, 75], [24, 110], [110, 228], [228, 24], [25, 130], [130, 226], [226, 25], [23, 24], [24, 229], [229, 23], [22, 23], [23, 230], [230, 22], [26, 22], [22, 231], [231, 26], [112, 26], [26, 232], [232, 112], [189, 190], [190, 243], [243, 189], [221, 56], [56, 190], [190, 221], [28, 56], [56, 221], [221, 28], [27, 28], [28, 222], [222, 27], [29, 27], [27, 223], [223, 29], [30, 29], [29, 224], [224, 30], [247, 30], [30, 225], [225, 247], [238, 79], [79, 20], [20, 238], [166, 59], [59, 75], [75, 166], [60, 75], [75, 240], [240, 60], [147, 177], [177, 215], [215, 147], [20, 79], [79, 166], [166, 20], [187, 147], [147, 213], [213, 187], [112, 233], [233, 244], [244, 112], [233, 128], [128, 245], [245, 233], [128, 114], [114, 188], [188, 128], [114, 217], [217, 174], [174, 114], [131, 115], [115, 220], [220, 131], [217, 198], [198, 236], [236, 217], [198, 131], [131, 134], [134, 198], [177, 132], [132, 58], [58, 177], [143, 35], [35, 124], [124, 143], [110, 163], [163, 7], [7, 110], [228, 110], [110, 25], [25, 228], [356, 389], [389, 368], [368, 356], [11, 302], [302, 267], [267, 11], [452, 350], [350, 349], [349, 452], [302, 303], [303, 269], [269, 302], [357, 343], [343, 277], [277, 357], [452, 453], [453, 357], [357, 452], [333, 332], [332, 297], [297, 333], [175, 152], [152, 377], [377, 175], [347, 348], [348, 330], [330, 347], [303, 304], [304, 270], [270, 303], [9, 336], [336, 337], [337, 9], [278, 279], [279, 360], [360, 278], [418, 262], [262, 431], [431, 418], [304, 408], [408, 409], [409, 304], [310, 415], [415, 407], [407, 310], [270, 409], [409, 410], [410, 270], [450, 348], [348, 347], [347, 450], [422, 430], [430, 434], [434, 422], [313, 314], [314, 17], [17, 313], [306, 307], [307, 375], [375, 306], [387, 388], [388, 260], [260, 387], [286, 414], [414, 398], [398, 286], [335, 406], [406, 418], [418, 335], [364, 367], [367, 416], [416, 364], [423, 358], [358, 327], [327, 423], [251, 284], [284, 298], [298, 251], [281, 5], [5, 4], [4, 281], [373, 374], [374, 253], [253, 373], [307, 320], [320, 321], [321, 307], [425, 427], [427, 411], [411, 425], [421, 313], [313, 18], [18, 421], [321, 405], [405, 406], [406, 321], [320, 404], [404, 405], [405, 320], [315, 16], [16, 17], [17, 315], [426, 425], [425, 266], [266, 426], [377, 400], [400, 369], [369, 377], [322, 391], [391, 269], [269, 322], [417, 465], [465, 464], [464, 417], [386, 257], [257, 258], [258, 386], [466, 260], [260, 388], [388, 466], [456, 399], [399, 419], [419, 456], [284, 332], [332, 333], [333, 284], [417, 285], [285, 8], [8, 417], [346, 340], [340, 261], [261, 346], [413, 441], [441, 285], [285, 413], [327, 460], [460, 328], [328, 327], [355, 371], [371, 329], [329, 355], [392, 439], [439, 438], [438, 392], [382, 341], [341, 256], [256, 382], [429, 420], [420, 360], [360, 429], [364, 394], [394, 379], [379, 364], [277, 343], [343, 437], [437, 277], [443, 444], [444, 283], [283, 443], [275, 440], [440, 363], [363, 275], [431, 262], [262, 369], [369, 431], [297, 338], [338, 337], [337, 297], [273, 375], [375, 321], [321, 273], [450, 451], [451, 349], [349, 450], [446, 342], [342, 467], [467, 446], [293, 334], [334, 282], [282, 293], [458, 461], [461, 462], [462, 458], [276, 353], [353, 383], [383, 276], [308, 324], [324, 325], [325, 308], [276, 300], [300, 293], [293, 276], [372, 345], [345, 447], [447, 372], [352, 345], [345, 340], [340, 352], [274, 1], [1, 19], [19, 274], [456, 248], [248, 281], [281, 456], [436, 427], [427, 425], [425, 436], [381, 256], [256, 252], [252, 381], [269, 391], [391, 393], [393, 269], [200, 199], [199, 428], [428, 200], [266, 330], [330, 329], [329, 266], [287, 273], [273, 422], [422, 287], [250, 462], [462, 328], [328, 250], [258, 286], [286, 384], [384, 258], [265, 353], [353, 342], [342, 265], [387, 259], [259, 257], [257, 387], [424, 431], [431, 430], [430, 424], [342, 353], [353, 276], [276, 342], [273, 335], [335, 424], [424, 273], [292, 325], [325, 307], [307, 292], [366, 447], [447, 345], [345, 366], [271, 303], [303, 302], [302, 271], [423, 266], [266, 371], [371, 423], [294, 455], [455, 460], [460, 294], [279, 278], [278, 294], [294, 279], [271, 272], [272, 304], [304, 271], [432, 434], [434, 427], [427, 432], [272, 407], [407, 408], [408, 272], [394, 430], [430, 431], [431, 394], [395, 369], [369, 400], [400, 395], [334, 333], [333, 299], [299, 334], [351, 417], [417, 168], [168, 351], [352, 280], [280, 411], [411, 352], [325, 319], [319, 320], [320, 325], [295, 296], [296, 336], [336, 295], [319, 403], [403, 404], [404, 319], [330, 348], [348, 349], [349, 330], [293, 298], [298, 333], [333, 293], [323, 454], [454, 447], [447, 323], [15, 16], [16, 315], [315, 15], [358, 429], [429, 279], [279, 358], [14, 15], [15, 316], [316, 14], [285, 336], [336, 9], [9, 285], [329, 349], [349, 350], [350, 329], [374, 380], [380, 252], [252, 374], [318, 402], [402, 403], [403, 318], [6, 197], [197, 419], [419, 6], [318, 319], [319, 325], [325, 318], [367, 364], [364, 365], [365, 367], [435, 367], [367, 397], [397, 435], [344, 438], [438, 439], [439, 344], [272, 271], [271, 311], [311, 272], [195, 5], [5, 281], [281, 195], [273, 287], [287, 291], [291, 273], [396, 428], [428, 199], [199, 396], [311, 271], [271, 268], [268, 311], [283, 444], [444, 445], [445, 283], [373, 254], [254, 339], [339, 373], [282, 334], [334, 296], [296, 282], [449, 347], [347, 346], [346, 449], [264, 447], [447, 454], [454, 264], [336, 296], [296, 299], [299, 336], [338, 10], [10, 151], [151, 338], [278, 439], [439, 455], [455, 278], [292, 407], [407, 415], [415, 292], [358, 371], [371, 355], [355, 358], [340, 345], [345, 372], [372, 340], [346, 347], [347, 280], [280, 346], [442, 443], [443, 282], [282, 442], [19, 94], [94, 370], [370, 19], [441, 442], [442, 295], [295, 441], [248, 419], [419, 197], [197, 248], [263, 255], [255, 359], [359, 263], [440, 275], [275, 274], [274, 440], [300, 383], [383, 368], [368, 300], [351, 412], [412, 465], [465, 351], [263, 467], [467, 466], [466, 263], [301, 368], [368, 389], [389, 301], [395, 378], [378, 379], [379, 395], [412, 351], [351, 419], [419, 412], [436, 426], [426, 322], [322, 436], [2, 164], [164, 393], [393, 2], [370, 462], [462, 461], [461, 370], [164, 0], [0, 267], [267, 164], [302, 11], [11, 12], [12, 302], [268, 12], [12, 13], [13, 268], [293, 300], [300, 301], [301, 293], [446, 261], [261, 340], [340, 446], [330, 266], [266, 425], [425, 330], [426, 423], [423, 391], [391, 426], [429, 355], [355, 437], [437, 429], [391, 327], [327, 326], [326, 391], [440, 457], [457, 438], [438, 440], [341, 382], [382, 362], [362, 341], [459, 457], [457, 461], [461, 459], [434, 430], [430, 394], [394, 434], [414, 463], [463, 362], [362, 414], [396, 369], [369, 262], [262, 396], [354, 461], [461, 457], [457, 354], [316, 403], [403, 402], [402, 316], [315, 404], [404, 403], [403, 315], [314, 405], [405, 404], [404, 314], [313, 406], [406, 405], [405, 313], [421, 418], [418, 406], [406, 421], [366, 401], [401, 361], [361, 366], [306, 408], [408, 407], [407, 306], [291, 409], [409, 408], [408, 291], [287, 410], [410, 409], [409, 287], [432, 436], [436, 410], [410, 432], [434, 416], [416, 411], [411, 434], [264, 368], [368, 383], [383, 264], [309, 438], [438, 457], [457, 309], [352, 376], [376, 401], [401, 352], [274, 275], [275, 4], [4, 274], [421, 428], [428, 262], [262, 421], [294, 327], [327, 358], [358, 294], [433, 416], [416, 367], [367, 433], [289, 455], [455, 439], [439, 289], [462, 370], [370, 326], [326, 462], [2, 326], [326, 370], [370, 2], [305, 460], [460, 455], [455, 305], [254, 449], [449, 448], [448, 254], [255, 261], [261, 446], [446, 255], [253, 450], [450, 449], [449, 253], [252, 451], [451, 450], [450, 252], [256, 452], [452, 451], [451, 256], [341, 453], [453, 452], [452, 341], [413, 464], [464, 463], [463, 413], [441, 413], [413, 414], [414, 441], [258, 442], [442, 441], [441, 258], [257, 443], [443, 442], [442, 257], [259, 444], [444, 443], [443, 259], [260, 445], [445, 444], [444, 260], [467, 342], [342, 445], [445, 467], [459, 458], [458, 250], [250, 459], [289, 392], [392, 290], [290, 289], [290, 328], [328, 460], [460, 290], [376, 433], [433, 435], [435, 376], [250, 290], [290, 392], [392, 250], [411, 416], [416, 433], [433, 411], [341, 463], [463, 464], [464, 341], [453, 464], [464, 465], [465, 453], [357, 465], [465, 412], [412, 357], [343, 412], [412, 399], [399, 343], [360, 363], [363, 440], [440, 360], [437, 399], [399, 456], [456, 437], [420, 456], [456, 363], [363, 420], [401, 435], [435, 288], [288, 401], [372, 383], [383, 353], [353, 372], [339, 255], [255, 249], [249, 339], [448, 261], [261, 255], [255, 448], [133, 243], [243, 190], [190, 133], [133, 155], [155, 112], [112, 133], [33, 246], [246, 247], [247, 33], [33, 130], [130, 25], [25, 33], [398, 384], [384, 286], [286, 398], [362, 398], [398, 414], [414, 362], [362, 463], [463, 341], [341, 362], [263, 359], [359, 467], [467, 263], [263, 249], [249, 255], [255, 263], [466, 467], [467, 260], [260, 466], [75, 60], [60, 166], [166, 75], [238, 239], [239, 79], [79, 238], [162, 127], [127, 139], [139, 162], [72, 11], [11, 37], [37, 72], [121, 232], [232, 120], [120, 121], [73, 72], [72, 39], [39, 73], [114, 128], [128, 47], [47, 114], [233, 232], [232, 128], [128, 233], [103, 104], [104, 67], [67, 103], [152, 175], [175, 148], [148, 152], [119, 118], [118, 101], [101, 119], [74, 73], [73, 40], [40, 74], [107, 9], [9, 108], [108, 107], [49, 48], [48, 131], [131, 49], [32, 194], [194, 211], [211, 32], [184, 74], [74, 185], [185, 184], [191, 80], [80, 183], [183, 191], [185, 40], [40, 186], [186, 185], [119, 230], [230, 118], [118, 119], [210, 202], [202, 214], [214, 210], [84, 83], [83, 17], [17, 84], [77, 76], [76, 146], [146, 77], [161, 160], [160, 30], [30, 161], [190, 56], [56, 173], [173, 190], [182, 106], [106, 194], [194, 182], [138, 135], [135, 192], [192, 138], [129, 203], [203, 98], [98, 129], [54, 21], [21, 68], [68, 54], [5, 51], [51, 4], [4, 5], [145, 144], [144, 23], [23, 145], [90, 77], [77, 91], [91, 90], [207, 205], [205, 187], [187, 207], [83, 201], [201, 18], [18, 83], [181, 91], [91, 182], [182, 181], [180, 90], [90, 181], [181, 180], [16, 85], [85, 17], [17, 16], [205, 206], [206, 36], [36, 205], [176, 148], [148, 140], [140, 176], [165, 92], [92, 39], [39, 165], [245, 193], [193, 244], [244, 245], [27, 159], [159, 28], [28, 27], [30, 247], [247, 161], [161, 30], [174, 236], [236, 196], [196, 174], [103, 54], [54, 104], [104, 103], [55, 193], [193, 8], [8, 55], [111, 117], [117, 31], [31, 111], [221, 189], [189, 55], [55, 221], [240, 98], [98, 99], [99, 240], [142, 126], [126, 100], [100, 142], [219, 166], [166, 218], [218, 219], [112, 155], [155, 26], [26, 112], [198, 209], [209, 131], [131, 198], [169, 135], [135, 150], [150, 169], [114, 47], [47, 217], [217, 114], [224, 223], [223, 53], [53, 224], [220, 45], [45, 134], [134, 220], [32, 211], [211, 140], [140, 32], [109, 67], [67, 108], [108, 109], [146, 43], [43, 91], [91, 146], [231, 230], [230, 120], [120, 231], [113, 226], [226, 247], [247, 113], [105, 63], [63, 52], [52, 105], [241, 238], [238, 242], [242, 241], [124, 46], [46, 156], [156, 124], [95, 78], [78, 96], [96, 95], [70, 46], [46, 63], [63, 70], [116, 143], [143, 227], [227, 116], [116, 123], [123, 111], [111, 116], [1, 44], [44, 19], [19, 1], [3, 236], [236, 51], [51, 3], [207, 216], [216, 205], [205, 207], [26, 154], [154, 22], [22, 26], [165, 39], [39, 167], [167, 165], [199, 200], [200, 208], [208, 199], [101, 36], [36, 100], [100, 101], [43, 57], [57, 202], [202, 43], [242, 20], [20, 99], [99, 242], [56, 28], [28, 157], [157, 56], [124, 35], [35, 113], [113, 124], [29, 160], [160, 27], [27, 29], [211, 204], [204, 210], [210, 211], [124, 113], [113, 46], [46, 124], [106, 43], [43, 204], [204, 106], [96, 62], [62, 77], [77, 96], [227, 137], [137, 116], [116, 227], [73, 41], [41, 72], [72, 73], [36, 203], [203, 142], [142, 36], [235, 64], [64, 240], [240, 235], [48, 49], [49, 64], [64, 48], [42, 41], [41, 74], [74, 42], [214, 212], [212, 207], [207, 214], [183, 42], [42, 184], [184, 183], [210, 169], [169, 211], [211, 210], [140, 170], [170, 176], [176, 140], [104, 105], [105, 69], [69, 104], [193, 122], [122, 168], [168, 193], [50, 123], [123, 187], [187, 50], [89, 96], [96, 90], [90, 89], [66, 65], [65, 107], [107, 66], [179, 89], [89, 180], [180, 179], [119, 101], [101, 120], [120, 119], [68, 63], [63, 104], [104, 68], [234, 93], [93, 227], [227, 234], [16, 15], [15, 85], [85, 16], [209, 129], [129, 49], [49, 209], [15, 14], [14, 86], [86, 15], [107, 55], [55, 9], [9, 107], [120, 100], [100, 121], [121, 120], [153, 145], [145, 22], [22, 153], [178, 88], [88, 179], [179, 178], [197, 6], [6, 196], [196, 197], [89, 88], [88, 96], [96, 89], [135, 138], [138, 136], [136, 135], [138, 215], [215, 172], [172, 138], [218, 115], [115, 219], [219, 218], [41, 42], [42, 81], [81, 41], [5, 195], [195, 51], [51, 5], [57, 43], [43, 61], [61, 57], [208, 171], [171, 199], [199, 208], [41, 81], [81, 38], [38, 41], [224, 53], [53, 225], [225, 224], [24, 144], [144, 110], [110, 24], [105, 52], [52, 66], [66, 105], [118, 229], [229, 117], [117, 118], [227, 34], [34, 234], [234, 227], [66, 107], [107, 69], [69, 66], [10, 109], [109, 151], [151, 10], [219, 48], [48, 235], [235, 219], [183, 62], [62, 191], [191, 183], [142, 129], [129, 126], [126, 142], [116, 111], [111, 143], [143, 116], [118, 117], [117, 50], [50, 118], [223, 222], [222, 52], [52, 223], [94, 19], [19, 141], [141, 94], [222, 221], [221, 65], [65, 222], [196, 3], [3, 197], [197, 196], [45, 220], [220, 44], [44, 45], [156, 70], [70, 139], [139, 156], [188, 122], [122, 245], [245, 188], [139, 71], [71, 162], [162, 139], [149, 170], [170, 150], [150, 149], [122, 188], [188, 196], [196, 122], [206, 216], [216, 92], [92, 206], [164, 2], [2, 167], [167, 164], [242, 141], [141, 241], [241, 242], [0, 164], [164, 37], [37, 0], [11, 72], [72, 12], [12, 11], [12, 38], [38, 13], [13, 12], [70, 63], [63, 71], [71, 70], [31, 226], [226, 111], [111, 31], [36, 101], [101, 205], [205, 36], [203, 206], [206, 165], [165, 203], [126, 209], [209, 217], [217, 126], [98, 165], [165, 97], [97, 98], [237, 220], [220, 218], [218, 237], [237, 239], [239, 241], [241, 237], [210, 214], [214, 169], [169, 210], [140, 171], [171, 32], [32, 140], [241, 125], [125, 237], [237, 241], [179, 86], [86, 178], [178, 179], [180, 85], [85, 179], [179, 180], [181, 84], [84, 180], [180, 181], [182, 83], [83, 181], [181, 182], [194, 201], [201, 182], [182, 194], [177, 137], [137, 132], [132, 177], [184, 76], [76, 183], [183, 184], [185, 61], [61, 184], [184, 185], [186, 57], [57, 185], [185, 186], [216, 212], [212, 186], [186, 216], [192, 214], [214, 187], [187, 192], [139, 34], [34, 156], [156, 139], [218, 79], [79, 237], [237, 218], [147, 123], [123, 177], [177, 147], [45, 44], [44, 4], [4, 45], [208, 201], [201, 32], [32, 208], [98, 64], [64, 129], [129, 98], [192, 213], [213, 138], [138, 192], [235, 59], [59, 219], [219, 235], [141, 242], [242, 97], [97, 141], [97, 2], [2, 141], [141, 97], [240, 75], [75, 235], [235, 240], [229, 24], [24, 228], [228, 229], [31, 25], [25, 226], [226, 31], [230, 23], [23, 229], [229, 230], [231, 22], [22, 230], [230, 231], [232, 26], [26, 231], [231, 232], [233, 112], [112, 232], [232, 233], [244, 189], [189, 243], [243, 244], [189, 221], [221, 190], [190, 189], [222, 28], [28, 221], [221, 222], [223, 27], [27, 222], [222, 223], [224, 29], [29, 223], [223, 224], [225, 30], [30, 224], [224, 225], [113, 247], [247, 225], [225, 113], [99, 60], [60, 240], [240, 99], [213, 147], [147, 215], [215, 213], [60, 20], [20, 166], [166, 60], [192, 187], [187, 213], [213, 192], [243, 112], [112, 244], [244, 243], [244, 233], [233, 245], [245, 244], [245, 128], [128, 188], [188, 245], [188, 114], [114, 174], [174, 188], [134, 131], [131, 220], [220, 134], [174, 217], [217, 236], [236, 174], [236, 198], [198, 134], [134, 236], [215, 177], [177, 58], [58, 215], [156, 143], [143, 124], [124, 156], [25, 110], [110, 7], [7, 25], [31, 228], [228, 25], [25, 31], [264, 356], [356, 368], [368, 264], [0, 11], [11, 267], [267, 0], [451, 452], [452, 349], [349, 451], [267, 302], [302, 269], [269, 267], [350, 357], [357, 277], [277, 350], [350, 452], [452, 357], [357, 350], [299, 333], [333, 297], [297, 299], [396, 175], [175, 377], [377, 396], [280, 347], [347, 330], [330, 280], [269, 303], [303, 270], [270, 269], [151, 9], [9, 337], [337, 151], [344, 278], [278, 360], [360, 344], [424, 418], [418, 431], [431, 424], [270, 304], [304, 409], [409, 270], [272, 310], [310, 407], [407, 272], [322, 270], [270, 410], [410, 322], [449, 450], [450, 347], [347, 449], [432, 422], [422, 434], [434, 432], [18, 313], [313, 17], [17, 18], [291, 306], [306, 375], [375, 291], [259, 387], [387, 260], [260, 259], [424, 335], [335, 418], [418, 424], [434, 364], [364, 416], [416, 434], [391, 423], [423, 327], [327, 391], [301, 251], [251, 298], [298, 301], [275, 281], [281, 4], [4, 275], [254, 373], [373, 253], [253, 254], [375, 307], [307, 321], [321, 375], [280, 425], [425, 411], [411, 280], [200, 421], [421, 18], [18, 200], [335, 321], [321, 406], [406, 335], [321, 320], [320, 405], [405, 321], [314, 315], [315, 17], [17, 314], [423, 426], [426, 266], [266, 423], [396, 377], [377, 369], [369, 396], [270, 322], [322, 269], [269, 270], [413, 417], [417, 464], [464, 413], [385, 386], [386, 258], [258, 385], [248, 456], [456, 419], [419, 248], [298, 284], [284, 333], [333, 298], [168, 417], [417, 8], [8, 168], [448, 346], [346, 261], [261, 448], [417, 413], [413, 285], [285, 417], [326, 327], [327, 328], [328, 326], [277, 355], [355, 329], [329, 277], [309, 392], [392, 438], [438, 309], [381, 382], [382, 256], [256, 381], [279, 429], [429, 360], [360, 279], [365, 364], [364, 379], [379, 365], [355, 277], [277, 437], [437, 355], [282, 443], [443, 283], [283, 282], [281, 275], [275, 363], [363, 281], [395, 431], [431, 369], [369, 395], [299, 297], [297, 337], [337, 299], [335, 273], [273, 321], [321, 335], [348, 450], [450, 349], [349, 348], [359, 446], [446, 467], [467, 359], [283, 293], [293, 282], [282, 283], [250, 458], [458, 462], [462, 250], [300, 276], [276, 383], [383, 300], [292, 308], [308, 325], [325, 292], [283, 276], [276, 293], [293, 283], [264, 372], [372, 447], [447, 264], [346, 352], [352, 340], [340, 346], [354, 274], [274, 19], [19, 354], [363, 456], [456, 281], [281, 363], [426, 436], [436, 425], [425, 426], [380, 381], [381, 252], [252, 380], [267, 269], [269, 393], [393, 267], [421, 200], [200, 428], [428, 421], [371, 266], [266, 329], [329, 371], [432, 287], [287, 422], [422, 432], [290, 250], [250, 328], [328, 290], [385, 258], [258, 384], [384, 385], [446, 265], [265, 342], [342, 446], [386, 387], [387, 257], [257, 386], [422, 424], [424, 430], [430, 422], [445, 342], [342, 276], [276, 445], [422, 273], [273, 424], [424, 422], [306, 292], [292, 307], [307, 306], [352, 366], [366, 345], [345, 352], [268, 271], [271, 302], [302, 268], [358, 423], [423, 371], [371, 358], [327, 294], [294, 460], [460, 327], [331, 279], [279, 294], [294, 331], [303, 271], [271, 304], [304, 303], [436, 432], [432, 427], [427, 436], [304, 272], [272, 408], [408, 304], [395, 394], [394, 431], [431, 395], [378, 395], [395, 400], [400, 378], [296, 334], [334, 299], [299, 296], [6, 351], [351, 168], [168, 6], [376, 352], [352, 411], [411, 376], [307, 325], [325, 320], [320, 307], [285, 295], [295, 336], [336, 285], [320, 319], [319, 404], [404, 320], [329, 330], [330, 349], [349, 329], [334, 293], [293, 333], [333, 334], [366, 323], [323, 447], [447, 366], [316, 15], [15, 315], [315, 316], [331, 358], [358, 279], [279, 331], [317, 14], [14, 316], [316, 317], [8, 285], [285, 9], [9, 8], [277, 329], [329, 350], [350, 277], [253, 374], [374, 252], [252, 253], [319, 318], [318, 403], [403, 319], [351, 6], [6, 419], [419, 351], [324, 318], [318, 325], [325, 324], [397, 367], [367, 365], [365, 397], [288, 435], [435, 397], [397, 288], [278, 344], [344, 439], [439, 278], [310, 272], [272, 311], [311, 310], [248, 195], [195, 281], [281, 248], [375, 273], [273, 291], [291, 375], [175, 396], [396, 199], [199, 175], [312, 311], [311, 268], [268, 312], [276, 283], [283, 445], [445, 276], [390, 373], [373, 339], [339, 390], [295, 282], [282, 296], [296, 295], [448, 449], [449, 346], [346, 448], [356, 264], [264, 454], [454, 356], [337, 336], [336, 299], [299, 337], [337, 338], [338, 151], [151, 337], [294, 278], [278, 455], [455, 294], [308, 292], [292, 415], [415, 308], [429, 358], [358, 355], [355, 429], [265, 340], [340, 372], [372, 265], [352, 346], [346, 280], [280, 352], [295, 442], [442, 282], [282, 295], [354, 19], [19, 370], [370, 354], [285, 441], [441, 295], [295, 285], [195, 248], [248, 197], [197, 195], [457, 440], [440, 274], [274, 457], [301, 300], [300, 368], [368, 301], [417, 351], [351, 465], [465, 417], [251, 301], [301, 389], [389, 251], [394, 395], [395, 379], [379, 394], [399, 412], [412, 419], [419, 399], [410, 436], [436, 322], [322, 410], [326, 2], [2, 393], [393, 326], [354, 370], [370, 461], [461, 354], [393, 164], [164, 267], [267, 393], [268, 302], [302, 12], [12, 268], [312, 268], [268, 13], [13, 312], [298, 293], [293, 301], [301, 298], [265, 446], [446, 340], [340, 265], [280, 330], [330, 425], [425, 280], [322, 426], [426, 391], [391, 322], [420, 429], [429, 437], [437, 420], [393, 391], [391, 326], [326, 393], [344, 440], [440, 438], [438, 344], [458, 459], [459, 461], [461, 458], [364, 434], [434, 394], [394, 364], [428, 396], [396, 262], [262, 428], [274, 354], [354, 457], [457, 274], [317, 316], [316, 402], [402, 317], [316, 315], [315, 403], [403, 316], [315, 314], [314, 404], [404, 315], [314, 313], [313, 405], [405, 314], [313, 421], [421, 406], [406, 313], [323, 366], [366, 361], [361, 323], [292, 306], [306, 407], [407, 292], [306, 291], [291, 408], [408, 306], [291, 287], [287, 409], [409, 291], [287, 432], [432, 410], [410, 287], [427, 434], [434, 411], [411, 427], [372, 264], [264, 383], [383, 372], [459, 309], [309, 457], [457, 459], [366, 352], [352, 401], [401, 366], [1, 274], [274, 4], [4, 1], [418, 421], [421, 262], [262, 418], [331, 294], [294, 358], [358, 331], [435, 433], [433, 367], [367, 435], [392, 289], [289, 439], [439, 392], [328, 462], [462, 326], [326, 328], [94, 2], [2, 370], [370, 94], [289, 305], [305, 455], [455, 289], [339, 254], [254, 448], [448, 339], [359, 255], [255, 446], [446, 359], [254, 253], [253, 449], [449, 254], [253, 252], [252, 450], [450, 253], [252, 256], [256, 451], [451, 252], [256, 341], [341, 452], [452, 256], [414, 413], [413, 463], [463, 414], [286, 441], [441, 414], [414, 286], [286, 258], [258, 441], [441, 286], [258, 257], [257, 442], [442, 258], [257, 259], [259, 443], [443, 257], [259, 260], [260, 444], [444, 259], [260, 467], [467, 445], [445, 260], [309, 459], [459, 250], [250, 309], [305, 289], [289, 290], [290, 305], [305, 290], [290, 460], [460, 305], [401, 376], [376, 435], [435, 401], [309, 250], [250, 392], [392, 309], [376, 411], [411, 433], [433, 376], [453, 341], [341, 464], [464, 453], [357, 453], [453, 465], [465, 357], [343, 357], [357, 412], [412, 343], [437, 343], [343, 399], [399, 437], [344, 360], [360, 440], [440, 344], [420, 437], [437, 456], [456, 420], [360, 420], [420, 363], [363, 360], [361, 401], [401, 288], [288, 361], [265, 372], [372, 353], [353, 265], [390, 339], [339, 249], [249, 390], [339, 448], [448, 255], [255, 339]);
 function io(e) {
@@ -2912,16 +2912,16 @@ function io(e) {
 }
 var P = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !1), this.j = { faceLandmarks: [], faceBlendshapes: [], facialTransformationMatrixes: [] }, this.outputFacialTransformationMatrixes = this.outputFaceBlendshapes = !1, y(e = this.h = new Da(), 0, 1, t = new O()), this.v = new Ra(), y(this.h, 0, 3, this.v), this.s = new rs(), y(this.h, 0, 2, this.s), Ue(this.s, 4, 1), p(this.s, 2, 0.5), p(this.v, 2, 0.5), p(this.h, 4, 0.5);
+    super(new Ae(e, t), "image_in", "norm_rect", !1), this.j = { faceLandmarks: [], faceBlendshapes: [], facialTransformationMatrixes: [] }, this.outputFacialTransformationMatrixes = this.outputFaceBlendshapes = !1, y(e = this.h = new Da(), 0, 1, t = new I()), this.v = new Ra(), y(this.h, 0, 3, this.v), this.s = new rs(), y(this.h, 0, 2, this.s), Ue(this.s, 4, 1), m(this.s, 2, 0.5), m(this.v, 2, 0.5), m(this.h, 4, 0.5);
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
   }
   o(e) {
-    return "numFaces" in e && Ue(this.s, 4, e.numFaces ?? 1), "minFaceDetectionConfidence" in e && p(this.s, 2, e.minFaceDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && p(this.h, 4, e.minTrackingConfidence ?? 0.5), "minFacePresenceConfidence" in e && p(this.v, 2, e.minFacePresenceConfidence ?? 0.5), "outputFaceBlendshapes" in e && (this.outputFaceBlendshapes = !!e.outputFaceBlendshapes), "outputFacialTransformationMatrixes" in e && (this.outputFacialTransformationMatrixes = !!e.outputFacialTransformationMatrixes), this.l(e);
+    return "numFaces" in e && Ue(this.s, 4, e.numFaces ?? 1), "minFaceDetectionConfidence" in e && m(this.s, 2, e.minFaceDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && m(this.h, 4, e.minTrackingConfidence ?? 0.5), "minFacePresenceConfidence" in e && m(this.v, 2, e.minFacePresenceConfidence ?? 0.5), "outputFaceBlendshapes" in e && (this.outputFaceBlendshapes = !!e.outputFaceBlendshapes), "outputFacialTransformationMatrixes" in e && (this.outputFacialTransformationMatrixes = !!e.outputFacialTransformationMatrixes), this.l(e);
   }
   D(e, t) {
     return io(this), ke(this, e, t), this.j;
@@ -2936,7 +2936,7 @@ var P = class extends ie {
     Fe(t, L1, this.h);
     const n = new Z();
     de(n, "mediapipe.tasks.vision.face_landmarker.FaceLandmarkerGraph"), L(n, "IMAGE:image_in"), L(n, "NORM_RECT:norm_rect"), v(n, "NORM_LANDMARKS:face_landmarks"), n.o(t), fe(e, n), this.g.attachProtoVectorListener("face_landmarks", ((s, r) => {
-      for (const i of s) s = mn(i), this.j.faceLandmarks.push(is(s));
+      for (const i of s) s = pn(i), this.j.faceLandmarks.push(is(s));
       d(this, r);
     })), this.g.attachEmptyPacketListener("face_landmarks", ((s) => {
       d(this, s);
@@ -2946,7 +2946,7 @@ var P = class extends ie {
     })), this.g.attachEmptyPacketListener("blendshapes", ((s) => {
       d(this, s);
     }))), this.outputFacialTransformationMatrixes && (A(e, "face_geometry"), v(n, "FACE_GEOMETRY:face_geometry"), this.g.attachProtoVectorListener("face_geometry", ((s, r) => {
-      if (this.outputFacialTransformationMatrixes) for (const i of s) (s = E(F1(i), _1, 2)) && this.j.facialTransformationMatrixes.push({ rows: we(s, 1) ?? 0 ?? 0, columns: we(s, 2) ?? 0 ?? 0, data: gt(s, 3, ut, mt()).slice() ?? [] });
+      if (this.outputFacialTransformationMatrixes) for (const i of s) (s = E(F1(i), _1, 2)) && this.j.facialTransformationMatrixes.push({ rows: we(s, 1) ?? 0 ?? 0, columns: we(s, 2) ?? 0 ?? 0, data: gt(s, 3, ut, pt()).slice() ?? [] });
       d(this, r);
     })), this.g.attachEmptyPacketListener("face_geometry", ((s) => {
       d(this, s);
@@ -2962,10 +2962,10 @@ P.prototype.detectForVideo = P.prototype.F, P.prototype.detect = P.prototype.D, 
 }, P.FACE_LANDMARKS_LIPS = Kr, P.FACE_LANDMARKS_LEFT_EYE = Yr, P.FACE_LANDMARKS_LEFT_EYEBROW = qr, P.FACE_LANDMARKS_LEFT_IRIS = c2, P.FACE_LANDMARKS_RIGHT_EYE = Jr, P.FACE_LANDMARKS_RIGHT_EYEBROW = Zr, P.FACE_LANDMARKS_RIGHT_IRIS = u2, P.FACE_LANDMARKS_FACE_OVAL = Qr, P.FACE_LANDMARKS_CONTOURS = l2, P.FACE_LANDMARKS_TESSELATION = d2;
 var Re = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !0), y(e = this.j = new Na(), 0, 1, t = new O());
+    super(new Ae(e, t), "image_in", "norm_rect", !0), y(e = this.j = new Na(), 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.j, O, 1);
+    return E(this.j, I, 1);
   }
   set baseOptions(e) {
     y(this.j, 0, 1, e);
@@ -3027,17 +3027,17 @@ function ho(e, t = !0) {
 }
 var ae = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !1), this.gestures = [], this.landmarks = [], this.worldLandmarks = [], this.handedness = [], y(e = this.j = new Ha(), 0, 1, t = new O()), this.s = new Nr(), y(this.j, 0, 2, this.s), this.C = new Br(), y(this.s, 0, 3, this.C), this.v = new Ga(), y(this.s, 0, 2, this.v), this.h = new M1(), y(this.j, 0, 3, this.h), p(this.v, 2, 0.5), p(this.s, 4, 0.5), p(this.C, 2, 0.5);
+    super(new Ae(e, t), "image_in", "norm_rect", !1), this.gestures = [], this.landmarks = [], this.worldLandmarks = [], this.handedness = [], y(e = this.j = new Ha(), 0, 1, t = new I()), this.s = new Nr(), y(this.j, 0, 2, this.s), this.C = new Br(), y(this.s, 0, 3, this.C), this.v = new Ga(), y(this.s, 0, 2, this.v), this.h = new M1(), y(this.j, 0, 3, this.h), m(this.v, 2, 0.5), m(this.s, 4, 0.5), m(this.C, 2, 0.5);
   }
   get baseOptions() {
-    return E(this.j, O, 1);
+    return E(this.j, I, 1);
   }
   set baseOptions(e) {
     y(this.j, 0, 1, e);
   }
   o(e) {
     var r, i, o, a;
-    if (Ue(this.v, 3, e.numHands ?? 1), "minHandDetectionConfidence" in e && p(this.v, 2, e.minHandDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && p(this.s, 4, e.minTrackingConfidence ?? 0.5), "minHandPresenceConfidence" in e && p(this.C, 2, e.minHandPresenceConfidence ?? 0.5), e.cannedGesturesClassifierOptions) {
+    if (Ue(this.v, 3, e.numHands ?? 1), "minHandDetectionConfidence" in e && m(this.v, 2, e.minHandDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && m(this.s, 4, e.minTrackingConfidence ?? 0.5), "minHandPresenceConfidence" in e && m(this.C, 2, e.minHandPresenceConfidence ?? 0.5), e.cannedGesturesClassifierOptions) {
       var t = new kt(), n = t, s = Hs(e.cannedGesturesClassifierOptions, (r = E(this.h, kt, 3)) == null ? void 0 : r.h());
       y(n, 0, 2, s), y(this.h, 0, 3, t);
     } else e.cannedGesturesClassifierOptions === void 0 && ((i = E(this.h, kt, 3)) == null || i.g());
@@ -3057,7 +3057,7 @@ var ae = class extends ie {
     const n = new Z();
     de(n, "mediapipe.tasks.vision.gesture_recognizer.GestureRecognizerGraph"), L(n, "IMAGE:image_in"), L(n, "NORM_RECT:norm_rect"), v(n, "HAND_GESTURES:hand_gestures"), v(n, "LANDMARKS:hand_landmarks"), v(n, "WORLD_LANDMARKS:world_hand_landmarks"), v(n, "HANDEDNESS:handedness"), n.o(t), fe(e, n), this.g.attachProtoVectorListener("hand_landmarks", ((s, r) => {
       for (const i of s) {
-        s = mn(i);
+        s = pn(i);
         const o = [];
         for (const a of Ke(s, Ma, 1)) o.push({ x: N(a, 1) ?? 0, y: N(a, 2) ?? 0, z: N(a, 3) ?? 0, visibility: N(a, 4) ?? 0 });
         this.landmarks.push(o);
@@ -3098,16 +3098,16 @@ ae.prototype.recognizeForVideo = ae.prototype.Ka, ae.prototype.recognize = ae.pr
 }, ae.HAND_CONNECTIONS = ei;
 var se = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !1), this.landmarks = [], this.worldLandmarks = [], this.handedness = [], y(e = this.h = new Nr(), 0, 1, t = new O()), this.s = new Br(), y(this.h, 0, 3, this.s), this.j = new Ga(), y(this.h, 0, 2, this.j), Ue(this.j, 3, 1), p(this.j, 2, 0.5), p(this.s, 2, 0.5), p(this.h, 4, 0.5);
+    super(new Ae(e, t), "image_in", "norm_rect", !1), this.landmarks = [], this.worldLandmarks = [], this.handedness = [], y(e = this.h = new Nr(), 0, 1, t = new I()), this.s = new Br(), y(this.h, 0, 3, this.s), this.j = new Ga(), y(this.h, 0, 2, this.j), Ue(this.j, 3, 1), m(this.j, 2, 0.5), m(this.s, 2, 0.5), m(this.h, 4, 0.5);
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
   }
   o(e) {
-    return "numHands" in e && Ue(this.j, 3, e.numHands ?? 1), "minHandDetectionConfidence" in e && p(this.j, 2, e.minHandDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && p(this.h, 4, e.minTrackingConfidence ?? 0.5), "minHandPresenceConfidence" in e && p(this.s, 2, e.minHandPresenceConfidence ?? 0.5), this.l(e);
+    return "numHands" in e && Ue(this.j, 3, e.numHands ?? 1), "minHandDetectionConfidence" in e && m(this.j, 2, e.minHandDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && m(this.h, 4, e.minTrackingConfidence ?? 0.5), "minHandPresenceConfidence" in e && m(this.s, 2, e.minHandPresenceConfidence ?? 0.5), this.l(e);
   }
   D(e, t) {
     return this.landmarks = [], this.worldLandmarks = [], this.handedness = [], ke(this, e, t), co(this);
@@ -3119,10 +3119,10 @@ var se = class extends ie {
     var e = new oe();
     x(e, "image_in"), x(e, "norm_rect"), A(e, "hand_landmarks"), A(e, "world_hand_landmarks"), A(e, "handedness");
     const t = new ue();
-    Fe(t, O1, this.h);
+    Fe(t, I1, this.h);
     const n = new Z();
     de(n, "mediapipe.tasks.vision.hand_landmarker.HandLandmarkerGraph"), L(n, "IMAGE:image_in"), L(n, "NORM_RECT:norm_rect"), v(n, "LANDMARKS:hand_landmarks"), v(n, "WORLD_LANDMARKS:world_hand_landmarks"), v(n, "HANDEDNESS:handedness"), n.o(t), fe(e, n), this.g.attachProtoVectorListener("hand_landmarks", ((s, r) => {
-      for (const i of s) s = mn(i), this.landmarks.push(is(s));
+      for (const i of s) s = pn(i), this.landmarks.push(is(s));
       d(this, r);
     })), this.g.attachEmptyPacketListener("hand_landmarks", ((s) => {
       d(this, s);
@@ -3166,20 +3166,20 @@ function lo(e) {
   }
 }
 function bn(e, t) {
-  e = mn(e), t.push(is(e));
+  e = pn(e), t.push(is(e));
 }
 var M = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "input_frames_image", null, !1), this.h = { faceLandmarks: [], faceBlendshapes: [], poseLandmarks: [], poseWorldLandmarks: [], poseSegmentationMasks: [], leftHandLandmarks: [], leftHandWorldLandmarks: [], rightHandLandmarks: [], rightHandWorldLandmarks: [] }, this.outputPoseSegmentationMasks = this.outputFaceBlendshapes = !1, y(e = this.j = new Xa(), 0, 1, t = new O()), this.J = new Br(), y(this.j, 0, 2, this.J), this.Z = new I1(), y(this.j, 0, 3, this.Z), this.s = new rs(), y(this.j, 0, 4, this.s), this.H = new Ra(), y(this.j, 0, 5, this.H), this.v = new za(), y(this.j, 0, 6, this.v), this.K = new Wa(), y(this.j, 0, 7, this.K), p(this.s, 2, 0.5), p(this.s, 3, 0.3), p(this.H, 2, 0.5), p(this.v, 2, 0.5), p(this.v, 3, 0.3), p(this.K, 2, 0.5), p(this.J, 2, 0.5);
+    super(new Ae(e, t), "input_frames_image", null, !1), this.h = { faceLandmarks: [], faceBlendshapes: [], poseLandmarks: [], poseWorldLandmarks: [], poseSegmentationMasks: [], leftHandLandmarks: [], leftHandWorldLandmarks: [], rightHandLandmarks: [], rightHandWorldLandmarks: [] }, this.outputPoseSegmentationMasks = this.outputFaceBlendshapes = !1, y(e = this.j = new Xa(), 0, 1, t = new I()), this.J = new Br(), y(this.j, 0, 2, this.J), this.Z = new O1(), y(this.j, 0, 3, this.Z), this.s = new rs(), y(this.j, 0, 4, this.s), this.H = new Ra(), y(this.j, 0, 5, this.H), this.v = new za(), y(this.j, 0, 6, this.v), this.K = new Wa(), y(this.j, 0, 7, this.K), m(this.s, 2, 0.5), m(this.s, 3, 0.3), m(this.H, 2, 0.5), m(this.v, 2, 0.5), m(this.v, 3, 0.3), m(this.K, 2, 0.5), m(this.J, 2, 0.5);
   }
   get baseOptions() {
-    return E(this.j, O, 1);
+    return E(this.j, I, 1);
   }
   set baseOptions(e) {
     y(this.j, 0, 1, e);
   }
   o(e) {
-    return "minFaceDetectionConfidence" in e && p(this.s, 2, e.minFaceDetectionConfidence ?? 0.5), "minFaceSuppressionThreshold" in e && p(this.s, 3, e.minFaceSuppressionThreshold ?? 0.3), "minFacePresenceConfidence" in e && p(this.H, 2, e.minFacePresenceConfidence ?? 0.5), "outputFaceBlendshapes" in e && (this.outputFaceBlendshapes = !!e.outputFaceBlendshapes), "minPoseDetectionConfidence" in e && p(this.v, 2, e.minPoseDetectionConfidence ?? 0.5), "minPoseSuppressionThreshold" in e && p(this.v, 3, e.minPoseSuppressionThreshold ?? 0.3), "minPosePresenceConfidence" in e && p(this.K, 2, e.minPosePresenceConfidence ?? 0.5), "outputPoseSegmentationMasks" in e && (this.outputPoseSegmentationMasks = !!e.outputPoseSegmentationMasks), "minHandLandmarksConfidence" in e && p(this.J, 2, e.minHandLandmarksConfidence ?? 0.5), this.l(e);
+    return "minFaceDetectionConfidence" in e && m(this.s, 2, e.minFaceDetectionConfidence ?? 0.5), "minFaceSuppressionThreshold" in e && m(this.s, 3, e.minFaceSuppressionThreshold ?? 0.3), "minFacePresenceConfidence" in e && m(this.H, 2, e.minFacePresenceConfidence ?? 0.5), "outputFaceBlendshapes" in e && (this.outputFaceBlendshapes = !!e.outputFaceBlendshapes), "minPoseDetectionConfidence" in e && m(this.v, 2, e.minPoseDetectionConfidence ?? 0.5), "minPoseSuppressionThreshold" in e && m(this.v, 3, e.minPoseSuppressionThreshold ?? 0.3), "minPosePresenceConfidence" in e && m(this.K, 2, e.minPosePresenceConfidence ?? 0.5), "outputPoseSegmentationMasks" in e && (this.outputPoseSegmentationMasks = !!e.outputPoseSegmentationMasks), "minHandLandmarksConfidence" in e && m(this.J, 2, e.minHandLandmarksConfidence ?? 0.5), this.l(e);
   }
   D(e, t, n) {
     const s = typeof t != "function" ? t : {};
@@ -3201,7 +3201,7 @@ var M = class extends ie {
       }
     })(n, this.j.g());
     const s = new Z();
-    de(s, "mediapipe.tasks.vision.holistic_landmarker.HolisticLandmarkerGraph"), On(s, 8, Pi, n), L(s, "IMAGE:input_frames_image"), v(s, "POSE_LANDMARKS:pose_landmarks"), v(s, "POSE_WORLD_LANDMARKS:pose_world_landmarks"), v(s, "FACE_LANDMARKS:face_landmarks"), v(s, "LEFT_HAND_LANDMARKS:left_hand_landmarks"), v(s, "LEFT_HAND_WORLD_LANDMARKS:left_hand_world_landmarks"), v(s, "RIGHT_HAND_LANDMARKS:right_hand_landmarks"), v(s, "RIGHT_HAND_WORLD_LANDMARKS:right_hand_world_landmarks"), s.o(t), fe(e, s), os(this, e), this.g.attachProtoListener("pose_landmarks", ((r, i) => {
+    de(s, "mediapipe.tasks.vision.holistic_landmarker.HolisticLandmarkerGraph"), In(s, 8, Pi, n), L(s, "IMAGE:input_frames_image"), v(s, "POSE_LANDMARKS:pose_landmarks"), v(s, "POSE_WORLD_LANDMARKS:pose_world_landmarks"), v(s, "FACE_LANDMARKS:face_landmarks"), v(s, "LEFT_HAND_LANDMARKS:left_hand_landmarks"), v(s, "LEFT_HAND_WORLD_LANDMARKS:left_hand_world_landmarks"), v(s, "RIGHT_HAND_LANDMARKS:right_hand_landmarks"), v(s, "RIGHT_HAND_WORLD_LANDMARKS:right_hand_world_landmarks"), s.o(t), fe(e, s), os(this, e), this.g.attachProtoListener("pose_landmarks", ((r, i) => {
       bn(r, this.h.poseLandmarks), d(this, i);
     })), this.g.attachEmptyPacketListener("pose_landmarks", ((r) => {
       d(this, r);
@@ -3253,10 +3253,10 @@ M.prototype.detectForVideo = M.prototype.F, M.prototype.detect = M.prototype.D, 
 }, M.HAND_CONNECTIONS = ei, M.POSE_CONNECTIONS = f2, M.FACE_LANDMARKS_LIPS = Kr, M.FACE_LANDMARKS_LEFT_EYE = Yr, M.FACE_LANDMARKS_LEFT_EYEBROW = qr, M.FACE_LANDMARKS_LEFT_IRIS = c2, M.FACE_LANDMARKS_RIGHT_EYE = Jr, M.FACE_LANDMARKS_RIGHT_EYEBROW = Zr, M.FACE_LANDMARKS_RIGHT_IRIS = u2, M.FACE_LANDMARKS_FACE_OVAL = Qr, M.FACE_LANDMARKS_CONTOURS = l2, M.FACE_LANDMARKS_TESSELATION = d2;
 var ge = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "input_image", "norm_rect", !0), this.j = { classifications: [] }, y(e = this.h = new $a(), 0, 1, t = new O());
+    super(new Ae(e, t), "input_image", "norm_rect", !0), this.j = { classifications: [] }, y(e = this.h = new $a(), 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
@@ -3298,10 +3298,10 @@ ge.prototype.classifyForVideo = ge.prototype.ta, ge.prototype.classify = ge.prot
 };
 var he = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !0), this.h = new Ka(), this.embeddings = { embeddings: [] }, y(e = this.h, 0, 1, t = new O());
+    super(new Ae(e, t), "image_in", "norm_rect", !0), this.h = new Ka(), this.embeddings = { embeddings: [] }, y(e = this.h, 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
@@ -3327,7 +3327,7 @@ var he = class extends ie {
         return { embeddings: Ke(i, A1, 1).map(((o) => {
           var h, c;
           const a = { headIndex: we(o, 3) ?? 0 ?? -1, headName: ve(o, 4) ?? "" ?? "" };
-          if (Wo(o, Vi, Es(o, 1)) !== void 0) o = gt(o = E(o, Vi, Es(o, 1)), 1, ut, mt()), a.floatEmbedding = o.slice();
+          if (Wo(o, Vi, Es(o, 1)) !== void 0) o = gt(o = E(o, Vi, Es(o, 1)), 1, ut, pt()), a.floatEmbedding = o.slice();
           else {
             const u = new Uint8Array(0);
             a.quantizedEmbedding = ((c = (h = E(o, E1, Es(o, 2))) == null ? void 0 : h.oa()) == null ? void 0 : c.h()) ?? u;
@@ -3368,7 +3368,7 @@ var zs = class {
 function fo(e) {
   e.categoryMask = void 0, e.confidenceMasks = void 0, e.qualityScores = void 0;
 }
-function po(e) {
+function mo(e) {
   try {
     const t = new zs(e.confidenceMasks, e.categoryMask, e.qualityScores);
     if (!e.j) return t;
@@ -3380,10 +3380,10 @@ function po(e) {
 zs.prototype.close = zs.prototype.close;
 var ne = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !1), this.s = [], this.outputCategoryMask = !1, this.outputConfidenceMasks = !0, this.h = new Hr(), this.v = new Ya(), y(this.h, 0, 3, this.v), y(e = this.h, 0, 1, t = new O());
+    super(new Ae(e, t), "image_in", "norm_rect", !1), this.s = [], this.outputCategoryMask = !1, this.outputConfidenceMasks = !0, this.h = new Hr(), this.v = new Ya(), y(this.h, 0, 3, this.v), y(e = this.h, 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
@@ -3403,11 +3403,11 @@ var ne = class extends ie {
   }
   segment(e, t, n) {
     const s = typeof t != "function" ? t : {};
-    return this.j = typeof t == "function" ? t : n, fo(this), ke(this, e, s), po(this);
+    return this.j = typeof t == "function" ? t : n, fo(this), ke(this, e, s), mo(this);
   }
   Ma(e, t, n, s) {
     const r = typeof n != "function" ? n : {};
-    return this.j = typeof n == "function" ? n : s, fo(this), Ge(this, e, r, t), po(this);
+    return this.j = typeof n == "function" ? n : s, fo(this), Ge(this, e, r, t), mo(this);
   }
   Da() {
     return this.s;
@@ -3456,7 +3456,7 @@ var j1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, St = [0, B, -2], Dn = [0, He, -3, C, He, -1], mo = [0, Dn], go = [0, Dn, B, -1], Ls = class extends f {
+}, St = [0, B, -2], Dn = [0, He, -3, C, He, -1], po = [0, Dn], go = [0, Dn, B, -1], Ls = class extends f {
   constructor(e) {
     super(e);
   }
@@ -3468,18 +3468,18 @@ var j1 = class extends f {
   constructor(e) {
     super(e);
   }
-}, Xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15], p2 = class extends f {
+}, Xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15], m2 = class extends f {
   constructor(e) {
     super(e);
   }
 };
-p2.prototype.g = ns([0, z, [0, Xs, S, Dn, S, [0, Dn, St], S, mo, S, [0, mo, St], S, yo, S, [0, He, -3, C, Ee], S, [0, He, -3, C], S, [0, k, He, -2, C, B, C, -1, 2, He, St], S, go, S, [0, go, St], He, St, k, S, [0, He, -3, C, St, -1], S, [0, z, yo]], k, [0, k, B, -1, C]]);
+m2.prototype.g = ns([0, z, [0, Xs, S, Dn, S, [0, Dn, St], S, po, S, [0, po, St], S, yo, S, [0, He, -3, C, Ee], S, [0, He, -3, C], S, [0, k, He, -2, C, B, C, -1, 2, He, St], S, go, S, [0, go, St], He, St, k, S, [0, He, -3, C, St, -1], S, [0, z, yo]], k, [0, k, B, -1, C]]);
 var De = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect_in", !1), this.outputCategoryMask = !1, this.outputConfidenceMasks = !0, this.h = new Hr(), this.s = new Ya(), y(this.h, 0, 3, this.s), y(e = this.h, 0, 1, t = new O());
+    super(new Ae(e, t), "image_in", "norm_rect_in", !1), this.outputCategoryMask = !1, this.outputConfidenceMasks = !0, this.h = new Hr(), this.s = new Ya(), y(this.h, 0, 3, this.s), y(e = this.h, 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
@@ -3489,19 +3489,19 @@ var De = class extends ie {
   }
   segment(e, t, n, s) {
     const r = typeof n != "function" ? n : {};
-    this.j = typeof n == "function" ? n : s, this.qualityScores = this.categoryMask = this.confidenceMasks = void 0, n = this.B + 1, s = new p2();
+    this.j = typeof n == "function" ? n : s, this.qualityScores = this.categoryMask = this.confidenceMasks = void 0, n = this.B + 1, s = new m2();
     const i = new _o();
     var o = new j1();
     if (Ue(o, 1, 255), y(i, 0, 12, o), t.keypoint && t.scribble) throw Error("Cannot provide both keypoint and scribble.");
     if (t.keypoint) {
       var a = new Ls();
-      cn(a, 3, !0), p(a, 1, t.keypoint.x), p(a, 2, t.keypoint.y), sn(i, 5, Xs, a);
+      cn(a, 3, !0), m(a, 1, t.keypoint.x), m(a, 2, t.keypoint.y), sn(i, 5, Xs, a);
     } else {
       if (!t.scribble) throw Error("Must provide either a keypoint or a scribble.");
-      for (a of (o = new z1(), t.scribble)) cn(t = new Ls(), 3, !0), p(t, 1, a.x), p(t, 2, a.y), On(o, 1, Ls, t);
+      for (a of (o = new z1(), t.scribble)) cn(t = new Ls(), 3, !0), m(t, 1, a.x), m(t, 2, a.y), In(o, 1, Ls, t);
       sn(i, 15, Xs, o);
     }
-    On(s, 1, _o, i), this.g.addProtoToStream(s.g(), "drishti.RenderData", "roi_in", n), ke(this, e, r);
+    In(s, 1, _o, i), this.g.addProtoToStream(s.g(), "drishti.RenderData", "roi_in", n), ke(this, e, r);
     e: {
       try {
         const c = new Ws(this.confidenceMasks, this.categoryMask, this.qualityScores);
@@ -3547,16 +3547,16 @@ De.prototype.segment = De.prototype.segment, De.prototype.setOptions = De.protot
 };
 var ye = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "input_frame_gpu", "norm_rect", !1), this.j = { detections: [] }, y(e = this.h = new Za(), 0, 1, t = new O());
+    super(new Ae(e, t), "input_frame_gpu", "norm_rect", !1), this.j = { detections: [] }, y(e = this.h = new Za(), 0, 1, t = new I());
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
   }
   o(e) {
-    return e.displayNamesLocale !== void 0 ? F(this.h, 2, zt(e.displayNamesLocale)) : "displayNamesLocale" in e && F(this.h, 2), e.maxResults !== void 0 ? Ue(this.h, 3, e.maxResults) : "maxResults" in e && F(this.h, 3), e.scoreThreshold !== void 0 ? p(this.h, 4, e.scoreThreshold) : "scoreThreshold" in e && F(this.h, 4), e.categoryAllowlist !== void 0 ? In(this.h, 5, e.categoryAllowlist) : "categoryAllowlist" in e && F(this.h, 5), e.categoryDenylist !== void 0 ? In(this.h, 6, e.categoryDenylist) : "categoryDenylist" in e && F(this.h, 6), this.l(e);
+    return e.displayNamesLocale !== void 0 ? F(this.h, 2, zt(e.displayNamesLocale)) : "displayNamesLocale" in e && F(this.h, 2), e.maxResults !== void 0 ? Ue(this.h, 3, e.maxResults) : "maxResults" in e && F(this.h, 3), e.scoreThreshold !== void 0 ? m(this.h, 4, e.scoreThreshold) : "scoreThreshold" in e && F(this.h, 4), e.categoryAllowlist !== void 0 ? On(this.h, 5, e.categoryAllowlist) : "categoryAllowlist" in e && F(this.h, 5), e.categoryDenylist !== void 0 ? On(this.h, 6, e.categoryDenylist) : "categoryDenylist" in e && F(this.h, 6), this.l(e);
   }
   D(e, t) {
     return this.j = { detections: [] }, ke(this, e, t), this.j;
@@ -3611,16 +3611,16 @@ function bo(e) {
 $s.prototype.close = $s.prototype.close;
 var ce = class extends ie {
   constructor(e, t) {
-    super(new Ae(e, t), "image_in", "norm_rect", !1), this.landmarks = [], this.worldLandmarks = [], this.outputSegmentationMasks = !1, y(e = this.h = new Qa(), 0, 1, t = new O()), this.v = new Wa(), y(this.h, 0, 3, this.v), this.j = new za(), y(this.h, 0, 2, this.j), Ue(this.j, 4, 1), p(this.j, 2, 0.5), p(this.v, 2, 0.5), p(this.h, 4, 0.5);
+    super(new Ae(e, t), "image_in", "norm_rect", !1), this.landmarks = [], this.worldLandmarks = [], this.outputSegmentationMasks = !1, y(e = this.h = new Qa(), 0, 1, t = new I()), this.v = new Wa(), y(this.h, 0, 3, this.v), this.j = new za(), y(this.h, 0, 2, this.j), Ue(this.j, 4, 1), m(this.j, 2, 0.5), m(this.v, 2, 0.5), m(this.h, 4, 0.5);
   }
   get baseOptions() {
-    return E(this.h, O, 1);
+    return E(this.h, I, 1);
   }
   set baseOptions(e) {
     y(this.h, 0, 1, e);
   }
   o(e) {
-    return "numPoses" in e && Ue(this.j, 4, e.numPoses ?? 1), "minPoseDetectionConfidence" in e && p(this.j, 2, e.minPoseDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && p(this.h, 4, e.minTrackingConfidence ?? 0.5), "minPosePresenceConfidence" in e && p(this.v, 2, e.minPosePresenceConfidence ?? 0.5), "outputSegmentationMasks" in e && (this.outputSegmentationMasks = e.outputSegmentationMasks ?? !1), this.l(e);
+    return "numPoses" in e && Ue(this.j, 4, e.numPoses ?? 1), "minPoseDetectionConfidence" in e && m(this.j, 2, e.minPoseDetectionConfidence ?? 0.5), "minTrackingConfidence" in e && m(this.h, 4, e.minTrackingConfidence ?? 0.5), "minPosePresenceConfidence" in e && m(this.v, 2, e.minPosePresenceConfidence ?? 0.5), "outputSegmentationMasks" in e && (this.outputSegmentationMasks = e.outputSegmentationMasks ?? !1), this.l(e);
   }
   D(e, t, n) {
     const s = typeof t != "function" ? t : {};
@@ -3638,7 +3638,7 @@ var ce = class extends ie {
     const n = new Z();
     de(n, "mediapipe.tasks.vision.pose_landmarker.PoseLandmarkerGraph"), L(n, "IMAGE:image_in"), L(n, "NORM_RECT:norm_rect"), v(n, "NORM_LANDMARKS:normalized_landmarks"), v(n, "WORLD_LANDMARKS:world_landmarks"), n.o(t), fe(e, n), os(this, e), this.g.attachProtoVectorListener("normalized_landmarks", ((s, r) => {
       this.landmarks = [];
-      for (const i of s) s = mn(i), this.landmarks.push(is(s));
+      for (const i of s) s = pn(i), this.landmarks.push(is(s));
       d(this, r);
     })), this.g.attachEmptyPacketListener("normalized_landmarks", ((s) => {
       this.landmarks = [], d(this, s);
@@ -3675,7 +3675,7 @@ function ze(e, t) {
   const n = t.x - e.x, s = t.y - e.y;
   return Math.sqrt(n * n + s * s);
 }
-function m2(e, t) {
+function p2(e, t) {
   return Math.atan2(t.y - e.y, t.x - e.x);
 }
 function X1(e, t, n) {
@@ -3691,7 +3691,7 @@ function X1(e, t, n) {
   }, l = ze(
     { x: i.x * t, y: i.y * n },
     { x: o.x * t, y: o.y * n }
-  ) / n * 3, w = m2(
+  ) / n * 3, w = p2(
     { x: i.x * t, y: i.y * n },
     { x: o.x * t, y: o.y * n }
   );
@@ -3709,22 +3709,22 @@ function $1(e, t, n) {
   };
   if (e.length < 468)
     return c;
-  const u = e[33], l = e[263], w = e[10], I = e[152], K = e[234], J = e[454], $ = {
+  const u = e[33], l = e[263], w = e[10], O = e[152], K = e[234], J = e[454], $ = {
     x: (u.x + l.x) / 2 * t,
     y: (u.y + l.y) / 2 * n
   }, te = {
     x: w.x * t,
     y: w.y * n
   }, Ce = {
-    x: I.x * t,
-    y: I.y * n
+    x: O.x * t,
+    y: O.y * n
   }, Se = ze(
     { x: u.x * t, y: u.y * n },
     { x: l.x * t, y: l.y * n }
-  ), Oe = ze(te, Ce), dt = ze(
+  ), Ie = ze(te, Ce), dt = ze(
     { x: K.x * t, y: K.y * n },
     { x: J.x * t, y: J.y * n }
-  ), Je = m2(
+  ), Je = p2(
     { x: u.x * t, y: u.y * n },
     { x: l.x * t, y: l.y * n }
   );
@@ -3733,7 +3733,7 @@ function $1(e, t, n) {
     forehead: te,
     chin: Ce,
     eyeDistance: Se,
-    faceHeight: Oe,
+    faceHeight: Ie,
     faceWidth: dt,
     rotation: Je
   };
@@ -4226,14 +4226,14 @@ class Z1 {
     const l = this.stableFrames >= this.requiredStableFrames, w = Math.min(
       o / (this.speedThreshold * 2),
       1
-    ), I = Math.max(
+    ), O = Math.max(
       0,
       (c - this.highSpeedRatio) / (1 - this.highSpeedRatio)
     ), K = Math.min(
       this.stableFrames / this.requiredStableFrames,
       1
     ), J = Math.min(
-      w * I * K,
+      w * O * K,
       1
     );
     return {
@@ -4270,14 +4270,11 @@ class Q1 {
     _(this, "maxMovementHistory", 15);
     // ~500ms @ 30fps
     // 刷牙动作状态机
-    _(this, "lastTeethOpenTime", 0);
     _(this, "brushingStartTime", 0);
     _(this, "completionCount", 0);
     _(this, "teethConfirmed", !1);
     // 露牙已确认（锁定状态，设计文档要求）
     // 时间阈值（幼儿友好优化）
-    _(this, "teethLockTimeout", 3e3);
-    // 露牙锁定超时：3秒没露牙则解锁
     _(this, "minBrushingDuration", 300);
     this.teethGate = new q1(0.4, 0.05, 167, 30), this.fist = new J1(2), this.shake = new Z1(8e-3, 500, 0.06, 80, 30);
   }
@@ -4305,8 +4302,8 @@ class Q1 {
     let c = "waiting", u = !1;
     if (i.isOpen && (this.teethConfirmed = !0), this.teethConfirmed) {
       c = "teeth_open";
-      const w = o.isFist, I = a.isShaking;
-      if (w && I)
+      const w = o.isFist, O = a.isShaking;
+      if (w && O)
         c = "fist_ready", this.brushingStartTime === 0 && (this.brushingStartTime = r, console.log("[BrushGesture] 检测到握拳+晃动，开始计时")), r - this.brushingStartTime >= this.minBrushingDuration && (c = "complete", this.completionCount++, console.log("[BrushGesture] ✅ 成功完成刷牙动作！次数:", this.completionCount), this.brushingStartTime = 0);
       else if (this.brushingStartTime > 0) {
         const K = r - this.brushingStartTime;
@@ -4344,8 +4341,8 @@ class Q1 {
       return "none";
     const c = this.movementHistory.slice(-10);
     let u = 0, l = 0;
-    for (const I of c)
-      u += Math.abs(I.dy), l += Math.abs(I.dx);
+    for (const O of c)
+      u += Math.abs(O.dy), l += Math.abs(O.dx);
     const w = 5;
     return u > l && u > w ? "vertical" : l > u && l > w ? "horizontal" : "none";
   }
@@ -4389,7 +4386,7 @@ class Q1 {
    * 重置状态
    */
   reset() {
-    this.teethGate.reset(), this.fist.reset(), this.shake.reset(), this.lastTeethOpenTime = 0, this.brushingStartTime = 0, this.teethConfirmed = !1, this.movementHistory = [], this.prevHandX = null, this.prevHandY = null;
+    this.teethGate.reset(), this.fist.reset(), this.shake.reset(), this.brushingStartTime = 0, this.teethConfirmed = !1, this.movementHistory = [], this.prevHandX = null, this.prevHandY = null;
   }
   /**
    * 获取完成次数
@@ -4633,14 +4630,14 @@ class th {
    * 4. 跟随头部旋转
    */
   render(t, n, s, r, i) {
-    var Se, Oe, dt, Je;
+    var Se, Ie, dt, Je;
     if (!this.avatarImage || !n.landmarks)
       return;
     const o = $1(
       n.landmarks,
       r,
       i
-    ), a = o.faceWidth * 2.2 / this.avatarImage.width, h = s.scale || 1, c = a * h, u = this.avatarImage.width * c, l = this.avatarImage.height * c, w = (((Se = s.faceHoleOffset) == null ? void 0 : Se.x) || 0) * u, I = (((Oe = s.faceHoleOffset) == null ? void 0 : Oe.y) || 0) * l, K = (((dt = s.anchorOffset) == null ? void 0 : dt.x) || 0) * u, J = (((Je = s.anchorOffset) == null ? void 0 : Je.y) || 0) * l, $ = o.center.x - w + K, te = o.center.y - I + J, Ce = o.rotation;
+    ), a = o.faceWidth * 2.2 / this.avatarImage.width, h = s.scale || 1, c = a * h, u = this.avatarImage.width * c, l = this.avatarImage.height * c, w = (((Se = s.faceHoleOffset) == null ? void 0 : Se.x) || 0) * u, O = (((Ie = s.faceHoleOffset) == null ? void 0 : Ie.y) || 0) * l, K = (((dt = s.anchorOffset) == null ? void 0 : dt.x) || 0) * u, J = (((Je = s.anchorOffset) == null ? void 0 : Je.y) || 0) * l, $ = o.center.x - w + K, te = o.center.y - O + J, Ce = o.rotation;
     t.save(), t.translate($, te), t.rotate(Ce), t.drawImage(
       this.avatarImage,
       -u / 2,
@@ -4728,15 +4725,34 @@ function xs(e, t) {
   return Array.from(new Set(n));
 }
 async function rh(e, t) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+    throw new Error("Camera API not available. Use a secure (https) context.");
+  return new Promise((n, s) => {
+    let r = !1;
+    const i = setTimeout(() => {
+      r || (r = !0, s(new Error("Camera permission timeout")));
+    }, t);
+    navigator.mediaDevices.getUserMedia(e).then((o) => {
+      if (r) {
+        o.getTracks().forEach((a) => a.stop());
+        return;
+      }
+      r = !0, clearTimeout(i), n(o);
+    }).catch((o) => {
+      r || (r = !0, clearTimeout(i), s(o));
+    });
+  });
+}
+async function ih(e, t) {
   t == null || t("camera", 0.1);
-  const n = {
+  const s = await rh({
     video: {
       facingMode: "user",
       width: { ideal: 640 },
       height: { ideal: 480 }
     },
     audio: !1
-  }, s = await navigator.mediaDevices.getUserMedia(n);
+  }, 15e3);
   return e.srcObject = s, t == null || t("camera", 0.5), new Promise((r, i) => {
     const o = setTimeout(() => {
       i(new Error("Camera timeout: video failed to load within 15 seconds"));
@@ -4750,37 +4766,37 @@ async function rh(e, t) {
     };
   });
 }
-async function ah(e) {
+async function hh(e) {
   var hi, ci;
-  const { canvas: t, onState: n, onScore: s, onGameOver: r, onError: i, onProgress: o, debug: a = !1 } = e, h = e.basePath || window.location.origin, c = e.modelBasePath || window.location.origin, u = e.gameDurationMs || 6e4, l = e.enableCapture !== !1, w = e.captureCount || 6, I = e.onCapture;
+  const { canvas: t, onState: n, onScore: s, onGameOver: r, onError: i, onProgress: o, debug: a = !1 } = e, h = e.basePath || window.location.origin, c = e.modelBasePath || window.location.origin, u = e.gameDurationMs || 6e4, l = e.enableCapture !== !1, w = e.captureCount || 6, O = e.onCapture;
   let K = !0, J = !1, $ = null, te = null;
   const Ce = [];
-  let Se = [], Oe = 0, dt = 0;
+  let Se = [], Ie = 0, dt = 0;
   const Je = new K1(), ls = new Y1(), Te = new eh(u), ds = new th();
   let j = e.video, ti = !1;
   j || (j = document.createElement("video"), j.setAttribute("playsinline", "true"), j.setAttribute("autoplay", "true"), j.muted = !0, j.style.display = "none", document.body.appendChild(j), ti = !0);
-  const pe = t.getContext("2d");
-  if (!pe)
+  const me = t.getContext("2d");
+  if (!me)
     throw new Error("Failed to get 2D context from canvas");
   const ni = nh(e, h);
   let si = 0, fs = 0, ri = 0, ii = 0;
   const g2 = 1e3 / 20;
-  let oi = 0, vt = null, ps = null;
+  let oi = 0, vt = null, ms = null;
   try {
     let Ze = function(Y) {
       if (!K) return;
       fs++, Y - ii >= 1e3 && (ri = fs, fs = 0, ii = Y);
       const Qe = Y - si;
-      if (si = Y, (t.width !== j.videoWidth || t.height !== j.videoHeight) && j.videoWidth > 0 && j.videoHeight > 0 && (t.width = j.videoWidth, t.height = j.videoHeight), pe.save(), pe.translate(t.width, 0), pe.scale(-1, 1), pe.drawImage(j, 0, 0, t.width, t.height), pe.restore(), !J && Y - oi >= g2) {
-        oi = Y, vt = Je.detectForVideo(j, Y), ps = ls.detectForVideo(j, Y);
+      if (si = Y, (t.width !== j.videoWidth || t.height !== j.videoHeight) && j.videoWidth > 0 && j.videoHeight > 0 && (t.width = j.videoWidth, t.height = j.videoHeight), me.save(), me.translate(t.width, 0), me.scale(-1, 1), me.drawImage(j, 0, 0, t.width, t.height), me.restore(), !J && Y - oi >= g2) {
+        oi = Y, vt = Je.detectForVideo(j, Y), ms = ls.detectForVideo(j, Y);
         const et = {
           faceResult: vt,
-          handResult: ps
+          handResult: ms
         };
         Te.update(et, Qe);
       }
-      if (vt && vt.landmarks && (pe.save(), pe.translate(t.width, 0), pe.scale(-1, 1), ds.render(pe, vt, ni, t.width, t.height), pe.restore()), l && Oe < Se.length) {
-        const et = Y - dt, Et = Se[Oe];
+      if (vt && vt.landmarks && (me.save(), me.translate(t.width, 0), me.scale(-1, 1), ds.render(me, vt, ni, t.width, t.height), me.restore()), l && Ie < Se.length) {
+        const et = Y - dt, Et = Se[Ie];
         if (et >= Et) {
           try {
             let ft = t.width, Jt = t.height;
@@ -4794,17 +4810,17 @@ async function ah(e) {
             if (ui) {
               ui.drawImage(t, 0, 0, ft, Jt);
               const Zt = At.toDataURL("image/jpeg", 0.85);
-              Ce.push(Zt), console.log(`[BrushGame] 抓拍 ${Oe + 1}/${w} @ ${(et / 1e3).toFixed(1)}s`), I == null || I(Zt, Oe);
+              Ce.push(Zt), console.log(`[BrushGame] 抓拍 ${Ie + 1}/${w} @ ${(et / 1e3).toFixed(1)}s`), O == null || O(Zt, Ie);
             }
-          } catch (Ie) {
-            console.error("[BrushGame] 抓拍失败:", Ie);
+          } catch (Oe) {
+            console.error("[BrushGame] 抓拍失败:", Oe);
           }
-          Oe++;
+          Ie++;
         }
       }
-      a && ih(pe, t, vt, ps, ri, Te), $ = requestAnimationFrame(Ze);
+      a && oh(me, t, vt, ms, ri, Te), $ = requestAnimationFrame(Ze);
     };
-    o == null || o("camera", 0), te = await rh(j, o), o == null || o("models", 0);
+    o == null || o("camera", 0), te = await ih(j, o), o == null || o("models", 0);
     const qt = xs(c, Ne.wasmPaths), y2 = xs(
       c,
       [Ne.models.face, ...((hi = Ne.models.fallback) == null ? void 0 : hi.face) || []]
@@ -4827,11 +4843,11 @@ async function ah(e) {
     }), l) {
       const Qe = u - 5e3, et = Qe - 3e3, Et = Math.max(5e3, et / (w + 1));
       Se = [];
-      for (let Ie = 0; Ie < w; Ie++) {
-        const ft = 3e3 + Et * (Ie + 1), Jt = (Math.random() - 0.5) * 3e3, At = Math.max(3e3, Math.min(Qe, ft + Jt));
+      for (let Oe = 0; Oe < w; Oe++) {
+        const ft = 3e3 + Et * (Oe + 1), Jt = (Math.random() - 0.5) * 3e3, At = Math.max(3e3, Math.min(Qe, ft + Jt));
         Se.push(At);
       }
-      Se.sort((Ie, ft) => Ie - ft), console.log("[BrushGame] 抓拍调度:", Se.map((Ie) => (Ie / 1e3).toFixed(1) + "s"));
+      Se.sort((Oe, ft) => Oe - ft), console.log("[BrushGame] 抓拍调度:", Se.map((Oe) => (Oe / 1e3).toFixed(1) + "s"));
     }
     dt = performance.now(), o == null || o("ready", 1), $ = requestAnimationFrame(Ze);
   } catch (Ze) {
@@ -4857,7 +4873,7 @@ async function ah(e) {
     // 返回副本
   };
 }
-function ih(e, t, n, s, r, i) {
+function oh(e, t, n, s, r, i) {
   e.save(), e.fillStyle = "rgba(0, 0, 0, 0.6)", e.fillRect(10, 10, 200, 120), e.fillStyle = "#fff", e.font = "12px monospace";
   const o = i.getState(), a = i.getStats(), h = Math.ceil(i.getRemainingTime() / 1e3);
   if (e.fillText(`FPS: ${r}`, 20, 30), e.fillText(`State: ${o}`, 20, 46), e.fillText(`Score: ${a.score}`, 20, 62), e.fillText(`Success: ${a.successCount}`, 20, 78), e.fillText(`Time: ${h}s`, 20, 94), e.fillText(`Face: ${n != null && n.landmarks ? "Yes" : "No"}`, 20, 110), e.fillText(`Hand: ${s != null && s.landmarks ? "Yes" : "No"}`, 120, 110), n != null && n.landmarks) {
@@ -4876,11 +4892,11 @@ function ih(e, t, n, s, r, i) {
   }
   e.restore();
 }
-const hh = {
+const ch = {
   avatars: Ks,
   mediaPipe: Ne
 };
 export {
-  hh as config,
-  ah as start
+  ch as config,
+  hh as start
 };

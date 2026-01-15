@@ -20,7 +20,19 @@
             width: 100%;
             height: var(--app-height, 100vh);
             object-fit: cover;
-            z-index: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 头套渲染层 - 位于森林层之上 */
+        #avatar-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--app-height, 100vh);
+            object-fit: cover;
+            z-index: 3;
             pointer-events: none;
         }
 
@@ -36,7 +48,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 300;
+            z-index: 2000;
             transition: opacity 0.5s ease-out;
         }
 
@@ -117,7 +129,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 400;
+            z-index: 2100;
             padding: 24px;
         }
 
@@ -251,6 +263,375 @@
                 opacity: 0;
             }
         }
+
+        /* ===== 视觉层样式 ===== */
+        .visual-layer {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .visual-layer.active {
+            opacity: 1;
+        }
+
+        .visual-layer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 森林边框层 - 顶部 */
+        .forest-border {
+            top: -6%;
+            z-index: 2;
+        }
+
+        /* 下排牙齿层 - 底部 */
+        .teeth-layer {
+            bottom: -8%;
+            z-index: 4;
+            position: fixed;
+        }
+
+        /* 菌斑容器 - 定位到牙冠区域，贴合牙齿图层 */
+        .plaque-container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 23%;
+            height: 22%;
+            pointer-events: none;
+            z-index: 5; /* 确保在牙齿层之上 */
+        }
+
+        .plaque-item {
+            position: absolute;
+            bottom: 0;
+            width: var(--plaque-width, clamp(120px, 34vw, 240px));
+            transform: translateX(-50%) translateY(var(--plaque-offset-y, 0px));
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .plaque-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform-origin: center bottom;
+        }
+
+        .plaque-item[data-plaque-id="1"] {
+            left: 15%;
+            --plaque-width: clamp(145px, 39vw, 270px);
+            --plaque-offset-y: -56px;
+        }
+
+        .plaque-item[data-plaque-id="2"] {
+            left: 50%;
+            --plaque-width: clamp(135px, 35vw, 235px);
+            --plaque-offset-y: -16px;
+        }
+
+        .plaque-item[data-plaque-id="3"] {
+            left: 85%;
+            --plaque-width: clamp(145px, 39vw, 270px);
+            --plaque-offset-y: -6px;
+        }
+
+        /* 菌斑消除动画 */
+        @keyframes plagueDissolve {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            30% {
+                opacity: 0.8;
+                transform: scale(1.15) translateY(-5px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-30px);
+            }
+        }
+
+        .plaque-item.dissolving img {
+            animation: plagueDissolve 0.7s ease-out forwards;
+        }
+
+        /* 菌斑消除粒子效果 */
+        .plaque-particle {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #9333EA;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: particleBurst 0.6s ease-out forwards;
+        }
+
+        @keyframes particleBurst {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.4) translate(var(--tx, 0), var(--ty, 0));
+            }
+        }
+
+        /* 菌斑消除闪光效果 */
+        .plaque-flash {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            animation: flashPop 0.4s ease-out forwards;
+        }
+
+        @keyframes flashPop {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        /* ===== 攻击菌斑动效 ===== */
+        /* 能量弹 - 从随机位置飞向菌斑 */
+        .attack-projectile {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1001;
+            background: radial-gradient(circle at 30% 30%, #FFFACD, #FFE066, #FFD700, #FFA500);
+            box-shadow:
+                0 0 15px #FFD700,
+                0 0 30px rgba(255, 215, 0, 0.8),
+                0 0 50px rgba(255, 165, 0, 0.6),
+                0 0 70px rgba(255, 140, 0, 0.4);
+            animation: projectileFly var(--fly-duration, 0.5s) cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+        }
+
+        /* 能量弹内核 */
+        .attack-projectile::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle, #FFFFFF 0%, #FFFACD 50%, transparent 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: coreGlow 0.15s ease-in-out infinite alternate;
+        }
+
+        /* 能量弹拖尾 */
+        .attack-projectile::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 24px;
+            background: linear-gradient(to right,
+                rgba(255, 215, 0, 0.9) 0%,
+                rgba(255, 165, 0, 0.6) 30%,
+                rgba(255, 140, 0, 0.3) 60%,
+                transparent 100%);
+            border-radius: 0 50% 50% 0;
+            transform-origin: 0% 50%;
+            transform: translate(0, -50%) rotate(var(--trail-angle, 0deg));
+            filter: blur(4px);
+        }
+
+        @keyframes coreGlow {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        }
+
+        @keyframes projectileFly {
+            0% {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 0;
+                filter: blur(5px);
+            }
+            15% {
+                transform: translate(calc(-50% + var(--dx) * 0.05), calc(-50% + var(--dy) * 0.05)) scale(1.3);
+                opacity: 1;
+                filter: blur(0);
+            }
+            85% {
+                transform: translate(calc(-50% + var(--dx) * 0.9), calc(-50% + var(--dy) * 0.9)) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.8);
+                opacity: 0.9;
+            }
+        }
+
+        /* 冲击波 - 能量弹击中时产生（加强版） */
+        .attack-impact {
+            position: fixed;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            border: 5px solid rgba(255, 215, 0, 0.9);
+            background: radial-gradient(circle,
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(255, 215, 0, 0.5) 30%,
+                rgba(255, 165, 0, 0.3) 60%,
+                transparent 100%);
+            box-shadow:
+                0 0 30px rgba(255, 215, 0, 0.8),
+                0 0 60px rgba(255, 165, 0, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: impactWave 0.6s ease-out forwards;
+        }
+
+        /* 第二层冲击波 */
+        .attack-impact-secondary {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            background: transparent;
+            animation: impactWaveSecondary 0.5s ease-out 0.1s forwards;
+        }
+
+        @keyframes impactWave {
+            0% {
+                transform: translate(-50%, -50%) scale(0.2);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes impactWaveSecondary {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* 菌斑受击抖动效果（加强版） */
+        .plaque-item.hit img {
+            animation: plagueHit 0.5s ease-out;
+        }
+
+        @keyframes plagueHit {
+            0% {
+                transform: scale(1) rotate(0);
+                filter: brightness(1) saturate(1);
+            }
+            10% {
+                transform: scale(0.85) rotate(-8deg);
+                filter: brightness(2) saturate(1.5);
+            }
+            25% {
+                transform: scale(1.15) rotate(6deg);
+                filter: brightness(1.8) saturate(1.3);
+            }
+            40% {
+                transform: scale(0.9) rotate(-5deg);
+                filter: brightness(1.5) saturate(1.2);
+            }
+            55% {
+                transform: scale(1.1) rotate(4deg);
+                filter: brightness(1.3) saturate(1.1);
+            }
+            70% {
+                transform: scale(0.95) rotate(-2deg);
+                filter: brightness(1.15) saturate(1.05);
+            }
+            85% {
+                transform: scale(1.03) rotate(1deg);
+                filter: brightness(1.05) saturate(1);
+            }
+            100% {
+                transform: scale(1) rotate(0);
+                filter: brightness(1) saturate(1);
+            }
+        }
+
+        /* 击中闪光效果 */
+        .hit-flash {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            z-index: 998;
+            background: radial-gradient(circle,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 215, 0, 0.4) 40%,
+                transparent 70%);
+            animation: hitFlash 0.3s ease-out forwards;
+        }
+
+        @keyframes hitFlash {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* 能量粒子散射 */
+        .energy-particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            background: #FFD700;
+            box-shadow: 0 0 10px #FFD700, 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: energyParticleFly 0.5s ease-out forwards;
+        }
+
+        @keyframes energyParticleFly {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.3);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -258,6 +639,30 @@
 
     <!-- 游戏画布（摄像头 + 头套渲染） -->
     <canvas id="game-canvas" class="game-canvas-layer"></canvas>
+    <canvas id="avatar-canvas" class="avatar-canvas-layer"></canvas>
+
+    <!-- ===== 视觉装饰层（仅游戏进行时显示） ===== -->
+    <!-- 森林边框层（顶部） -->
+    <div id="forest-border-layer" class="visual-layer forest-border">
+        <img src="game-assets/forest-border.png" alt="" />
+    </div>
+
+    <!-- 下排牙齿层（底部） -->
+    <div id="teeth-layer" class="visual-layer teeth-layer">
+        <img src="game-assets/lower-teeth.png" alt="" />
+        <!-- 菌斑覆盖在牙齿上 -->
+        <div id="plaque-layer" class="plaque-container">
+            <div class="plaque-item" data-plaque-id="1">
+                <img src="game-assets/plaque-1.png" alt="" />
+            </div>
+            <div class="plaque-item" data-plaque-id="2">
+                <img src="game-assets/plaque-2.png" alt="" />
+            </div>
+            <div class="plaque-item" data-plaque-id="3">
+                <img src="game-assets/plaque-3.png" alt="" />
+            </div>
+        </div>
+    </div>
 
     <!-- 加载遮罩 - Kawaii 风格 -->
     <div id="loading-overlay">
@@ -298,18 +703,9 @@
 
     <!-- UI Overlays - 使用动态 safe-area -->
     <div class="absolute inset-x-0 px-3 flex justify-between items-start pointer-events-none z-10" style="top: calc(var(--app-safe-top, 0px) + 12px);">
-        <div class="kawaii-card bg-white p-3 flex items-center gap-3">
-            <div class="text-xs font-black">
-                <div class="text-xs text-gray-400 uppercase">能量值</div>
-                <div class="text-[var(--primary-green)]" id="timer-display">--:--</div>
-            </div>
-            <div class="w-24 kawaii-progress-bg">
-                <div class="kawaii-progress-fill" id="progress-bar" style="width: 100%"></div>
-            </div>
-        </div>
-        <div id="exit-btn"
+        <div id="pause-btn"
             class="kawaii-button kawaii-button-red w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-pause"></i>
         </div>
     </div>
 
@@ -336,55 +732,37 @@
         </div>
     </div>
 
-    <!-- Bottom Action Info - 使用动态 safe-area -->
-    <div class="absolute inset-x-0 px-3 z-10" style="bottom: calc(var(--app-safe-bottom, 0px) + 12px);">
-        <div class="kawaii-card text-center py-4 bg-white bg-opacity-90 max-w-[560px] mx-auto">
-            <div class="flex items-center justify-center gap-4 mb-2">
-                <div
-                    class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center overflow-hidden opacity-30">
-                    <img src="owl_mascot.svg" class="w-2/3 h-2/3 object-contain" />
-                </div>
-                <div class="text-xl font-black text-[var(--primary-green)] uppercase" id="action-text">准备开始！</div>
-                <div
-                    class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center overflow-hidden opacity-30">
-                    <img src="owl_mascot.svg" class="w-2/3 h-2/3 object-contain" />
-                </div>
-            </div>
-            <p class="text-xs font-black uppercase text-gray-400" id="action-hint">露出牙齿 → 握拳 → 上下/左右刷动</p>
-        </div>
-    </div>
-
-    <!-- 退出确认弹框 - 使用动态视口高度限制 -->
-    <div id="exit-modal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[200] p-6">
+    <!-- 暂停/退出确认弹框 - 使用动态视口高度限制 -->
+    <div id="pause-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[2200] p-6">
         <div class="bg-white rounded-[32px] border-4 border-[#333] w-full max-w-sm shadow-[8px_8px_0_#333] overflow-hidden transform transition-all duration-300 scale-95 opacity-0"
-            id="exit-modal-content" style="max-height: calc(var(--app-height, 100vh) - 40px);">
-            <div class="p-6">
-                <!-- 警告图标 -->
-                <div class="text-center mb-4">
+            id="pause-modal-content" style="max-height: calc(var(--app-height, 100vh) - 40px);">
+            <div class="p-8">
+                <!-- 暂停图标 -->
+                <div class="text-center mb-6">
                     <div
-                        class="w-16 h-16 mx-auto bg-red-100 rounded-full border-4 border-[#333] flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                        class="w-20 h-20 mx-auto bg-yellow-100 rounded-full border-4 border-[#333] flex items-center justify-center shadow-[4px_4px_0_#333]">
+                        <i class="fas fa-pause text-yellow-500 text-3xl"></i>
                     </div>
                 </div>
 
                 <!-- 提示文字 -->
-                <h2 class="text-xl font-black text-center mb-2">确定要退出吗？</h2>
-                <p class="text-center text-gray-500 text-sm mb-6">本次刷牙进度将不会保存</p>
+                <h2 class="text-2xl font-black text-center mb-3 text-[var(--stroke-dark)]">确认不刷了吗？</h2>
+                <p class="text-center text-gray-500 text-base mb-8 leading-relaxed">退出后本次刷牙进度将不会保存哦～</p>
 
                 <!-- 按钮 -->
-                <div class="flex gap-4">
-                    <button class="flex-1 kawaii-button kawaii-button-primary py-3 text-sm font-black"
-                        onclick="closeExitModal()">继续刷牙</button>
-                    <button class="flex-1 kawaii-button kawaii-button-red py-3 text-sm font-black"
-                        onclick="confirmExit()">退出</button>
+                <div class="flex flex-col gap-3">
+                    <button class="kawaii-button kawaii-button-primary py-4 text-base font-black"
+                        onclick="closePauseModal()">继续刷牙</button>
+                    <button class="kawaii-button kawaii-button-red py-4 text-base font-black"
+                        onclick="confirmExit()">确认退出</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 加载 BrushGame 引擎 -->
-    <script src="lib/embed/brushing-engine.umd.js"></script>
+    <script src="lib/embed/brushing-engine.umd.js?v=3"></script>
 
     <script>
         // ===== 游戏配置 =====
@@ -400,12 +778,13 @@
 
         // ===== DOM 元素 =====
         const canvas = document.getElementById('game-canvas');
-        const timerDisplay = document.getElementById('timer-display');
-        const progressBar = document.getElementById('progress-bar');
+        const avatarCanvas = document.getElementById('avatar-canvas');
+        const timerDisplay = document.getElementById('timer-display'); // 可选
+        const progressBar = document.getElementById('progress-bar'); // 可选
         // scoreDisplay 已移除 - 简化得分体系
         const statusBar = document.getElementById('status-bar');
-        const actionText = document.getElementById('action-text');
-        const actionHint = document.getElementById('action-hint');
+        const actionText = document.getElementById('action-text'); // 可选
+        const actionHint = document.getElementById('action-hint'); // 可选
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingLabel = document.getElementById('loading-label');
         const loadingDetail = document.getElementById('loading-detail');
@@ -494,6 +873,273 @@
             lastSuccessTime = 0;
         }
 
+        // ===== 视觉层管理器 =====
+        const VisualLayers = {
+            forestBorder: null,
+            teethLayer: null,
+            plagueContainer: null,
+            plaguesCleared: 0,
+            totalPlagueCount: 3,
+            initialized: false,
+            // 根据游戏时长设置菌斑消除门槛
+            // 1分钟: 累计20次消除一个, 2分钟: 累计30次, 3分钟: 累计50次
+            successPerPlague: selectedDuration === 1 ? 20 : (selectedDuration === 2 ? 30 : 50),
+            // 距离上次消除后的成功次数
+            successSinceLastPlague: 0,
+            lastSuccessCount: 0,
+
+            init() {
+                if (this.initialized) return;
+                this.forestBorder = document.getElementById('forest-border-layer');
+                this.teethLayer = document.getElementById('teeth-layer');
+                this.plagueContainer = document.getElementById('plaque-layer');
+                this.initialized = true;
+            },
+
+            // 游戏开始时显示所有视觉层
+            showLayers() {
+                this.init();
+                this.forestBorder?.classList.add('active');
+                this.teethLayer?.classList.add('active');
+                // 注意：不在这里重置 plaguesCleared，避免状态切换时丢失进度
+                // 重置逻辑移到 reset() 方法中，只在游戏真正重新开始时调用
+            },
+
+            // 游戏结束/暂停时隐藏视觉层
+            hideLayers() {
+                this.forestBorder?.classList.remove('active');
+                this.teethLayer?.classList.remove('active');
+            },
+
+            // 根据连续刷牙次数清除菌斑
+            clearPlague(successCount) {
+                if (successCount <= this.lastSuccessCount) return;
+
+                if (successCount === this.lastSuccessCount + 1) {
+                    this.successSinceLastPlague++;
+                } else {
+                    // 异常跳变时，按新一轮累计处理
+                    this.successSinceLastPlague = 1;
+                }
+                this.lastSuccessCount = successCount;
+
+                // 累计次数达到门槛，消除一个菌斑
+                if (this.successSinceLastPlague >= this.successPerPlague && this.plaguesCleared < this.totalPlagueCount) {
+                    this.plaguesCleared++;
+                    const plagueItem = document.querySelector(`.plaque-item[data-plaque-id="${this.plaguesCleared}"]`);
+                    if (plagueItem) {
+                        this.triggerPlagueDissolve(plagueItem);
+                        console.log('[VisualLayers] 清除菌斑 #' + this.plaguesCleared + ' (累计次数: ' + this.successSinceLastPlague + ', 门槛: ' + this.successPerPlague + ')');
+                    }
+                    // 消除后重置累计计数，开始下一轮
+                    this.successSinceLastPlague = 0;
+                }
+            },
+
+            // 触发菌斑消除动画
+            triggerPlagueDissolve(plagueItem) {
+                // 创建闪光效果
+                this.createFlashEffect(plagueItem);
+                // 创建粒子效果
+                this.createParticles(plagueItem);
+                // 触发消除动画
+                plagueItem.classList.add('dissolving');
+                // 震动反馈（短促双击）
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([40, 30, 60]);
+                }
+            },
+
+            // 创建闪光效果
+            createFlashEffect(plagueItem) {
+                const rect = plagueItem.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const flash = document.createElement('div');
+                flash.className = 'plaque-flash';
+                flash.style.left = `${centerX}px`;
+                flash.style.top = `${centerY}px`;
+                document.body.appendChild(flash);
+                setTimeout(() => flash.remove(), 400);
+            },
+
+            // 创建粒子爆发效果
+            createParticles(plagueItem) {
+                const rect = plagueItem.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // 创建 10 个粒子
+                for (let i = 0; i < 10; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'plaque-particle';
+                    const angle = (i / 10) * Math.PI * 2;
+                    const distance = 40 + Math.random() * 30;
+                    particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                    particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+                    particle.style.left = `${centerX}px`;
+                    particle.style.top = `${centerY}px`;
+                    // 随机粒子颜色（紫色调）
+                    const colors = ['#9333EA', '#A855F7', '#7C3AED', '#6D28D9'];
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 600);
+                }
+            },
+
+            // 获取当前目标菌斑（未被清除的第一个）
+            getCurrentTargetPlague() {
+                const nextTarget = this.plaguesCleared + 1;
+                if (nextTarget <= this.totalPlagueCount) {
+                    return document.querySelector(`.plaque-item[data-plaque-id="${nextTarget}"]`);
+                }
+                return null;
+            },
+
+            // 攻击菌斑动效 - 每次刷牙成功时调用
+            triggerAttackEffect() {
+                const targetPlague = this.getCurrentTargetPlague();
+                if (!targetPlague) return;
+
+                const targetRect = targetPlague.getBoundingClientRect();
+                const targetX = targetRect.left + targetRect.width / 2;
+                const targetY = targetRect.top + targetRect.height / 2;
+
+                // 随机起点：从屏幕四周随机位置飞来
+                const startPositions = this.getRandomStartPosition(targetX, targetY);
+                const startX = startPositions.x;
+                const startY = startPositions.y;
+
+                // 计算飞行距离和角度
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const flyDuration = 0.45; // 飞行时间
+
+                // 计算拖尾角度（与飞行方向相反）
+                const trailAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 180;
+
+                // 1. 创建能量弹
+                const projectile = document.createElement('div');
+                projectile.className = 'attack-projectile';
+                projectile.style.left = `${startX}px`;
+                projectile.style.top = `${startY}px`;
+                projectile.style.setProperty('--dx', `${dx}px`);
+                projectile.style.setProperty('--dy', `${dy}px`);
+                projectile.style.setProperty('--fly-duration', `${flyDuration}s`);
+                projectile.style.setProperty('--trail-angle', `${trailAngle}deg`);
+                document.body.appendChild(projectile);
+
+                // 2. 能量弹到达后触发冲击效果
+                setTimeout(() => {
+                    projectile.remove();
+
+                    // 创建击中闪光
+                    const flash = document.createElement('div');
+                    flash.className = 'hit-flash';
+                    flash.style.left = `${targetX}px`;
+                    flash.style.top = `${targetY}px`;
+                    document.body.appendChild(flash);
+                    setTimeout(() => flash.remove(), 300);
+
+                    // 创建主冲击波
+                    const impact = document.createElement('div');
+                    impact.className = 'attack-impact';
+                    impact.style.left = `${targetX}px`;
+                    impact.style.top = `${targetY}px`;
+                    document.body.appendChild(impact);
+                    setTimeout(() => impact.remove(), 600);
+
+                    // 创建第二层冲击波
+                    const impactSecondary = document.createElement('div');
+                    impactSecondary.className = 'attack-impact-secondary';
+                    impactSecondary.style.left = `${targetX}px`;
+                    impactSecondary.style.top = `${targetY}px`;
+                    document.body.appendChild(impactSecondary);
+                    setTimeout(() => impactSecondary.remove(), 600);
+
+                    // 创建能量粒子散射
+                    this.createEnergyParticles(targetX, targetY);
+
+                    // 菌斑受击抖动
+                    targetPlague.classList.add('hit');
+                    setTimeout(() => targetPlague.classList.remove('hit'), 500);
+
+                    // 震动反馈（加强）
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([20, 10, 30]);
+                    }
+                }, flyDuration * 1000);
+            },
+
+            // 获取随机起点位置
+            getRandomStartPosition(targetX, targetY) {
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const margin = 50; // 边缘距离
+
+                // 随机选择从哪个方向飞来：0=上, 1=右, 2=下, 3=左
+                const direction = Math.floor(Math.random() * 4);
+                let x, y;
+
+                switch (direction) {
+                    case 0: // 从上方
+                        x = margin + Math.random() * (vw - margin * 2);
+                        y = -margin;
+                        break;
+                    case 1: // 从右侧
+                        x = vw + margin;
+                        y = margin + Math.random() * (vh * 0.6); // 上半部分
+                        break;
+                    case 2: // 从左侧
+                        x = -margin;
+                        y = margin + Math.random() * (vh * 0.6); // 上半部分
+                        break;
+                    case 3: // 从屏幕中上部随机位置
+                        x = vw * 0.2 + Math.random() * (vw * 0.6);
+                        y = vh * 0.1 + Math.random() * (vh * 0.3);
+                        break;
+                }
+
+                return { x, y };
+            },
+
+            // 创建能量粒子散射
+            createEnergyParticles(x, y) {
+                const particleCount = 8;
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'energy-particle';
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+
+                    // 随机散射方向
+                    const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.5;
+                    const distance = 40 + Math.random() * 60;
+                    particle.style.setProperty('--px', `${Math.cos(angle) * distance}px`);
+                    particle.style.setProperty('--py', `${Math.sin(angle) * distance}px`);
+
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 500);
+                }
+            },
+
+            // 重置状态（游戏重新开始时调用）
+            reset() {
+                this.plaguesCleared = 0;
+                this.successSinceLastPlague = 0;
+                this.lastSuccessCount = 0;
+                // 重置所有菌斑为可见
+                document.querySelectorAll('.plaque-item').forEach(item => {
+                    item.classList.remove('dissolving');
+                    item.style.opacity = '1';
+                    item.style.transform = '';
+                });
+                this.hideLayers();
+            }
+        };
+
         // ===== UI 更新函数 =====
         function formatTime(ms) {
             const totalSeconds = Math.ceil(ms / 1000);
@@ -507,10 +1153,16 @@
             const remaining = gameHandle.getRemainingTime();
             // Clamp remaining to valid range to prevent progress bar overflow/underflow
             const clampedRemaining = Math.max(0, Math.min(remaining, gameDurationMs));
-            timerDisplay.textContent = formatTime(clampedRemaining);
 
-            const progress = (clampedRemaining / gameDurationMs) * 100;
-            progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+            // 只在元素存在时更新
+            if (timerDisplay) {
+                timerDisplay.textContent = formatTime(clampedRemaining);
+            }
+
+            if (progressBar) {
+                const progress = (clampedRemaining / gameDurationMs) * 100;
+                progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+            }
         }
 
         function showStatus(text, duration = 1500) {
@@ -524,6 +1176,9 @@
         // showScorePopup 已移除 - 简化得分体系
 
         function updateGameState(state) {
+            // 如果动作提示元素不存在，直接返回（用户已移除这些 UI）
+            if (!actionText && !actionHint) return;
+
             const stateMessages = {
                 'init': { text: '准备开始', hint: '正在初始化...' },
                 'ready': { text: '露出牙齿！', hint: '张大嘴巴露出牙齿' },
@@ -534,14 +1189,18 @@
             };
 
             const msg = stateMessages[state] || { text: state, hint: '' };
-            actionText.textContent = msg.text;
-            actionHint.textContent = msg.hint;
+            if (actionText) {
+                actionText.textContent = msg.text;
+            }
+            if (actionHint) {
+                actionHint.textContent = msg.hint;
+            }
         }
 
-        // ===== 退出弹框 =====
-        function showExitModal() {
-            const modal = document.getElementById('exit-modal');
-            const content = document.getElementById('exit-modal-content');
+        // ===== 暂停/退出弹框 =====
+        function showPauseModal() {
+            const modal = document.getElementById('pause-modal');
+            const content = document.getElementById('pause-modal-content');
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0');
@@ -549,9 +1208,9 @@
             }, 10);
         }
 
-        function closeExitModal() {
-            const modal = document.getElementById('exit-modal');
-            const content = document.getElementById('exit-modal-content');
+        function closePauseModal() {
+            const modal = document.getElementById('pause-modal');
+            const content = document.getElementById('pause-modal-content');
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
@@ -566,7 +1225,10 @@
             location.href = 'home.html';
         }
 
-        exitBtn.onclick = showExitModal;
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn) {
+            pauseBtn.onclick = showPauseModal;
+        }
 
         // ===== 连续天数 =====
         function getStreakDays() {
@@ -767,6 +1429,8 @@
                 }
                 gameHandle = null;
             }
+            // 重置视觉层
+            VisualLayers.reset();
         }
 
         // ===== 启动游戏 =====
@@ -793,6 +1457,7 @@
             try {
                 gameHandle = await BrushGame.start({
                     canvas: canvas,
+                    avatarCanvas: avatarCanvas,
                     avatarId: skinId,
                     gameDurationMs: gameDurationMs,
                     basePath: basePath,        // 头套图片在 /prototype/SkinSet/
@@ -822,6 +1487,13 @@
                         console.log('[Game] State:', state, event);
                         updateGameState(state);
 
+                        // 控制视觉层显示/隐藏
+                        if (state === 'ready' || state === 'playing' || state === 'brushing' || state === 'success') {
+                            VisualLayers.showLayers();
+                        } else if (state === 'gameover' || state === 'init') {
+                            VisualLayers.hideLayers();
+                        }
+
                         if (state === 'ready') {
                             showStatus('请露出牙齿 😁');
                         } else if (state === 'playing') {
@@ -837,6 +1509,10 @@
                         germsKilled = stats.successCount * 3;
                         // 调用正反馈系统
                         handleBrushSuccess(stats);
+                        // 触发攻击菌斑动效
+                        VisualLayers.triggerAttackEffect();
+                        // 触发菌斑清除检测
+                        VisualLayers.clearPlague(stats.successCount);
                     },
 
                     onGameOver: (stats) => {
@@ -899,8 +1575,10 @@
         // 需要用户手势才能启动摄像头（iOS 要求）
         // 如果是从其他页面点击进入的，已经有手势上下文
         document.addEventListener('DOMContentLoaded', () => {
-            // 立即显示初始时间
-            timerDisplay.textContent = formatTime(gameDurationMs);
+            // 立即显示初始时间（如果元素存在）
+            if (timerDisplay) {
+                timerDisplay.textContent = formatTime(gameDurationMs);
+            }
 
             // 稍微延迟启动，确保页面完全加载
             setTimeout(startGame, 100);

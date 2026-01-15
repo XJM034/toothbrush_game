@@ -310,3 +310,131 @@ function handleBrushSuccess(stats) {
 ```bash
 npm run build:embed
 ```
+
+---
+
+## 12. 游戏视觉层系统（2026-01-14）
+
+为游戏页面添加三个轻量级互动动画层，增强视觉趣味性和游戏反馈。
+
+### 12.1 视觉层结构
+
+**三层设计**：
+1. **森林边框层**（顶部）：`#forest-border-layer` - 静态装饰，营造"口腔森林"主题
+2. **下排牙齿层**（底部）：`#teeth-layer` - 静态装饰，展示下排牙齿
+3. **菌斑覆盖层**：`.plaque-container` - 3 个菌斑图片，可在刷牙过程中被逐个"消除"
+
+**资源文件**（`prototype/game-assets/`）：
+- `forest-border.png` (1573x1174) - 森林边框
+- `lower-teeth.png` (1573x2344) - 下排牙齿
+- `plaque-1.png` (807x509), `plaque-2.png` (738x755), `plaque-3.png` (709x664) - 三个菌斑
+
+### 12.2 Z-index 层级
+
+```
+游戏画布 (#game-canvas)        z-index: 1
+森林边框层 (#forest-border-layer) z-index: 2
+头套渲染层 (#avatar-canvas)     z-index: 3
+牙齿层 (#teeth-layer)          z-index: 4
+菌斑层 (#plaque-layer)         z-index: 5 (嵌套在牙齿层内)
+```
+
+### 12.3 菌斑定位问题与解决方案
+
+**问题**：菌斑出现在屏幕顶部（森林边框附近）而非底部牙齿上。
+
+**原因分析**：
+- 牙齿图片高度为 2344px，远超屏幕高度
+- `.teeth-layer` 使用 `position: fixed; bottom: 0`，图片从底部向上延伸
+- `.plaque-container` 使用 `top: 18%` 相对定位，18% × 2344px ≈ 422px
+- 这导致菌斑被放置在图片上部，超出可视区域
+
+**解决方案**：改用 `bottom` 定位，从牙齿图片底部向上偏移到牙冠可见区域：
+```css
+.plaque-container {
+    position: absolute;
+    bottom: 55%;  /* 从牙齿图片底部向上偏移，定位到牙冠区域 */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 0 8%;
+    pointer-events: none;
+}
+```
+
+**调试技巧**：
+- 使用 Chrome DevTools 检查布局时，需先设置 `localStorage.brushing_user` 绕过认证守卫
+- 认证格式要求：`{ id: string, account: string, name?: string }`
+
+### 12.4 视觉层管理器 (VisualLayers)
+
+**JavaScript 对象**（`prototype/game_play.html`）：
+```javascript
+const VisualLayers = {
+    forestLayer: null,
+    teethLayer: null,
+    plaqueItems: [],
+    clearedCount: 0,
+
+    init() { /* 初始化 DOM 引用 */ },
+    showLayers() { /* 显示所有层 */ },
+    hideLayers() { /* 隐藏所有层 */ },
+    clearPlague(successCount) { /* 根据累计成功次数消除菌斑 */ },
+    triggerPlagueDissolve(item) { /* 触发消除动画 */ },
+    createFlashEffect() { /* 全屏闪光效果 */ },
+    createParticles(rect) { /* 粒子爆炸效果 */ },
+    reset() { /* 重置状态 */ }
+};
+```
+
+### 12.5 游戏流程集成
+
+**状态回调**：
+```javascript
+onState: (state, event) => {
+    // 游戏进行中显示视觉层
+    if (['ready', 'playing', 'brushing', 'success'].includes(state)) {
+        VisualLayers.showLayers();
+    } else if (state === 'gameover' || state === 'init') {
+        VisualLayers.hideLayers();
+    }
+}
+```
+
+**得分回调**：
+```javascript
+onScore: (stats, points) => {
+    // 每次得分触发攻击动效；累计成功次数达到门槛时消除一个菌斑（最多 3 个）
+    VisualLayers.triggerAttackEffect();
+    VisualLayers.clearPlague(stats.successCount);
+}
+```
+
+### 12.6 消除动画效果
+
+**CSS 动画**：
+```css
+@keyframes plagueDissolve {
+    0% { opacity: 1; transform: scale(1) translateY(0); }
+    50% { opacity: 0.5; transform: scale(1.2) translateY(-10px); }
+    100% { opacity: 0; transform: scale(0.8) translateY(-30px); }
+}
+
+@keyframes flashEffect {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.3; }
+}
+```
+
+**粒子效果**：动态创建 8 个粒子元素，随机方向飞散后自动移除。
+
+### 12.7 验证要点
+
+1. 游戏开始时三层同时淡入显示
+2. 菌斑正确显示在牙齿牙冠区域（屏幕底部）
+3. 累计成功次数达到门槛时消除一个菌斑（带动画和粒子效果）
+4. 游戏结束时所有层淡出
+5. 视觉层不阻挡 UI 交互（`pointer-events: none`）
+6. 在不同屏幕尺寸下菌斑位置保持合理
