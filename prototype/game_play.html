@@ -12,7 +12,7 @@
     <script src="mobile_fixes.js"></script>
     <title>Game - Brushing Master</title>
     <style>
-        /* 游戏画布层 - 全屏背景，使用动态视口高度 */
+        /* 游戏画布层 - 摄像头视频，最底层 */
         #game-canvas {
             position: fixed;
             top: 0;
@@ -24,7 +24,7 @@
             pointer-events: none;
         }
 
-        /* 头套渲染层 - 位于森林层之上 */
+        /* 头套渲染层 - 单独渲染头套，在所有视觉装饰层之上 */
         #avatar-canvas {
             position: fixed;
             top: 0;
@@ -32,7 +32,7 @@
             width: 100%;
             height: var(--app-height, 100vh);
             object-fit: cover;
-            z-index: 3;
+            z-index: 100;
             pointer-events: none;
         }
 
@@ -157,6 +157,78 @@
 
         #status-bar.show {
             opacity: 1;
+        }
+
+        /* 倒计时显示 - Kawaii 风格 */
+        .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 4px solid var(--stroke-dark);
+            border-radius: 24px;
+            padding: 8px 16px;
+            box-shadow: 4px 4px 0 rgba(44, 62, 80, 0.2);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .timer-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timer-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--primary-green);
+            border: 3px solid var(--stroke-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .timer-text {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--stroke-dark);
+            font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: 0.5px;
+            min-width: 52px;
+            text-align: center;
+        }
+
+        /* 倒计时警告状态 - 最后30秒 */
+        .timer-display.warning .timer-icon {
+            background: var(--accent-yellow);
+            animation: timerPulse 1s ease-in-out infinite;
+        }
+
+        .timer-display.warning .timer-text {
+            color: var(--accent-yellow);
+        }
+
+        /* 倒计时危险状态 - 最后10秒 */
+        .timer-display.danger .timer-icon {
+            background: #EF4444;
+            animation: timerPulse 0.5s ease-in-out infinite;
+        }
+
+        .timer-display.danger .timer-text {
+            color: #EF4444;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
         }
 
         /* 得分动画 */
@@ -632,20 +704,100 @@
                 opacity: 0;
             }
         }
+
+        /* ===== 猫头鹰精灵样式 ===== */
+        .owl-elf {
+            position: absolute;
+            bottom: 15%;
+            left: 15%;
+            width: clamp(100px, 28vw, 180px);
+            z-index: 5;
+            pointer-events: none;
+            /* 初始状态：隐藏 + 缩小 + 下移 */
+            opacity: 0;
+            transform: scale(0.8) translateY(10px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            /* 性能优化：启用硬件加速 */
+            will-change: transform, left;
+        }
+
+        .owl-elf.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            /* 水平移动 - 使用 alternate 自动往返（25秒一个周期，活泼的步伐节奏） */
+            /* 翻转动画 - 50秒完整循环，前25秒向右，后25秒向左 */
+            animation: owlWalk 25s linear infinite alternate, owlFlip 50s steps(1, end) infinite;
+        }
+
+        .owl-elf img {
+            width: 100%;
+            height: auto;
+            /* 轻微的整体阴影增加立体感，但不要太重 */
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+            /* 性能优化：减少重绘 */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* 脚部接地阴影 - 模拟站在舌头上 */
+        .owl-elf::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 8px;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-out;
+            /* 性能优化 */
+            will-change: opacity;
+        }
+
+        .owl-elf.active::before {
+            opacity: 1;
+        }
+
+        /* 猫头鹰往返移动动画 - 只控制位置 */
+        @keyframes owlWalk {
+            0% {
+                left: 15%;
+            }
+            100% {
+                left: 65%;
+            }
+        }
+
+        /* 猫头鹰翻转动画 - 48秒周期，与往返运动同步 */
+        @keyframes owlFlip {
+            /* 前24秒：向右走，面向右 */
+            0%, 49.99% {
+                transform: scale(1) translateY(0) scaleX(1);
+            }
+            /* 后24秒：向左走，面向左 */
+            50%, 100% {
+                transform: scale(1) translateY(0) scaleX(-1);
+            }
+        }
     </style>
 </head>
 
 <body class="app-shell relative overflow-hidden safe-area-top">
 
-    <!-- 游戏画布（摄像头 + 头套渲染） -->
+    <!-- 游戏画布（摄像头渲染） -->
     <canvas id="game-canvas" class="game-canvas-layer"></canvas>
-    <canvas id="avatar-canvas" class="avatar-canvas-layer"></canvas>
 
     <!-- ===== 视觉装饰层（仅游戏进行时显示） ===== -->
     <!-- 森林边框层（顶部） -->
     <div id="forest-border-layer" class="visual-layer forest-border">
         <img src="game-assets/forest-border.png" alt="" />
     </div>
+
+    <!-- 头套渲染层 - 放在森林边框之后确保层级正确 -->
+    <canvas id="avatar-canvas" class="avatar-canvas-layer"></canvas>
 
     <!-- 下排牙齿层（底部） -->
     <div id="teeth-layer" class="visual-layer teeth-layer">
@@ -661,6 +813,10 @@
             <div class="plaque-item" data-plaque-id="3">
                 <img src="game-assets/plaque-3.png" alt="" />
             </div>
+        </div>
+        <!-- 猫头鹰精灵 - 在舌头区域来回行走 -->
+        <div id="owl-elf" class="owl-elf">
+            <img src="game-assets/elf/owl_right_gif.gif" alt="" />
         </div>
     </div>
 
@@ -706,6 +862,14 @@
         <div id="pause-btn"
             class="kawaii-button kawaii-button-red w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto">
             <i class="fas fa-pause"></i>
+        </div>
+
+        <!-- 倒计时显示 - Kawaii 风格 -->
+        <div id="timer-display" class="timer-display pointer-events-none">
+            <div class="timer-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="timer-text">2:00</div>
         </div>
     </div>
 
@@ -762,7 +926,7 @@
     </div>
 
     <!-- 加载 BrushGame 引擎 -->
-    <script src="lib/embed/brushing-engine.umd.js?v=3"></script>
+    <script src="lib/embed/brushing-engine.umd.js?v=4"></script>
 
     <script>
         // ===== 游戏配置 =====
@@ -888,11 +1052,20 @@
             successSinceLastPlague: 0,
             lastSuccessCount: 0,
 
+            // ===== 猫头鹰精灵状态 =====
+            owlElf: null,
+            // Keep owl animation smooth during plaque effects.
+            pauseOwlOnPlagueDissolve: false,
+            owlActive: false,
+            owlGifSrc: 'game-assets/elf/owl_right_gif.gif',
+            owlStaticSrc: 'game-assets/elf/Owl_RightWalk1.png',
+
             init() {
                 if (this.initialized) return;
                 this.forestBorder = document.getElementById('forest-border-layer');
                 this.teethLayer = document.getElementById('teeth-layer');
                 this.plagueContainer = document.getElementById('plaque-layer');
+                this.owlElf = document.getElementById('owl-elf');
                 this.initialized = true;
             },
 
@@ -903,12 +1076,54 @@
                 this.teethLayer?.classList.add('active');
                 // 注意：不在这里重置 plaguesCleared，避免状态切换时丢失进度
                 // 重置逻辑移到 reset() 方法中，只在游戏真正重新开始时调用
+                // 启动猫头鹰动画
+                this.startOwlAnimation();
             },
 
             // 游戏结束/暂停时隐藏视觉层
             hideLayers() {
+                this.stopOwlAnimation();
                 this.forestBorder?.classList.remove('active');
                 this.teethLayer?.classList.remove('active');
+            },
+
+            // ===== 猫头鹰动画控制 =====
+            startOwlAnimation() {
+                if (!this.owlElf) {
+                    this.owlElf = document.getElementById('owl-elf');
+                }
+                if (!this.owlElf) return;
+                if (this.owlActive) return;
+
+                // 显示并启动移动动画（纯 CSS 控制，无需 JavaScript 定时器）
+                this.owlElf.classList.add('active');
+                const img = this.owlElf.querySelector('img');
+                if (img && img.dataset.owlState !== 'gif') {
+                    img.src = this.owlGifSrc;
+                    img.dataset.owlState = 'gif';
+                }
+                this.owlActive = true;
+            },
+
+            stopOwlAnimation() {
+                if (this.owlElf) {
+                    this.owlElf.classList.remove('active');
+                }
+                this.owlActive = false;
+            },
+
+            // 暂停猫头鹰动画（用于菌斑消除时减少性能压力）
+            pauseOwlAnimation() {
+                if (this.owlElf && this.owlElf.classList.contains('active')) {
+                    this.owlElf.style.animationPlayState = 'paused';
+                }
+            },
+
+            // 恢复猫头鹰动画
+            resumeOwlAnimation() {
+                if (this.owlElf && this.owlElf.classList.contains('active')) {
+                    this.owlElf.style.animationPlayState = 'running';
+                }
             },
 
             // 根据连续刷牙次数清除菌斑
@@ -938,6 +1153,10 @@
 
             // 触发菌斑消除动画
             triggerPlagueDissolve(plagueItem) {
+                if (this.pauseOwlOnPlagueDissolve) {
+                    this.pauseOwlAnimation();
+                }
+
                 // 创建闪光效果
                 this.createFlashEffect(plagueItem);
                 // 创建粒子效果
@@ -971,6 +1190,7 @@
                 const centerY = rect.top + rect.height / 2;
 
                 // 创建 10 个粒子
+                const fragment = document.createDocumentFragment();
                 for (let i = 0; i < 10; i++) {
                     const particle = document.createElement('div');
                     particle.className = 'plaque-particle';
@@ -983,9 +1203,17 @@
                     // 随机粒子颜色（紫色调）
                     const colors = ['#9333EA', '#A855F7', '#7C3AED', '#6D28D9'];
                     particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    document.body.appendChild(particle);
+                    fragment.appendChild(particle);
 
                     setTimeout(() => particle.remove(), 600);
+                }
+                document.body.appendChild(fragment);
+
+                // 动画结束后恢复猫头鹰动画（等待粒子动画完成）
+                if (this.pauseOwlOnPlagueDissolve) {
+                    setTimeout(() => {
+                        this.resumeOwlAnimation();
+                    }, 650);
                 }
             },
 
@@ -1136,6 +1364,14 @@
                     item.style.opacity = '1';
                     item.style.transform = '';
                 });
+                // 重置猫头鹰到初始帧
+                if (this.owlElf) {
+                    const img = this.owlElf.querySelector('img');
+                    if (img) {
+                        img.src = this.owlStaticSrc;
+                        img.dataset.owlState = 'static';
+                    }
+                }
                 this.hideLayers();
             }
         };
@@ -1154,9 +1390,27 @@
             // Clamp remaining to valid range to prevent progress bar overflow/underflow
             const clampedRemaining = Math.max(0, Math.min(remaining, gameDurationMs));
 
-            // 只在元素存在时更新
+            // 更新倒计时显示
             if (timerDisplay) {
-                timerDisplay.textContent = formatTime(clampedRemaining);
+                const timerText = timerDisplay.querySelector('.timer-text');
+                if (timerText) {
+                    timerText.textContent = formatTime(clampedRemaining);
+                }
+
+                // 显示倒计时（游戏开始后）
+                if (!timerDisplay.classList.contains('show')) {
+                    timerDisplay.classList.add('show');
+                }
+
+                // 根据剩余时间添加警告状态
+                const remainingSeconds = Math.ceil(clampedRemaining / 1000);
+                timerDisplay.classList.remove('warning', 'danger');
+
+                if (remainingSeconds <= 10) {
+                    timerDisplay.classList.add('danger');
+                } else if (remainingSeconds <= 30) {
+                    timerDisplay.classList.add('warning');
+                }
             }
 
             if (progressBar) {
@@ -1577,7 +1831,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             // 立即显示初始时间（如果元素存在）
             if (timerDisplay) {
-                timerDisplay.textContent = formatTime(gameDurationMs);
+                const timerText = timerDisplay.querySelector('.timer-text');
+                if (timerText) {
+                    timerText.textContent = formatTime(gameDurationMs);
+                }
             }
 
             // 稍微延迟启动，确保页面完全加载

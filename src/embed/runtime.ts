@@ -15,8 +15,10 @@ import { AvatarConfig, DetectionResult, FaceTrackingResult, HandTrackingResult }
 // ===== 类型定义 =====
 
 export interface StartOptions {
-  /** 渲染画布 */
+  /** 渲染画布（摄像头视频） */
   canvas: HTMLCanvasElement;
+  /** 头套渲染画布（可选，不提供则渲染到 canvas 上） */
+  avatarCanvas?: HTMLCanvasElement;
   /** 视频元素（可选，不提供则自动创建隐藏的） */
   video?: HTMLVideoElement;
   /** 头套 ID（用于查找预设配置） */
@@ -228,7 +230,7 @@ async function setupCamera(
 // ===== 主函数 =====
 
 export async function start(opts: StartOptions): Promise<StopHandle> {
-  const { canvas, onState, onScore, onGameOver, onError, onProgress, debug = false } = opts;
+  const { canvas, avatarCanvas, onState, onScore, onGameOver, onError, onProgress, debug = false } = opts;
   const basePath = opts.basePath || window.location.origin;
   const modelBasePath = opts.modelBasePath || window.location.origin; // 模型路径默认用 origin
   const gameDurationMs = opts.gameDurationMs || 60000;
@@ -267,11 +269,15 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
     createdVideo = true;
   }
 
-  // Canvas 上下文
+  // Canvas 上下文（摄像头视频）
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to get 2D context from canvas');
   }
+
+  // 头套 Canvas 上下文（如果提供了单独的 avatarCanvas，则用它渲染头套）
+  const avatarCtx = avatarCanvas ? avatarCanvas.getContext('2d') : null;
+  const useAvatarCanvas = !!(avatarCanvas && avatarCtx);
 
   // 获取头套配置
   const avatarConfig = getAvatarConfig(opts, basePath);
@@ -382,6 +388,16 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
         }
       }
 
+      // 同步 avatarCanvas 尺寸（如果有的话）
+      if (useAvatarCanvas) {
+        if (avatarCanvas.width !== canvas.width || avatarCanvas.height !== canvas.height) {
+          avatarCanvas.width = canvas.width;
+          avatarCanvas.height = canvas.height;
+        }
+        // 清空头套画布（透明背景）
+        avatarCtx.clearRect(0, 0, avatarCanvas.width, avatarCanvas.height);
+      }
+
       // 清空并绘制视频帧（水平镜像）
       ctx!.save();
       ctx!.translate(canvas.width, 0);
@@ -408,12 +424,17 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
 
       // 渲染头套（每帧，使用最新的检测结果）
       // 注意：视频已镜像，所以头套也需要在镜像坐标系下渲染
+      // 如果提供了 avatarCanvas，则渲染到那里（实现独立层级）
       if (lastFaceResult && lastFaceResult.landmarks) {
-        ctx!.save();
-        ctx!.translate(canvas.width, 0);
-        ctx!.scale(-1, 1);
-        avatarRenderer.render(ctx!, lastFaceResult, avatarConfig, canvas.width, canvas.height);
-        ctx!.restore();
+        const targetCtx = useAvatarCanvas ? avatarCtx : ctx!;
+        const targetWidth = useAvatarCanvas ? avatarCanvas.width : canvas.width;
+        const targetHeight = useAvatarCanvas ? avatarCanvas.height : canvas.height;
+
+        targetCtx.save();
+        targetCtx.translate(targetWidth, 0);
+        targetCtx.scale(-1, 1);
+        avatarRenderer.render(targetCtx, lastFaceResult, avatarConfig, targetWidth, targetHeight);
+        targetCtx.restore();
       }
 
       // 检查是否需要抓拍
@@ -441,7 +462,14 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
             const captureCtx = captureCanvas.getContext('2d');
 
             if (captureCtx) {
+              // 先绘制摄像头视频层
               captureCtx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+
+              // 如果有独立的头套画布，叠加绘制头套层
+              if (useAvatarCanvas) {
+                captureCtx.drawImage(avatarCanvas, 0, 0, targetWidth, targetHeight);
+              }
+
               const photoData = captureCanvas.toDataURL('image/jpeg', 0.85);
               capturedPhotos.push(photoData);
 
