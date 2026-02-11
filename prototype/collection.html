@@ -40,7 +40,7 @@
             <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="owl">
                 <div
                     class="w-full aspect-square kawaii-card bg-amber-50 flex items-center justify-center overflow-hidden">
-                    <img src="SkinSet/owl.png" class="w-full h-full object-cover" />
+                    <img src="SkinSet/owl.png" class="w-full h-full object-contain" />
                 </div>
                 <span class="text-xs font-black uppercase">猫头鹰</span>
             </div>
@@ -48,7 +48,7 @@
             <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="cat">
                 <div
                     class="w-full aspect-square kawaii-card bg-pink-50 flex items-center justify-center overflow-hidden">
-                    <img src="SkinSet/cat.png" class="w-full h-full object-cover" />
+                    <img src="SkinSet/cat.png" class="w-full h-full object-contain" />
                 </div>
                 <span class="text-xs font-black uppercase">小猫咪</span>
             </div>
@@ -56,7 +56,7 @@
             <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="dog">
                 <div
                     class="w-full aspect-square kawaii-card bg-orange-50 flex items-center justify-center overflow-hidden">
-                    <img src="SkinSet/dog.png" class="w-full h-full object-cover" />
+                    <img src="SkinSet/dog.png" class="w-full h-full object-contain" />
                 </div>
                 <span class="text-xs font-black uppercase">小狗狗</span>
             </div>
@@ -64,7 +64,7 @@
             <div class="flex flex-col items-center gap-2 skin-item cursor-pointer" data-skin="rabbit">
                 <div
                     class="w-full aspect-square kawaii-card bg-blue-50 flex items-center justify-center overflow-hidden">
-                    <img src="SkinSet/rabbit.png" class="w-full h-full object-cover" />
+                    <img src="SkinSet/rabbit.png" class="w-full h-full object-contain" />
                 </div>
                 <span class="text-xs font-black uppercase">小兔子</span>
             </div>
@@ -298,7 +298,7 @@
             // Update modal content
             const iconContainer = document.getElementById('purchase-modal-icon');
             if (skin.isImage) {
-                iconContainer.innerHTML = `<img src="${skin.icon}" class="w-full h-full object-cover" />`;
+                iconContainer.innerHTML = `<img src="${skin.icon}" class="w-full h-full object-contain" />`;
             } else {
                 iconContainer.innerHTML = `<i class="fas ${skin.icon} text-4xl text-gray-400"></i>`;
             }
@@ -465,7 +465,7 @@
                         <div class="flex flex-col items-center gap-2 cursor-pointer skin-item transition-transform duration-200" data-skin="${id}">
                             <div class="w-full aspect-square kawaii-card ${skin.bgColor} flex items-center justify-center overflow-hidden relative ${selectedStyles}">
                                 ${skin.isImage
-                            ? `<img src="${skin.icon}" class="w-full h-full object-cover" />`
+                            ? `<img src="${skin.icon}" class="w-full h-full object-contain" />`
                             : `<i class="fas ${skin.icon} text-3xl"></i>`
                         }
                             </div>
@@ -478,7 +478,7 @@
                         <div class="flex flex-col items-center gap-2 purchasable-skin" data-skin="${id}">
                             <div class="w-full aspect-square kawaii-card bg-gray-100 flex items-center justify-center overflow-hidden relative cursor-pointer" onclick="openPurchaseModal('${id}')">
                                 ${skin.isImage
-                            ? `<img src="${skin.icon}" class="w-full h-full object-cover opacity-40 grayscale" />`
+                            ? `<img src="${skin.icon}" class="w-full h-full object-contain opacity-40 grayscale" />`
                             : `<i class="fas fa-question text-gray-400 text-3xl"></i>`
                         }
                                 <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">

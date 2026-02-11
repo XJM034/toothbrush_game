@@ -357,34 +357,104 @@
             display: block;
         }
 
-        /* 森林边框层 - 顶部 */
+        /* 顶部泡泡边框层 */
         .forest-border {
-            top: -6%;
+            top: 0;
             z-index: 2;
         }
 
-        /* 下排牙齿层 - 底部 */
+        /* 泡泡/泡沫装饰层 - 在牙齿和菌斑之上 */
+        .bubble-decor {
+            position: fixed;
+            inset: 0;
+            z-index: 7;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .bubble-decor.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .decor-foam, .decor-bubble {
+            position: absolute;
+            pointer-events: none;
+            animation-play-state: paused;
+        }
+        .bubble-decor.active .decor-foam,
+        .bubble-decor.active .decor-bubble {
+            animation-play-state: running;
+        }
+        .decor-foam-left {
+            left: -5%;
+            bottom: 22%;
+            width: clamp(80px, 25vw, 160px);
+            opacity: 0.85;
+            animation: foamFloat 6s ease-in-out infinite alternate;
+        }
+        .decor-foam-right {
+            right: -5%;
+            bottom: 20%;
+            width: clamp(120px, 35vw, 220px);
+            opacity: 0.85;
+            animation: foamFloat 7s ease-in-out infinite alternate-reverse;
+        }
+        .decor-bubble-tl {
+            top: 18%;
+            left: 5%;
+            width: clamp(25px, 7vw, 45px);
+            animation: bubbleFloat 5s ease-in-out infinite alternate;
+        }
+        .decor-bubble-tr {
+            top: 22%;
+            right: 8%;
+            width: clamp(20px, 5vw, 35px);
+            animation: bubbleFloat 4s ease-in-out infinite alternate-reverse;
+        }
+        .decor-bubble-ml {
+            top: 48%;
+            left: 3%;
+            width: clamp(18px, 4vw, 30px);
+            animation: bubbleFloat 6s ease-in-out infinite alternate;
+        }
+        .decor-bubble-br {
+            bottom: 38%;
+            right: 5%;
+            width: clamp(14px, 3.5vw, 22px);
+            animation: bubbleFloat 3s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes foamFloat {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-8px) scale(1.03); }
+        }
+        @keyframes bubbleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 0.7; }
+            100% { transform: translateY(-12px) scale(1.1); opacity: 0.9; }
+        }
+
+        /* 下排牙齿层 - 底部（新素材较矮） */
         .teeth-layer {
-            bottom: -8%;
+            bottom: 0;
             z-index: 4;
             position: fixed;
         }
 
-        /* 菌斑容器 - 定位到牙冠区域，贴合牙齿图层 */
+        /* 菌斑容器 - 定位到牙冠区域 */
         .plaque-container {
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 23%;
-            height: 22%;
+            bottom: 50%;
+            height: 40%;
             pointer-events: none;
-            z-index: 5; /* 确保在牙齿层之上 */
+            z-index: 8;
         }
 
         .plaque-item {
             position: absolute;
             bottom: 0;
-            width: var(--plaque-width, clamp(120px, 34vw, 240px));
+            width: var(--plaque-width, clamp(60px, 18vw, 120px));
             transform: translateX(-50%) translateY(var(--plaque-offset-y, 0px));
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         }
@@ -398,20 +468,20 @@
 
         .plaque-item[data-plaque-id="1"] {
             left: 15%;
-            --plaque-width: clamp(145px, 39vw, 270px);
-            --plaque-offset-y: -56px;
+            --plaque-width: clamp(60px, 18vw, 120px);
+            --plaque-offset-y: -20px;
         }
 
         .plaque-item[data-plaque-id="2"] {
             left: 50%;
-            --plaque-width: clamp(135px, 35vw, 235px);
-            --plaque-offset-y: -16px;
+            --plaque-width: clamp(50px, 15vw, 100px);
+            --plaque-offset-y: -8px;
         }
 
         .plaque-item[data-plaque-id="3"] {
             left: 85%;
-            --plaque-width: clamp(145px, 39vw, 270px);
-            --plaque-offset-y: -6px;
+            --plaque-width: clamp(60px, 18vw, 120px);
+            --plaque-offset-y: -4px;
         }
 
         /* 菌斑消除动画 */
@@ -710,8 +780,8 @@
             position: absolute;
             bottom: 15%;
             left: 15%;
-            width: clamp(100px, 28vw, 180px);
-            z-index: 5;
+            width: clamp(70px, 20vw, 130px);
+            z-index: 6;
             pointer-events: none;
             /* 初始状态：隐藏 + 缩小 + 下移 */
             opacity: 0;
@@ -791,12 +861,22 @@
     <canvas id="game-canvas" class="game-canvas-layer"></canvas>
 
     <!-- ===== 视觉装饰层（仅游戏进行时显示） ===== -->
-    <!-- 森林边框层（顶部） -->
+    <!-- 顶部泡泡边框层 -->
     <div id="forest-border-layer" class="visual-layer forest-border">
         <img src="game-assets/forest-border.png" alt="" />
     </div>
 
-    <!-- 头套渲染层 - 放在森林边框之后确保层级正确 -->
+    <!-- 泡泡/泡沫装饰层 -->
+    <div id="bubble-decor-layer" class="bubble-decor">
+        <img src="game-assets/foam-cloud-small.png" class="decor-foam decor-foam-left" alt="" />
+        <img src="game-assets/foam-cloud-long.png" class="decor-foam decor-foam-right" alt="" />
+        <img src="game-assets/bubbles-double.png" class="decor-bubble decor-bubble-tl" alt="" />
+        <img src="game-assets/bubble-single.png" class="decor-bubble decor-bubble-tr" alt="" />
+        <img src="game-assets/bubble-single.png" class="decor-bubble decor-bubble-ml" alt="" />
+        <img src="game-assets/bubble-highlight.png" class="decor-bubble decor-bubble-br" alt="" />
+    </div>
+
+    <!-- 头套渲染层 - 在所有装饰层之上 -->
     <canvas id="avatar-canvas" class="avatar-canvas-layer"></canvas>
 
     <!-- 下排牙齿层（底部） -->
@@ -1041,6 +1121,7 @@
         const VisualLayers = {
             forestBorder: null,
             teethLayer: null,
+            bubbleDecorLayer: null,
             plagueContainer: null,
             plaguesCleared: 0,
             totalPlagueCount: 3,
@@ -1064,6 +1145,7 @@
                 if (this.initialized) return;
                 this.forestBorder = document.getElementById('forest-border-layer');
                 this.teethLayer = document.getElementById('teeth-layer');
+                this.bubbleDecorLayer = document.getElementById('bubble-decor-layer');
                 this.plagueContainer = document.getElementById('plaque-layer');
                 this.owlElf = document.getElementById('owl-elf');
                 this.initialized = true;
@@ -1074,6 +1156,7 @@
                 this.init();
                 this.forestBorder?.classList.add('active');
                 this.teethLayer?.classList.add('active');
+                this.bubbleDecorLayer?.classList.add('active');
                 // 注意：不在这里重置 plaguesCleared，避免状态切换时丢失进度
                 // 重置逻辑移到 reset() 方法中，只在游戏真正重新开始时调用
                 // 启动猫头鹰动画
@@ -1085,6 +1168,7 @@
                 this.stopOwlAnimation();
                 this.forestBorder?.classList.remove('active');
                 this.teethLayer?.classList.remove('active');
+                this.bubbleDecorLayer?.classList.remove('active');
             },
 
             // ===== 猫头鹰动画控制 =====

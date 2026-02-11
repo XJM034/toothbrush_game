@@ -77,9 +77,9 @@ const defaultAvatarConfigs: AvatarConfig[] = [
     id: 'owl',
     name: '🦉 猫头鹰',
     imgUrl: 'SkinSet/owl.png',
-    faceHoleOffset: { x: 0, y: 0.25 },
-    anchorOffset: { x: 0, y: -0.15 },
-    scale: 1.0
+    faceHoleOffset: { x: 0, y: 0.30 },
+    anchorOffset: { x: 0, y: -0.18 },
+    scale: 0.75
   },
   {
     id: 'cat',
