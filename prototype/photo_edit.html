@@ -291,9 +291,9 @@
             </div>
         </div>
         <div class="p-4 bg-black/80">
-            <p class="text-white text-center text-sm mb-3 opacity-80" id="ios-instruction">
-                <i class="fas fa-hand-pointer mr-1"></i>长按上方图片 → 选择"保存到'照片'"
-            </p>
+                <p class="text-white text-center text-sm mb-3 opacity-80" id="ios-instruction">
+                    <i class="fas fa-hand-pointer mr-1"></i>长按上方图片 → 选择“下载图片”或“保存到相册”
+                </p>
             <div class="flex justify-center gap-3">
                 <button onclick="iosPrevPhoto()" class="kawaii-button kawaii-button-yellow px-5 py-2 text-sm" id="ios-prev-btn">
                     <i class="fas fa-chevron-left mr-1"></i>上一张
@@ -813,6 +813,14 @@
                 return /iPhone|iPad|iPod/i.test(navigator.userAgent);
             }
 
+            function isAndroid() {
+                return /Android/i.test(navigator.userAgent);
+            }
+
+            function shouldUsePreviewSaveFlow() {
+                return isIOS() || isAndroid();
+            }
+
             async function confirmSave() {
                 const selectedItems = document.querySelectorAll('.photo-select-item.selected');
                 const count = selectedItems.length;
@@ -830,8 +838,8 @@
                     selectedIndices.push(parseInt(item.dataset.index));
                 });
 
-                if (isIOS()) {
-                    // iOS: 生成所有图片，然后显示预览让用户逐张点击保存
+                if (shouldUsePreviewSaveFlow()) {
+                    // 移动端：生成所有图片，然后显示预览让用户逐张长按保存
                     iosPreviewPhotos = [];
                     for (const index of selectedIndices) {
                         try {
@@ -866,7 +874,7 @@
                 }
             }
 
-            // iOS 预览模式 - 点击保存按钮触发
+            // 移动端预览模式 - 点击保存按钮触发
             function showIosPreview() {
                 iosCurrentIndex = 0;
                 iosSavedIndicesSet.clear(); // 重置保存追踪
@@ -1068,7 +1076,7 @@
                 location.href = 'home.html';
             }
 
-            // iOS 专用保存完成弹窗（显示实际保存数量）
+            // 移动端保存完成弹窗（显示实际保存数量）
             function showIosSaveSuccessModal(savedCount, totalPhotos) {
                 const modal = document.getElementById('save-success-modal');
                 const countEl = document.getElementById('save-success-count');
@@ -1078,7 +1086,7 @@
                     // 用户没有长按任何照片
                     countEl.textContent = '0';
                     if (msgEl) {
-                        msgEl.innerHTML = `您未保存任何照片<br><span class="text-xs text-gray-400">提示：长按图片后选择"保存到'照片'"</span>`;
+                        msgEl.innerHTML = '您未保存任何照片<br><span class="text-xs text-gray-400">提示：长按图片后选择“下载图片”或“保存到相册”</span>';
                     }
                 } else if (savedCount < totalPhotos) {
                     // 用户只保存了部分照片
@@ -1096,6 +1104,24 @@
 
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
+            }
+
+            function dataUrlToBlob(dataUrl) {
+                const parts = dataUrl.split(',');
+                if (parts.length !== 2) {
+                    throw new Error('无效的图片数据');
+                }
+
+                const mimeMatch = parts[0].match(/data:(.*?);base64/);
+                const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+                const binary = atob(parts[1]);
+                const bytes = new Uint8Array(binary.length);
+
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+
+                return new Blob([bytes], { type: mimeType });
             }
 
             // 生成照片 Data URL（含贴纸合成）
@@ -1194,14 +1220,19 @@
             // 下载照片（非 iOS）
             async function downloadPhoto(photoIndex) {
                 const dataUrl = await generatePhotoDataUrl(photoIndex);
+                const blob = dataUrlToBlob(dataUrl);
+                const objectUrl = URL.createObjectURL(blob);
 
-                // 创建下载链接
-                const a = document.createElement('a');
-                a.href = dataUrl;
-                a.download = `brushing_photo_${photoIndex + 1}_${Date.now()}.jpg`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                try {
+                    const a = document.createElement('a');
+                    a.href = objectUrl;
+                    a.download = `brushing_photo_${photoIndex + 1}_${Date.now()}.jpg`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } finally {
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+                }
             }
 
             // ===== STICKER MANAGEMENT =====
