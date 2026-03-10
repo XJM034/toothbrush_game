@@ -289,10 +289,6 @@
             display: none;
         }
 
-        .device-low-end .owl-elf.active {
-            animation: none;
-        }
-
         .guide-step-title {
             font-size: 15px;
             font-weight: 900;
@@ -1408,7 +1404,6 @@
             pauseOwlOnPlagueDissolve: false,
             owlActive: false,
             owlGifSrc: 'game-assets/elf/owl_right_gif.gif',
-            owlStaticSrc: 'game-assets/elf/Owl_RightWalk1.png',
 
             init() {
                 if (this.initialized) return;
@@ -1455,11 +1450,9 @@
                 // 显示并启动移动动画（纯 CSS 控制，无需 JavaScript 定时器）
                 this.owlElf.classList.add('active');
                 const img = this.owlElf.querySelector('img');
-                const targetOwlState = isLowEndDevice ? 'static' : 'gif';
-                const targetSrc = isLowEndDevice ? this.owlStaticSrc : this.owlGifSrc;
-                if (img && img.dataset.owlState !== targetOwlState) {
-                    img.src = targetSrc;
-                    img.dataset.owlState = targetOwlState;
+                if (img && img.dataset.owlState !== 'gif') {
+                    img.src = this.owlGifSrc;
+                    img.dataset.owlState = 'gif';
                 }
                 this.owlActive = true;
             },
@@ -1727,8 +1720,8 @@
                 if (this.owlElf) {
                     const img = this.owlElf.querySelector('img');
                     if (img) {
-                        img.src = this.owlStaticSrc;
-                        img.dataset.owlState = 'static';
+                        img.src = this.owlGifSrc;
+                        img.dataset.owlState = 'gif';
                     }
                 }
                 this.hideLayers();
