@@ -1,6 +1,7 @@
 // 头套渲染器 - 在 Canvas 上渲染卡通头套（Face Filter / AR Hat Overlay）
 import { FaceTrackingResult, AvatarConfig } from '../../types';
 import { getFaceBoundsFromLandmarks } from '../utils/geometry';
+import { debugLog } from '../utils/debug';
 
 export class AvatarRenderer {
   private avatarImage: HTMLImageElement | null = null;
@@ -23,7 +24,7 @@ export class AvatarRenderer {
       img.onload = () => {
         this.avatarImage = img;
         this.isLoading = false;
-        console.log('[AvatarRenderer] 头套加载完成:', avatarUrl, img.width, 'x', img.height);
+        debugLog('[AvatarRenderer] 头套加载完成:', avatarUrl, img.width, 'x', img.height);
         resolve();
       };
 

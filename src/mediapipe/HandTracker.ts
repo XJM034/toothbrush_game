@@ -1,12 +1,13 @@
 // 手部追踪器 - 封装 MediaPipe HandLandmarker
 import {
   HandLandmarker,
-  FilesetResolver,
   type HandLandmarkerResult
 } from '@mediapipe/tasks-vision';
 
 import { HandTrackingResult } from '../types';
 import { mediaPipeConfig } from '../config';
+import { getVisionFilesetResolver } from './visionResolver';
+import { debugLog } from '../core/utils/debug';
 
 export class HandTracker {
   private handLandmarker: HandLandmarker | null = null;
@@ -25,7 +26,7 @@ export class HandTracker {
     wasmPath?: string | string[]
   ): Promise<void> {
     try {
-      console.log('[HandTracker] 初始化中...');
+      debugLog('[HandTracker] 初始化中...');
 
       const modelCandidates = normalizeCandidates(modelPath);
       const wasmCandidates = normalizeCandidates(
@@ -42,8 +43,8 @@ export class HandTracker {
       let lastError: unknown = null;
       for (const wasmUrl of wasmCandidates) {
         try {
-          const filesetResolver = await FilesetResolver.forVisionTasks(wasmUrl);
-          console.log('[HandTracker] WASM 已加载:', wasmUrl);
+          const filesetResolver = await getVisionFilesetResolver(wasmUrl);
+          debugLog('[HandTracker] WASM 已加载:', wasmUrl);
 
           for (const modelUrl of modelCandidates) {
             try {
@@ -59,7 +60,7 @@ export class HandTracker {
                 handOptions
               );
 
-              console.log('[HandTracker] HandLandmarker 初始化完成:', modelUrl);
+              debugLog('[HandTracker] HandLandmarker 初始化完成:', modelUrl);
               this.isInitialized = true;
               return;
             } catch (err) {

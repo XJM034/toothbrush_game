@@ -176,10 +176,10 @@ CREATE TABLE IF NOT EXISTS public.skins_catalog (
 
 -- 插入皮肤数据
 INSERT INTO public.skins_catalog (id, name, description, icon_path, bg_color, rarity, drop_weight, unlock_level, is_default, sort_order) VALUES
-('owl', '猫头鹰', '智慧的化身，夜视能力让细菌无所遁形！', 'SkinSet/owl.png', 'bg-amber-50', 'common', 100, 0, TRUE, 1),
-('cat', '小猫咪', '优雅又可爱的小猫咪，用猫爪般的灵巧清洁每一颗牙齿！', 'SkinSet/cat.png', 'bg-pink-50', 'rare', 30, 5, FALSE, 2),
-('dog', '小狗狗', '忠诚勇敢的小狗狗，用坚定的毅力守护牙齿健康！', 'SkinSet/dog.png', 'bg-orange-50', 'rare', 30, 8, FALSE, 3),
-('rabbit', '小兔子', '活泼可爱的小兔子，蹦蹦跳跳地消灭所有细菌！', 'SkinSet/rabbit.png', 'bg-blue-50', 'epic', 20, 10, FALSE, 4),
+('owl', '猫头鹰', '智慧的化身，夜视能力让细菌无所遁形！', 'SkinSet/owl.webp', 'bg-amber-50', 'common', 100, 0, TRUE, 1),
+('cat', '小猫咪', '优雅又可爱的小猫咪，用猫爪般的灵巧清洁每一颗牙齿！', 'SkinSet/cat.webp', 'bg-pink-50', 'rare', 30, 5, FALSE, 2),
+('dog', '小狗狗', '忠诚勇敢的小狗狗，用坚定的毅力守护牙齿健康！', 'SkinSet/dog.webp', 'bg-orange-50', 'rare', 30, 8, FALSE, 3),
+('rabbit', '小兔子', '活泼可爱的小兔子，蹦蹦跳跳地消灭所有细菌！', 'SkinSet/rabbit.webp', 'bg-blue-50', 'epic', 20, 10, FALSE, 4),
 ('dragon', '小龙龙', '神秘的小龙龙，喷出火焰消灭一切细菌！', 'SkinSet/dragon.png', 'bg-red-50', 'legendary', 10, 0, FALSE, 5),
 ('unicorn', '独角兽', '传说中的独角兽，用魔法净化口腔！', 'SkinSet/unicorn.png', 'bg-purple-50', 'mythic', 5, 0, FALSE, 6)
 ON CONFLICT (id) DO NOTHING;

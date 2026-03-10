@@ -225,32 +225,7 @@
         <div class="kawaii-card save-modal">
             <h2 class="text-lg font-black text-center mb-4">选择要保存的照片</h2>
             <p class="text-xs text-gray-500 text-center mb-4">点击选择，可多选</p>
-            <div class="photo-select-grid" id="photo-select-grid">
-                <div class="photo-select-item selected" data-index="0" onclick="togglePhotoSelection(0)">
-                    <div class="preview-container" id="preview-0"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="photo-select-item selected" data-index="1" onclick="togglePhotoSelection(1)">
-                    <div class="preview-container" id="preview-1"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="photo-select-item selected" data-index="2" onclick="togglePhotoSelection(2)">
-                    <div class="preview-container" id="preview-2"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="photo-select-item selected" data-index="3" onclick="togglePhotoSelection(3)">
-                    <div class="preview-container" id="preview-3"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="photo-select-item selected" data-index="4" onclick="togglePhotoSelection(4)">
-                    <div class="preview-container" id="preview-4"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="photo-select-item selected" data-index="5" onclick="togglePhotoSelection(5)">
-                    <div class="preview-container" id="preview-5"></div>
-                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                </div>
-            </div>
+            <div class="photo-select-grid" id="photo-select-grid"></div>
             <div class="flex gap-3 mt-6">
                 <button class="kawaii-button kawaii-button-yellow flex-1 text-sm py-2"
                     onclick="closeSaveModal()">取消</button>
@@ -365,54 +340,6 @@
 
             <!-- Photo Slider Container -->
             <div class="photo-slider w-full h-full" id="photo-slider">
-                <!-- Clone of Photo 6 (for seamless left wrap) -->
-                <div class="photo-slide clone" data-index="5">
-                    <img src="Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer"></div>
-                </div>
-                <!-- Photo 1 -->
-                <div class="photo-slide" data-index="0">
-                    <img src="Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-0"></div>
-                </div>
-                <!-- Photo 2 -->
-                <div class="photo-slide" data-index="1">
-                    <img src="Sample_ima/03ddc3251a33a2da3ac190b368c3e6e6.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-1"></div>
-                </div>
-                <!-- Photo 3 -->
-                <div class="photo-slide" data-index="2">
-                    <img src="Sample_ima/9ad1c9c090e4b32d700bdda8a1179f95.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-2"></div>
-                </div>
-                <!-- Photo 4 -->
-                <div class="photo-slide" data-index="3">
-                    <img src="Sample_ima/ba3c9719f84490a9e2257a0ed01d3faa.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-3"></div>
-                </div>
-                <!-- Photo 5 -->
-                <div class="photo-slide" data-index="4">
-                    <img src="Sample_ima/f3bd68d0920e6f239d00e877d49d1878.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-4"></div>
-                </div>
-                <!-- Photo 6 -->
-                <div class="photo-slide" data-index="5">
-                    <img src="Sample_ima/253f045d3eb5a143a1ee7c38b8188829.jpg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer" id="sticker-layer-5"></div>
-                </div>
-                <!-- Clone of Photo 1 (for seamless right wrap) -->
-                <div class="photo-slide clone" data-index="0">
-                    <img src="Sample_ima/c663572b869502bf0cb4ca2e9db3d787.jpeg" class="w-full h-full object-cover"
-                        draggable="false" />
-                    <div class="sticker-layer"></div>
-                </div>
             </div>
 
             <!-- Swipe Hint (shows briefly on load) -->
@@ -429,30 +356,11 @@
             </div>
 
             <!-- Pagination Dots -->
-            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10" id="pagination-dots">
-                <div class="p-2 cursor-pointer" data-index="0">
-                    <div class="w-3 h-3 rounded-full bg-white border-2 border-[#333] dot active"></div>
-                </div>
-                <div class="p-2 cursor-pointer" data-index="1">
-                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
-                </div>
-                <div class="p-2 cursor-pointer" data-index="2">
-                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
-                </div>
-                <div class="p-2 cursor-pointer" data-index="3">
-                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
-                </div>
-                <div class="p-2 cursor-pointer" data-index="4">
-                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
-                </div>
-                <div class="p-2 cursor-pointer" data-index="5">
-                    <div class="w-3 h-3 rounded-full bg-white/50 border-2 border-[#333] dot"></div>
-                </div>
-            </div>
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10" id="pagination-dots"></div>
 
             <!-- Photo Counter -->
             <div class="absolute top-4 right-4 bg-black/50 text-white text-xs font-black px-3 py-1 rounded-full z-10">
-                <span id="photo-counter">1</span> / 6
+                <span id="photo-counter">0</span> / <span id="photo-counter-total">0</span>
             </div>
         </div>
     </div>
@@ -475,11 +383,6 @@
                 data-sticker="🌈">🌈</div>
             <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
                 data-sticker="🧁">🧁</div>
-            <div
-                class="flex-shrink-0 w-14 h-14 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
-                <i class="fas fa-lock text-sm"></i>
-            </div>
-
         </div>
 
         <script>
@@ -489,7 +392,9 @@
             const slider = document.getElementById('photo-slider');
             const paginationContainer = document.getElementById('pagination-dots');
             const counter = document.getElementById('photo-counter');
+            const counterTotal = document.getElementById('photo-counter-total');
             const canvas = document.getElementById('photo-canvas');
+            const photoSelectGrid = document.getElementById('photo-select-grid');
             let dots = [];
             let dotWrappers = [];
             let clonesEnabled = false;
@@ -532,6 +437,7 @@
 
                 totalPhotos = photoSources.length;
                 clonesEnabled = totalPhotos > 1;
+                counterTotal.textContent = String(totalPhotos);
 
                 // No photos: show placeholder slide, hide dots/counter
                 if (totalPhotos === 0) {
@@ -583,6 +489,29 @@
                 slider.style.transition = 'none';
                 slider.style.transform = `translateX(-${currentSlidePosition * 100}%)`;
                 updateUI();
+            }
+
+            function buildSaveModalGrid() {
+                photoSelectGrid.innerHTML = '';
+
+                photoSources.forEach((src, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'photo-select-item selected';
+                    item.dataset.index = index;
+                    item.onclick = () => togglePhotoSelection(index);
+
+                    const previewContainer = document.createElement('div');
+                    previewContainer.className = 'preview-container';
+                    previewContainer.id = `preview-${index}`;
+
+                    const checkIndicator = document.createElement('div');
+                    checkIndicator.className = 'check-indicator';
+                    checkIndicator.innerHTML = '<i class="fas fa-check"></i>';
+
+                    item.appendChild(previewContainer);
+                    item.appendChild(checkIndicator);
+                    photoSelectGrid.appendChild(item);
+                });
             }
 
             // Hide swipe hint after 2 seconds
@@ -812,17 +741,27 @@
                     }
                 } catch (e) {
                     console.error('[PhotoEdit] 加载抓拍照片失败:', e);
+                    photoSources = [];
+                    buildGallery(photoSources);
+                    showToast('加载照片失败');
                 }
             }
 
             // ===== SAVE MODAL FUNCTIONS =====
 
             function openSaveModal() {
+                if (photoSources.length === 0) {
+                    showToast('当前没有可保存的照片');
+                    return;
+                }
+
                 // First, deselect all stickers to hide controls
                 deselectAllStickers();
 
+                buildSaveModalGrid();
+
                 // Generate preview for each photo with stickers
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < photoSources.length; i++) {
                     const previewContainer = document.getElementById(`preview-${i}`);
                     previewContainer.innerHTML = '';
 
@@ -858,8 +797,10 @@
             }
 
             function togglePhotoSelection(index) {
-                const items = document.querySelectorAll('.photo-select-item');
-                items[index].classList.toggle('selected');
+                const item = photoSelectGrid.querySelector(`.photo-select-item[data-index="${index}"]`);
+                if (item) {
+                    item.classList.toggle('selected');
+                }
             }
 
             // iOS 预览相关状态
@@ -1468,137 +1409,10 @@
                     showToast('点击贴纸调整 · 拖动移动');
                 };
             });
+
+            loadCapturedPhotos();
         </script>
-
-        <button class="w-full kawaii-button kawaii-button-yellow mt-2 py-2 text-sm"
-            onclick="showToast('分享功能仅在完整版中可用！')">
-            <i class="fas fa-share-alt mr-2"></i> 分享给好朋友
-        </button>
     </div>
-
-    <script>
-        // 贴纸目录
-        const ALL_STICKERS = {
-            star: { id: 'star', emoji: '⭐️', name: '星星' },
-            heart: { id: 'heart', emoji: '💖', name: '爱心' },
-            sparkle: { id: 'sparkle', emoji: '✨', name: '闪光' },
-            rainbow: { id: 'rainbow', emoji: '🌈', name: '彩虹' },
-            cupcake: { id: 'cupcake', emoji: '🧁', name: '蛋糕' },
-            crown: { id: 'crown', emoji: '👑', name: '皇冠' },
-            unicorn: { id: 'unicorn', emoji: '🦄', name: '独角兽' },
-            moon: { id: 'moon', emoji: '🌙', name: '月亮' },
-            sun: { id: 'sun', emoji: '☀️', name: '太阳' },
-            flower: { id: 'flower', emoji: '🌸', name: '花朵' },
-            butterfly: { id: 'butterfly', emoji: '🦋', name: '蝴蝶' },
-            rocket: { id: 'rocket', emoji: '🚀', name: '火箭' }
-        };
-
-        // 从数据库加载用户贴纸
-        async function loadUserStickers() {
-            const profileId = localStorage.getItem('activeProfileId');
-            if (!profileId) {
-                console.log('No profile ID, using default stickers');
-                return;
-            }
-
-            try {
-                const userStickers = await BrushingMasterDB.getUserStickers(profileId);
-                const ownedStickerIds = userStickers.map(s => s.sticker_id);
-                console.log('用户拥有的贴纸:', ownedStickerIds);
-
-                // 更新贴纸栏
-                updateStickerTray(ownedStickerIds);
-            } catch (error) {
-                console.error('加载贴纸失败:', error);
-            }
-        }
-
-        // 更新贴纸栏UI
-        function updateStickerTray(ownedStickerIds) {
-            const tray = document.getElementById('sticker-tray');
-            let html = '';
-
-            // 显示已拥有的贴纸
-            Object.values(ALL_STICKERS).forEach(sticker => {
-                if (ownedStickerIds.includes(sticker.id)) {
-                    html += `
-                        <div class="flex-shrink-0 w-14 h-14 kawaii-card flex items-center justify-center text-2xl cursor-pointer active:scale-95 transition-transform sticker-btn"
-                            data-sticker="${sticker.emoji}">${sticker.emoji}</div>
-                    `;
-                }
-            });
-
-            // 添加锁定的贴纸占位符
-            const lockedCount = Math.max(0, 3 - (12 - ownedStickerIds.length));
-            for (let i = ownedStickerIds.length; i < Math.min(ownedStickerIds.length + 2, 12); i++) {
-                html += `
-                    <div class="flex-shrink-0 w-14 h-14 kawaii-card bg-gray-100 border-dashed flex items-center justify-center text-gray-400">
-                        <i class="fas fa-lock text-sm"></i>
-                    </div>
-                `;
-            }
-
-            tray.innerHTML = html;
-
-            // 重新绑定贴纸点击事件
-            rebindStickerEvents();
-        }
-
-        // 重新绑定贴纸事件
-        function rebindStickerEvents() {
-            const stickerBtns = document.querySelectorAll('.sticker-btn');
-            stickerBtns.forEach(btn => {
-                btn.onclick = () => {
-                    const emoji = btn.dataset.sticker;
-                    const slides = document.querySelectorAll('.photo-slide:not(.clone)');
-                    const realIndex = getRealIndex(currentSlidePosition);
-                    const currentSlide = slides[realIndex];
-                    const currentStickerLayer = currentSlide?.querySelector('.sticker-layer');
-
-                    if (!currentStickerLayer) return;
-
-                    const newSticker = document.createElement('div');
-                    newSticker.className = 'sticker text-5xl';
-                    newSticker.textContent = emoji;
-                    newSticker.innerHTML += `
-                        <div class="delete-btn" onclick="event.stopPropagation(); this.parentElement.remove();"><i class="fas fa-times"></i></div>
-                        <div class="scale-btn minus" onclick="event.stopPropagation(); scaleSticker(this.parentElement, 0.9);">−</div>
-                        <div class="scale-btn plus" onclick="event.stopPropagation(); scaleSticker(this.parentElement, 1.1);">+</div>
-                    `;
-                    newSticker.dataset.scale = '1';
-
-                    const randomTop = 20 + Math.random() * 50;
-                    const randomLeft = 10 + Math.random() * 60;
-                    newSticker.style.position = 'absolute';
-                    newSticker.style.top = randomTop + '%';
-                    newSticker.style.left = randomLeft + '%';
-
-                    currentStickerLayer.appendChild(newSticker);
-                    makeStickerDraggable(newSticker, currentStickerLayer);
-
-                    deselectAllStickers();
-                    newSticker.classList.add('selected');
-                    selectedSticker = newSticker;
-
-                    setTimeout(() => {
-                        if (selectedSticker === newSticker) {
-                            deselectAllStickers();
-                        }
-                    }, 2000);
-
-                    btn.classList.add('ring-4', 'ring-[var(--accent-yellow)]');
-                    setTimeout(() => btn.classList.remove('ring-4', 'ring-[var(--accent-yellow)]'), 300);
-
-                    showToast('点击贴纸调整 · 拖动移动');
-                };
-            });
-        }
-
-        // Initialize
-        loadCapturedPhotos(); // 加载抓拍照片并构建画廊
-        updateUI();
-        loadUserStickers();
-    </script>
 
 </body>
 

@@ -4,6 +4,7 @@ import { TeethGate, TeethGateResult } from './TeethGate';
 import { Fist, FistResult } from './Fist';
 import { Shake, ShakeResult } from './Shake';
 import { distance as _distance } from '../utils/geometry';
+import { debugLog } from '../utils/debug';
 
 export interface BrushGestureResult {
   isBrushing: boolean;  // 是否在进行刷牙动作
@@ -35,11 +36,13 @@ export class BrushGesture {
   private minBrushingDuration = 300;  // 幼儿友好：300ms 即可完成（原 800ms）
 
   constructor() {
-    this.teethGate = new TeethGate(0.4, 0.05, 167, 30); // jawOpenThreshold 改为 0.4
+    const detectionFps = 20; // 与 runtime 中的检测频率保持一致，避免额外等待。
+
+    this.teethGate = new TeethGate(0.4, 0.05, 167, detectionFps); // jawOpenThreshold 改为 0.4
     // 幼儿友好模式：大幅降低检测门槛
     this.fist = new Fist(2); // 只需 2 根手指弯曲即可（原 3 根）
     // Shake 参数: speedThreshold=0.008 (原 0.02), highSpeedRatio=0.06 (原 0.15), stableMs=80 (原 133)
-    this.shake = new Shake(0.008, 500, 0.06, 80, 30);
+    this.shake = new Shake(0.008, 500, 0.06, 80, detectionFps);
   }
 
   /**
@@ -97,20 +100,20 @@ export class BrushGesture {
       const isShaking = shakeResult.isShaking;
 
       if (isFistDetected && isShaking) {
-        stage = 'fist_ready';
-
         if (this.brushingStartTime === 0) {
           this.brushingStartTime = now;
-          console.log('[BrushGesture] 检测到握拳+晃动，开始计时');
+          debugLog('[BrushGesture] 检测到握拳+晃动，开始计时');
         }
 
         const brushingDuration = now - this.brushingStartTime;
+        isBrushing = true;
+        stage = 'brushing';
 
         if (brushingDuration >= this.minBrushingDuration) {
           // 成功完成一次刷牙！
           stage = 'complete';
           this.completionCount++;
-          console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
+          debugLog('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
 
           // 重置刷牙计时，但不重置 teethConfirmed，允许连续得分
           this.brushingStartTime = 0;
@@ -124,11 +127,11 @@ export class BrushGesture {
           // 成功完成一次刷牙！
           stage = 'complete';
           this.completionCount++;
-          console.log('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
+          debugLog('[BrushGesture] ✅ 成功完成刷牙动作！次数:', this.completionCount);
           this.brushingStartTime = 0;
         } else {
           // 动作中断但未达到时长
-          console.log('[BrushGesture] 动作中断，已持续:', brushingDuration, 'ms');
+          debugLog('[BrushGesture] 动作中断，已持续:', brushingDuration, 'ms');
           this.brushingStartTime = 0;
           stage = 'teeth_open';
         }

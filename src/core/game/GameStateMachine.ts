@@ -1,6 +1,7 @@
 // 游戏状态机 - 控制游戏流程
 import { BrushGesture, BrushGestureResult } from '../detectors/BrushGesture';
 import { DetectionResult } from '../../types';
+import { debugLog } from '../utils/debug';
 
 export type GameState = 'init' | 'ready' | 'playing' | 'brushing' | 'success' | 'gameover';
 
@@ -91,7 +92,7 @@ export class GameStateMachine {
 
     // 调试日志：在 playing 状态时打印检测信息
     if (this.currentState === 'playing') {
-      console.log(
+      debugLog(
         '[GameStateMachine] Playing - Fist:',
         'isFist:',
         brushResult.fist.isFist,
@@ -180,11 +181,11 @@ export class GameStateMachine {
         if (timeSinceSuccess > 500) {  // 500ms 后继续
           if (brushResult.stage !== 'waiting') {
             // 用户还在游戏中（露牙锁定未超时），继续 playing
-            console.log('[GameStateMachine] success 状态 500ms 后，继续 playing');
+            debugLog('[GameStateMachine] success 状态 500ms 后，继续 playing');
             this.transitionTo('playing');
           } else {
             // 露牙锁定已超时，回到 ready
-            console.log('[GameStateMachine] success 状态 500ms 后，露牙锁定超时，回到 ready');
+            debugLog('[GameStateMachine] success 状态 500ms 后，露牙锁定超时，回到 ready');
             this.transitionTo('ready');
           }
         }
@@ -232,7 +233,7 @@ export class GameStateMachine {
       }
     });
 
-    console.log(
+    debugLog(
       '[GameStateMachine] 成功检测刷牙动作！积分:',
       points,
       '，总积分:',
@@ -272,7 +273,7 @@ export class GameStateMachine {
       data: { from: oldState, to: newState }
     });
 
-    console.log(`[GameStateMachine] 状态转移: ${oldState} -> ${newState}`);
+    debugLog(`[GameStateMachine] 状态转移: ${oldState} -> ${newState}`);
   }
 
   /**
@@ -287,7 +288,7 @@ export class GameStateMachine {
       data: this.gameStats
     });
 
-    console.log('[GameStateMachine] 游戏结束，最终统计:', this.gameStats);
+    debugLog('[GameStateMachine] 游戏结束，最终统计:', this.gameStats);
   }
 
   /**

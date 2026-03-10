@@ -1,7 +1,6 @@
 // 人脸追踪器 - 封装 MediaPipe FaceLandmarker
 import {
   FaceLandmarker,
-  FilesetResolver,
   type FaceLandmarkerResult
 } from '@mediapipe/tasks-vision';
 
@@ -9,6 +8,8 @@ import { FaceTrackingResult } from '../types';
 import { smoothPoint, smoothScalar, Point } from '../core/utils/smoothing';
 import { getFaceTransformFromLandmarks } from '../core/utils/geometry';
 import { mediaPipeConfig } from '../config';
+import { getVisionFilesetResolver } from './visionResolver';
+import { debugLog } from '../core/utils/debug';
 
 export class FaceTracker {
   private faceLandmarker: FaceLandmarker | null = null;
@@ -30,7 +31,7 @@ export class FaceTracker {
     smoothingAlpha?: number
   ): Promise<void> {
     try {
-      console.log('[FaceTracker] 初始化中...');
+      debugLog('[FaceTracker] 初始化中...');
 
       if (smoothingAlpha !== undefined) {
         this.smoothingAlpha = smoothingAlpha;
@@ -51,8 +52,8 @@ export class FaceTracker {
       let lastError: unknown = null;
       for (const wasmUrl of wasmCandidates) {
         try {
-          const filesetResolver = await FilesetResolver.forVisionTasks(wasmUrl);
-          console.log('[FaceTracker] WASM 已加载:', wasmUrl);
+          const filesetResolver = await getVisionFilesetResolver(wasmUrl);
+          debugLog('[FaceTracker] WASM 已加载:', wasmUrl);
 
           for (const modelUrl of modelCandidates) {
             try {
@@ -68,7 +69,7 @@ export class FaceTracker {
                 faceOptions
               );
 
-              console.log('[FaceTracker] FaceLandmarker 初始化完成:', modelUrl);
+              debugLog('[FaceTracker] FaceLandmarker 初始化完成:', modelUrl);
               this.isInitialized = true;
               return;
             } catch (err) {
