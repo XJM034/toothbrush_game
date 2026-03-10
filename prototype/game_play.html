@@ -159,6 +159,154 @@
             opacity: 1;
         }
 
+        /* 开局引导卡 - 非阻塞式，适合幼儿快速理解动作 */
+        #start-guide {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: calc(var(--app-safe-bottom, 0px) + 20px);
+            z-index: 1200;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.28s ease-out, transform 0.28s ease-out;
+            pointer-events: none;
+        }
+
+        #start-guide.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .start-guide-card {
+            background: rgba(255, 255, 255, 0.96);
+            border: 4px solid var(--stroke-dark);
+            border-radius: 28px;
+            box-shadow: 8px 8px 0 rgba(44, 62, 80, 0.18);
+            padding: 16px 16px 14px;
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+        }
+
+        .guide-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .guide-mascot {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 18px;
+            background: #FEF3C7;
+            border: 3px solid var(--stroke-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .guide-mascot img {
+            width: 78%;
+            height: 78%;
+            object-fit: contain;
+        }
+
+        .guide-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--stroke-dark);
+            line-height: 1.15;
+            margin-bottom: 4px;
+        }
+
+        .guide-hint {
+            font-size: 13px;
+            font-weight: 800;
+            color: #6B7280;
+            line-height: 1.35;
+        }
+
+        .guide-close {
+            width: 34px;
+            height: 34px;
+            margin-left: auto;
+            border: 3px solid var(--stroke-dark);
+            border-radius: 999px;
+            background: #FDE68A;
+            color: var(--stroke-dark);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .guide-steps {
+            display: grid;
+            gap: 10px;
+        }
+
+        .guide-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border: 3px solid #D1D5DB;
+            border-radius: 20px;
+            background: #F9FAFB;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .guide-step.active {
+            border-color: var(--accent-yellow);
+            background: #FEF9C3;
+            transform: translateY(-1px);
+        }
+
+        .guide-step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 16px;
+            border: 3px solid var(--stroke-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .guide-step[data-step="teeth"] .guide-step-icon {
+            background: #DBEAFE;
+        }
+
+        .guide-step[data-step="brush"] .guide-step-icon {
+            background: #DCFCE7;
+        }
+
+        .device-low-end .bubble-decor {
+            display: none;
+        }
+
+        .device-low-end .owl-elf.active {
+            animation: none;
+        }
+
+        .guide-step-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--stroke-dark);
+            margin-bottom: 2px;
+        }
+
+        .guide-step-desc {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6B7280;
+            line-height: 1.3;
+        }
+
         /* 倒计时显示 - Kawaii 风格 */
         .timer-display {
             display: flex;
@@ -958,6 +1106,40 @@
     <!-- 状态提示条 -->
     <div id="status-bar">请露出牙齿</div>
 
+    <!-- 开局引导说明 -->
+    <div id="start-guide">
+        <div class="start-guide-card">
+            <div class="guide-header">
+                <div class="guide-mascot">
+                    <img src="./owl_mascot.svg" alt="" />
+                </div>
+                <div>
+                    <div class="guide-title" id="guide-title">先露出牙齿</div>
+                    <div class="guide-hint" id="guide-hint">张大嘴巴，对着镜头笑一笑。</div>
+                </div>
+                <button id="guide-close" class="guide-close" type="button" aria-label="关闭引导">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="guide-steps">
+                <div class="guide-step active" data-step="teeth" id="guide-step-teeth">
+                    <div class="guide-step-icon">😁</div>
+                    <div>
+                        <div class="guide-step-title">第 1 步：露出牙齿</div>
+                        <div class="guide-step-desc">嘴巴张开一点，让猫头鹰看到你的牙齿。</div>
+                    </div>
+                </div>
+                <div class="guide-step" data-step="brush" id="guide-step-brush">
+                    <div class="guide-step-icon">🪥</div>
+                    <div>
+                        <div class="guide-step-title">第 2 步：开始刷牙动作</div>
+                        <div class="guide-step-desc">握紧小拳头，像刷牙一样轻轻上下或左右刷。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bacteria Targets (装饰) -->
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-5">
         <div class="grid grid-cols-2 gap-20 opacity-30">
@@ -1012,6 +1194,7 @@
         // ===== 游戏配置 =====
         const selectedDuration = parseInt(localStorage.getItem('selectedDuration')) || 2;
         const gameDurationMs = selectedDuration * 60 * 1000;
+        const PHOTO_CAPTURE_LIMIT = 4; // 资源节省模式：默认只保留 4 张抓拍
 
         // 读取皮肤配置
         function getSelectedSkin() {
@@ -1034,12 +1217,23 @@
         const loadingDetail = document.getElementById('loading-detail');
         const permissionOverlay = document.getElementById('permission-overlay');
         const exitBtn = document.getElementById('exit-btn');
+        const startGuide = document.getElementById('start-guide');
+        const guideTitle = document.getElementById('guide-title');
+        const guideHint = document.getElementById('guide-hint');
+        const guideClose = document.getElementById('guide-close');
+        const guideStepTeeth = document.getElementById('guide-step-teeth');
+        const guideStepBrush = document.getElementById('guide-step-brush');
+        const deviceProfile = window.MobileDeviceProfile || {};
+        const isLowEndDevice = !!deviceProfile.isLowEndDevice;
 
         // ===== 游戏状态 =====
         let gameHandle = null;
         let germsKilled = 0;
         let timerIntervalId = null; // Track interval for cleanup
         let isGameStarting = false; // Re-entry protection flag
+        let guideFlowActive = true;
+        let guideDismissed = false;
+        let guideAutoHideTimer = null;
 
         // ===== 正反馈系统状态 =====
         let hasShownFirstSuccess = false;
@@ -1117,6 +1311,81 @@
             lastSuccessTime = 0;
         }
 
+        function clearGuideTimer() {
+            if (guideAutoHideTimer) {
+                clearTimeout(guideAutoHideTimer);
+                guideAutoHideTimer = null;
+            }
+        }
+
+        function showStartGuide(autoHideMs = 8000) {
+            if (!startGuide || guideDismissed || !guideFlowActive) return;
+            startGuide.classList.add('show');
+            clearGuideTimer();
+            guideAutoHideTimer = setTimeout(() => {
+                startGuide.classList.remove('show');
+            }, autoHideMs);
+        }
+
+        function hideStartGuide() {
+            if (!startGuide) return;
+            clearGuideTimer();
+            startGuide.classList.remove('show');
+        }
+
+        function setGuideStep(step, tone = 'instruction') {
+            if (!guideTitle || !guideHint || !guideStepTeeth || !guideStepBrush) return;
+
+            const isTeethStep = step === 'teeth';
+
+            guideStepTeeth.classList.toggle('active', isTeethStep);
+            guideStepBrush.classList.toggle('active', !isTeethStep);
+
+            if (isTeethStep) {
+                guideTitle.textContent = '先露出牙齿';
+                guideHint.textContent = '张大嘴巴，对着镜头笑一笑。';
+            } else if (tone === 'encourage') {
+                guideTitle.textContent = '做得对！小拳头握得真棒';
+                guideHint.textContent = '继续轻轻刷动，猫头鹰已经知道你做对动作啦。';
+            } else if (tone === 'success') {
+                guideTitle.textContent = '太棒了，你做对啦！';
+                guideHint.textContent = '继续像这样刷，细菌会一点点消失。';
+            } else {
+                guideTitle.textContent = '很好！开始刷牙动作';
+                guideHint.textContent = '握紧小拳头，像刷牙一样轻轻刷动。';
+            }
+        }
+
+        function updateStartGuide(state) {
+            if (guideDismissed || !guideFlowActive) return;
+
+            if (state === 'ready') {
+                setGuideStep('teeth', 'instruction');
+                showStartGuide(9000);
+            } else if (state === 'playing') {
+                setGuideStep('brush', 'instruction');
+                showStartGuide(7000);
+            } else if (state === 'brushing') {
+                setGuideStep('brush', 'encourage');
+                showStartGuide(4500);
+            } else if (state === 'success') {
+                setGuideStep('brush', 'success');
+                showStartGuide(2500);
+                guideFlowActive = false;
+            } else if (state === 'gameover') {
+                guideFlowActive = false;
+                hideStartGuide();
+            }
+        }
+
+        if (guideClose) {
+            guideClose.addEventListener('click', () => {
+                guideDismissed = true;
+                guideFlowActive = false;
+                hideStartGuide();
+            });
+        }
+
         // ===== 视觉层管理器 =====
         const VisualLayers = {
             forestBorder: null,
@@ -1156,7 +1425,11 @@
                 this.init();
                 this.forestBorder?.classList.add('active');
                 this.teethLayer?.classList.add('active');
-                this.bubbleDecorLayer?.classList.add('active');
+                if (!isLowEndDevice) {
+                    this.bubbleDecorLayer?.classList.add('active');
+                } else {
+                    this.bubbleDecorLayer?.classList.remove('active');
+                }
                 // 注意：不在这里重置 plaguesCleared，避免状态切换时丢失进度
                 // 重置逻辑移到 reset() 方法中，只在游戏真正重新开始时调用
                 // 启动猫头鹰动画
@@ -1182,9 +1455,11 @@
                 // 显示并启动移动动画（纯 CSS 控制，无需 JavaScript 定时器）
                 this.owlElf.classList.add('active');
                 const img = this.owlElf.querySelector('img');
-                if (img && img.dataset.owlState !== 'gif') {
-                    img.src = this.owlGifSrc;
-                    img.dataset.owlState = 'gif';
+                const targetOwlState = isLowEndDevice ? 'static' : 'gif';
+                const targetSrc = isLowEndDevice ? this.owlStaticSrc : this.owlGifSrc;
+                if (img && img.dataset.owlState !== targetOwlState) {
+                    img.src = targetSrc;
+                    img.dataset.owlState = targetOwlState;
                 }
                 this.owlActive = true;
             },
@@ -1616,12 +1891,14 @@
                 photosAvailable: false // Will be updated if photos are saved successfully
             };
 
+            const maxStoredPhotos = PHOTO_CAPTURE_LIMIT;
+
             // 尝试保存照片（带降级策略，避免 QuotaExceededError 阻断流程）
             let photosSaved = false;
-            const photosToSave = compressPhotosForStorage(capturedPhotos, 6);
+            const photosToSave = compressPhotosForStorage(capturedPhotos, maxStoredPhotos);
 
             if (photosToSave.length > 0) {
-                // 策略1: 尝试保存全部 6 张
+                // 策略1: 优先保存全部抓拍图（资源节省模式最多 4 张）
                 const fullJson = JSON.stringify(photosToSave);
                 photosSaved = safeStorageSet('capturedPhotos', fullJson);
 
@@ -1725,7 +2002,7 @@
 
         // ===== Helper: Compress photos for storage =====
         // Reduces photo count and quality to fit within storage quota
-        function compressPhotosForStorage(photos, maxCount = 6) {
+        function compressPhotosForStorage(photos, maxCount = PHOTO_CAPTURE_LIMIT) {
             if (!photos || photos.length === 0) return [];
 
             // Strategy: keep up to maxCount photos, evenly distributed
@@ -1747,14 +2024,14 @@
             const pageUrl = new URL('.', window.location.href).href;
             // basePath: current directory (for SkinSet images in same folder)
             const basePath = pageUrl.replace(/\/$/, '');
-            // modelBasePath: go up one level from prototype to get to the root where /models/ is
-            // e.g., https://example.com/app/prototype/ → https://example.com/app/
-            const modelBasePath = new URL('..', pageUrl).href.replace(/\/$/, '');
+            // modelBasePath: colocate models and WASM with the embed bundle to avoid slow CDN fallback.
+            const modelBasePath = new URL('lib/embed/', pageUrl).href.replace(/\/$/, '');
             return { basePath, modelBasePath };
         }
 
         // ===== Cleanup previous game resources =====
         function cleanupGame() {
+            hideStartGuide();
             if (timerIntervalId) {
                 clearInterval(timerIntervalId);
                 timerIntervalId = null;
@@ -1781,6 +2058,10 @@
 
             // Cleanup any previous game instance
             cleanupGame();
+            guideFlowActive = true;
+            guideDismissed = false;
+            setGuideStep('teeth', 'instruction');
+            hideStartGuide();
 
             isGameStarting = true;
             const skinId = getSelectedSkin();
@@ -1800,6 +2081,9 @@
                     gameDurationMs: gameDurationMs,
                     basePath: basePath,        // 头套图片在 /prototype/SkinSet/
                     modelBasePath: modelBasePath, // 模型在 /models/
+                    captureCount: PHOTO_CAPTURE_LIMIT,
+                    captureMaxSize: isLowEndDevice ? 640 : 800,
+                    captureQuality: isLowEndDevice ? 0.78 : 0.85,
                     debug: false,
 
                     onProgress: (stage, progress) => {
@@ -1824,6 +2108,7 @@
                     onState: (state, event) => {
                         console.log('[Game] State:', state, event);
                         updateGameState(state);
+                        updateStartGuide(state);
 
                         // 控制视觉层显示/隐藏
                         if (state === 'ready' || state === 'playing' || state === 'brushing' || state === 'success') {
@@ -1836,6 +2121,8 @@
                             showStatus('请露出牙齿 😁');
                         } else if (state === 'playing') {
                             showStatus('开始刷牙！ 💪');
+                        } else if (state === 'brushing') {
+                            showStatus('做得对！握紧小拳头继续刷！ ✊', 2200);
                         } else if (state === 'success') {
                             showStatus('太棒了！ ⭐');
                         }

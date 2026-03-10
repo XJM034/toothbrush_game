@@ -11,6 +11,7 @@ import { GameStateMachine, GameState, GameStats, GameEvent } from '../core/game/
 import { AvatarRenderer } from '../core/rendering/AvatarRenderer';
 import { mediaPipeConfig } from '../config/mediapipe.config';
 import { AvatarConfig, DetectionResult, FaceTrackingResult, HandTrackingResult } from '../types';
+import { debugLog } from '../core/utils/debug';
 
 // ===== 类型定义 =====
 
@@ -47,8 +48,12 @@ export interface StartOptions {
   modelBasePath?: string;
   /** 是否启用局内抓拍（默认 true） */
   enableCapture?: boolean;
-  /** 抓拍数量（默认 6） */
+  /** 抓拍数量（默认 4，移动端资源节省模式） */
   captureCount?: number;
+  /** 抓拍图最大边长，默认 800 */
+  captureMaxSize?: number;
+  /** 抓拍 JPEG 质量，默认 0.85 */
+  captureQuality?: number;
   /** 抓拍回调（每次抓拍后触发） */
   onCapture?: (photo: string, index: number) => void;
 }
@@ -70,13 +75,15 @@ export interface StopHandle {
   getCapturedPhotos: () => string[];
 }
 
+const DEFAULT_CAPTURE_COUNT = 4;
+
 // ===== 默认头套配置 =====
 
 const defaultAvatarConfigs: AvatarConfig[] = [
   {
     id: 'owl',
     name: '🦉 猫头鹰',
-    imgUrl: 'SkinSet/owl.png',
+    imgUrl: 'SkinSet/owl.webp',
     faceHoleOffset: { x: 0, y: 0.30 },
     anchorOffset: { x: 0, y: -0.18 },
     scale: 0.75
@@ -84,7 +91,7 @@ const defaultAvatarConfigs: AvatarConfig[] = [
   {
     id: 'cat',
     name: '🐱 猫咪',
-    imgUrl: 'SkinSet/cat.png',
+    imgUrl: 'SkinSet/cat.webp',
     faceHoleOffset: { x: 0, y: 0.25 },
     anchorOffset: { x: 0, y: -0.15 },
     scale: 1.0
@@ -92,7 +99,7 @@ const defaultAvatarConfigs: AvatarConfig[] = [
   {
     id: 'dog',
     name: '🐶 小狗',
-    imgUrl: 'SkinSet/dog.png',
+    imgUrl: 'SkinSet/dog.webp',
     faceHoleOffset: { x: 0, y: 0.25 },
     anchorOffset: { x: 0, y: -0.15 },
     scale: 1.0
@@ -100,7 +107,7 @@ const defaultAvatarConfigs: AvatarConfig[] = [
   {
     id: 'rabbit',
     name: '🐰 兔子',
-    imgUrl: 'SkinSet/rabbit.png',
+    imgUrl: 'SkinSet/rabbit.webp',
     faceHoleOffset: { x: 0, y: 0.25 },
     anchorOffset: { x: 0, y: -0.15 },
     scale: 1.0
@@ -235,7 +242,9 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
   const modelBasePath = opts.modelBasePath || window.location.origin; // 模型路径默认用 origin
   const gameDurationMs = opts.gameDurationMs || 60000;
   const enableCapture = opts.enableCapture !== false; // 默认启用
-  const captureCount = opts.captureCount || 6;
+  const captureCount = Math.max(0, Math.floor(opts.captureCount ?? DEFAULT_CAPTURE_COUNT));
+  const captureMaxSize = Math.max(320, opts.captureMaxSize || 800);
+  const captureQuality = Math.min(0.95, Math.max(0.5, opts.captureQuality ?? 0.85));
   const onCapture = opts.onCapture;
 
   // 状态
@@ -343,7 +352,7 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
     });
 
     // 5. 初始化抓拍调度
-    if (enableCapture) {
+    if (enableCapture && captureCount > 0) {
       // 生成 captureCount 个抓拍时间点
       // 避开游戏开始 3s 和结束前 5s，每次至少间隔 5s
       const safeStart = 3000; // 前 3s 不抓拍（给用户准备时间）
@@ -361,7 +370,7 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
       }
       // 按时间排序
       captureSchedule.sort((a, b) => a - b);
-      console.log('[BrushGame] 抓拍调度:', captureSchedule.map(t => (t/1000).toFixed(1) + 's'));
+      debugLog('[BrushGame] 抓拍调度:', captureSchedule.map(t => (t/1000).toFixed(1) + 's'));
     }
     gameStartTime = performance.now();
 
@@ -446,12 +455,11 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
           // 执行抓拍
           try {
             // 创建临时 canvas 用于缩放（不超过 800px）
-            const maxSize = 800;
             let targetWidth = canvas.width;
             let targetHeight = canvas.height;
 
-            if (canvas.width > maxSize || canvas.height > maxSize) {
-              const scale = maxSize / Math.max(canvas.width, canvas.height);
+            if (canvas.width > captureMaxSize || canvas.height > captureMaxSize) {
+              const scale = captureMaxSize / Math.max(canvas.width, canvas.height);
               targetWidth = Math.round(canvas.width * scale);
               targetHeight = Math.round(canvas.height * scale);
             }
@@ -470,10 +478,10 @@ export async function start(opts: StartOptions): Promise<StopHandle> {
                 captureCtx.drawImage(avatarCanvas, 0, 0, targetWidth, targetHeight);
               }
 
-              const photoData = captureCanvas.toDataURL('image/jpeg', 0.85);
+              const photoData = captureCanvas.toDataURL('image/jpeg', captureQuality);
               capturedPhotos.push(photoData);
 
-              console.log(`[BrushGame] 抓拍 ${nextCaptureIndex + 1}/${captureCount} @ ${(elapsedMs/1000).toFixed(1)}s`);
+              debugLog(`[BrushGame] 抓拍 ${nextCaptureIndex + 1}/${captureCount} @ ${(elapsedMs/1000).toFixed(1)}s`);
               onCapture?.(photoData, nextCaptureIndex);
             }
           } catch (e) {

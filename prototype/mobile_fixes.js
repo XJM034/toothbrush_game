@@ -88,3 +88,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('load', updateViewportVariables);
 })();
+
+(function initDeviceProfile() {
+    const root = document.documentElement;
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const effectiveType = connection && typeof connection.effectiveType === 'string'
+        ? connection.effectiveType
+        : '';
+    const saveData = !!(connection && connection.saveData);
+    const deviceMemory = typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : 0;
+    const hardwareConcurrency = typeof navigator.hardwareConcurrency === 'number'
+        ? navigator.hardwareConcurrency
+        : 0;
+
+    const isSlowNetwork = ['slow-2g', '2g', '3g'].includes(effectiveType);
+    const isLowEndDevice =
+        saveData ||
+        isSlowNetwork ||
+        (deviceMemory > 0 && deviceMemory <= 2) ||
+        (hardwareConcurrency > 0 && hardwareConcurrency <= 4);
+
+    window.MobileDeviceProfile = {
+        isLowEndDevice,
+        shouldAvoidHeavyPrefetch: isLowEndDevice,
+        shouldReduceEffects: isLowEndDevice,
+        effectiveType,
+        saveData,
+        deviceMemory,
+        hardwareConcurrency
+    };
+
+    root.classList.toggle('device-low-end', isLowEndDevice);
+})();

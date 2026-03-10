@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 
 const { mkdir, stat } = fsPromises;
 const modelsDir = fileURLToPath(new URL('../public/models/', import.meta.url));
+const bundledModelsDir = fileURLToPath(new URL('../prototype/lib/models/', import.meta.url));
 const embedModelsDir = fileURLToPath(
   new URL('../prototype/lib/embed/models/', import.meta.url)
 );
@@ -18,6 +19,9 @@ const wasmSrcDir = fileURLToPath(
   new URL('../node_modules/@mediapipe/tasks-vision/wasm/', import.meta.url)
 );
 const wasmDestDir = fileURLToPath(new URL('../public/mediapipe/wasm/', import.meta.url));
+const embedWasmDestDir = fileURLToPath(
+  new URL('../prototype/lib/embed/mediapipe/wasm/', import.meta.url)
+);
 
 const models = [
   {
@@ -49,15 +53,6 @@ async function fileExists(filePath) {
   }
 }
 
-async function dirExists(dirPath) {
-  try {
-    const stats = await stat(dirPath);
-    return stats.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
 async function download(url, dest) {
   const res = await fetch(url);
   if (!res.ok || !res.body) {
@@ -69,12 +64,28 @@ async function download(url, dest) {
 }
 
 async function maybeCopyToEmbed(modelName, sourcePath) {
-  if (!(await dirExists(embedModelsDir))) return;
   const targetPath = path.join(embedModelsDir, modelName);
   if (await fileExists(targetPath)) return;
   await ensureDirForFile(targetPath);
   await fsPromises.copyFile(sourcePath, targetPath);
   console.log(`[embed] copied ${modelName} to ${targetPath}`);
+}
+
+async function hydrateModelFromLocalSources(modelName, targetPath) {
+  const localCandidates = [
+    path.join(bundledModelsDir, modelName),
+    path.join(embedModelsDir, modelName)
+  ];
+
+  for (const candidate of localCandidates) {
+    if (!(await fileExists(candidate))) continue;
+    await ensureDirForFile(targetPath);
+    await fsPromises.copyFile(candidate, targetPath);
+    console.log(`[models] copied ${modelName} from ${candidate}`);
+    return true;
+  }
+
+  return false;
 }
 
 async function copyDirectory(src, dest) {
@@ -94,15 +105,17 @@ async function copyDirectory(src, dest) {
 }
 
 async function main() {
-  // Copy local WASM assets from node_modules to public
+  // Copy local WASM assets from node_modules to both SPA and embed locations.
   try {
-    await mkdir(wasmDestDir, { recursive: true });
-    if (typeof fsPromises.cp === 'function') {
-      await fsPromises.cp(wasmSrcDir, wasmDestDir, { recursive: true });
-    } else {
-      await copyDirectory(wasmSrcDir, wasmDestDir);
+    for (const targetDir of [wasmDestDir, embedWasmDestDir]) {
+      await mkdir(targetDir, { recursive: true });
+      if (typeof fsPromises.cp === 'function') {
+        await fsPromises.cp(wasmSrcDir, targetDir, { recursive: true });
+      } else {
+        await copyDirectory(wasmSrcDir, targetDir);
+      }
+      console.log(`[wasm] copied to ${targetDir}`);
     }
-    console.log(`[wasm] copied to ${wasmDestDir}`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn('[wasm] copy failed, will fallback to CDN:', message);
@@ -112,6 +125,11 @@ async function main() {
     const targetPath = path.join(modelsDir, model.name);
     if (await fileExists(targetPath)) {
       console.log(`[models] ${model.name} already exists, skip`);
+      await maybeCopyToEmbed(model.name, targetPath);
+      continue;
+    }
+
+    if (await hydrateModelFromLocalSources(model.name, targetPath)) {
       await maybeCopyToEmbed(model.name, targetPath);
       continue;
     }

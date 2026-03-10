@@ -8,7 +8,7 @@ _更新：2026-03-10 · 目标分支：main · 工作目录：/Users/minxian/con
 ## 0. 全局目标
 - 移动端（Safari/Chrome）可直接访问，完成：登录/注册 → 选择时长/皮肤 → 进入游戏 → 实时刷牙识别积分 → 结果页 → 数据落库/本地缓存。
 - `prototype/game_play.html` 使用真实识别：露牙 + 握拳 + 晃动 = 刷牙判定；叠加“头套”用**已解锁皮肤**渲染。
-- 游戏过程中随机抓拍 6 张照片（含头套/特效画面），游戏结束后送入 `photo_edit.html` 供贴纸装饰；仅本地存储（session/localStorage），不写后端。
+- 游戏过程中随机抓拍最多 4 张照片（资源节省模式，含头套/特效画面），游戏结束后送入 `photo_edit.html` 供贴纸装饰；仅本地存储（session/localStorage），不写后端。
 - 继续沿用现有 Kawaii UI/交互流（prototype 下的 HTML），只替换内部逻辑为真实引擎。
 
 ---
@@ -43,9 +43,9 @@ _更新：2026-03-10 · 目标分支：main · 工作目录：/Users/minxian/con
    - 降低功耗：检测帧率保持 20fps，视频分辨率 640x480，必要时降采样。
 
 5) **局内抓拍 → 装饰闭环**  
-   - 在一局游戏内随机 6 个时间点（可用等分时间 ± 随机抖动，每次至少间隔 5s；避开游戏剩余 <5s），从渲染后的 Canvas 捕获 JPEG/PNG（含头套与特效）。  
-   - 捕获尺寸：不超过 800px 边长（降低内存），质量约 0.85；存入 `sessionStorage.capturedPhotos` 为 Base64/URL 数组，未满 6 张用占位示例图补足。  
-   - 游戏结束后将数组一并写入 `sessionStorage.lastGameResult.photos`，在 `photo_edit.html` 读取并替换当前示例图片/贴纸层来源；用户贴纸编辑仅存回本地（确认保存=下载/导出或写回 sessionStorage），不触达后端。
+   - 在一局游戏内随机最多 4 个时间点（可用等分时间 ± 随机抖动，每次至少间隔 5s；避开游戏剩余 <5s），从渲染后的 Canvas 捕获 JPEG/PNG（含头套与特效）。  
+   - 捕获尺寸：不超过 800px 边长（降低内存），质量约 0.85；存入 `sessionStorage.capturedPhotos` 为 Base64/URL 数组；若遇到存储配额压力，可继续降级为更少张数以保证流程不阻断。  
+   - 游戏结束后优先写入 `sessionStorage.capturedPhotos`，在 `photo_edit.html` 读取并替换当前示例图片/贴纸层来源；用户贴纸编辑仅存回本地（确认保存=下载/导出或写回 sessionStorage），不触达后端。
 
 ---
 
@@ -86,9 +86,9 @@ _更新：2026-03-10 · 目标分支：main · 工作目录：/Users/minxian/con
 - 皮肤掉落：可在 `game_result.html` 读取 `lastGameResult` 并写入 `localStorage.selectedSkin`；若后端可用则写 `user_skins` 表。
 
 **Step E：局内抓拍 & 装饰页接线**  
-- 在 `BrushGame.start` 内挂一个 `photoScheduler`：根据游戏时长生成 6 个时间戳（均分 + 1-3s 抖动），在检测循环里当 `now >= slot` 时对 Canvas `toDataURL('image/jpeg', 0.85)` 抓拍。  
-- 抓拍数据推入 `capturedPhotos[]`，保留最多 6 条；结束/退出时写入 `sessionStorage.capturedPhotos`，并随 `lastGameResult.photos` 一起存。  
-- `prototype/photo_edit.html` 加载时优先用 `sessionStorage.capturedPhotos` 填充 6 张主图（不足则用现有 sample 图补齐），贴纸层沿用现有逻辑；保存/取消仍不触发后端，只清理 sessionStorage。
+- 在 `BrushGame.start` 内挂一个 `photoScheduler`：根据游戏时长生成最多 4 个时间戳（均分 + 1-3s 抖动），在检测循环里当 `now >= slot` 时对 Canvas `toDataURL('image/jpeg', 0.85)` 抓拍。  
+- 抓拍数据推入 `capturedPhotos[]`，保留最多 4 条；结束/退出时优先写入 `sessionStorage.capturedPhotos`，必要时继续降级保存更少张以规避配额异常。  
+- `prototype/photo_edit.html` 加载时优先用 `sessionStorage.capturedPhotos` 填充可编辑主图，贴纸层沿用现有逻辑；保存/取消仍不触发后端，只清理 sessionStorage。
 
 ---
 
@@ -99,7 +99,7 @@ _更新：2026-03-10 · 目标分支：main · 工作目录：/Users/minxian/con
 - **MediaPipe 封装**：`src/mediapipe/*`
 - **配置**：`src/config/mediapipe.config.ts`
 - **原型游戏页**：`prototype/game_play.html`（已接入引擎），结果页 `prototype/game_result.html`，主页 `prototype/home.html`，认证守卫 `prototype/auth_guard.js`
-- **装饰页**：`prototype/photo_edit.html`（读取 sessionStorage.capturedPhotos 生成 6 张幻灯，贴纸编辑仅本地）
+- **装饰页**：`prototype/photo_edit.html`（读取 sessionStorage.capturedPhotos 生成最多 4 张幻灯，贴纸编辑仅本地）
 - **构建产物**：`prototype/lib/embed/brushing-engine.{umd,esm}.js`
 - **资源**：`prototype/SkinSet/*.png`, 模型 `public/models/*.task`
 
@@ -111,7 +111,7 @@ _更新：2026-03-10 · 目标分支：main · 工作目录：/Users/minxian/con
   - 露牙 → 握拳 → 晃动连续 800ms 判定成功，加分即时体现在页面进度/能量。  
   - 退出或倒计时结束跳到结果页，分数与掉落皮肤正确展示。  
   - 无摄像头/权限拒绝时给出可返回主页的提示，不崩溃。
-- 游戏内自动抓拍 6 张：结束后进入 `photo_edit.html` 能看到这 6 张（不足用占位补齐），可贴纸装饰并本地保存/取消，不产生后端写入。
+- 游戏内自动抓拍最多 4 张：结束后进入 `photo_edit.html` 能看到这些可用照片，可贴纸装饰并本地保存/取消，不产生后端写入。
 
 ---
 
