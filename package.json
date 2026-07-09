@@ -9,12 +9,14 @@
     "predev": "npm run prepare:assets",
     "preserve:prototype": "npm run prepare:assets",
     "dev": "vite",
-    "build": "tsc -b && vite build && cp -R prototype dist/prototype",
+    "build": "tsc -b && vite build && node scripts/copy-prototype.mjs",
     "build:embed": "BUILD_MODE=embed vite build",
     "postbuild:embed": "npm run prepare:assets",
     "lint": "eslint .",
     "preview": "vite preview",
-    "serve:prototype": "vite --config vite.prototype.config.ts"
+    "serve:prototype": "vite --config vite.prototype.config.ts",
+    "configure:supabase-local": "node scripts/write-supabase-local-config.mjs",
+    "seed:supabase-auth": "node scripts/seed-supabase-auth-users.mjs prototype/docs/supabase_auth_users.example.json"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.17",

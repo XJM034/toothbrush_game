@@ -17,12 +17,14 @@
     // 可选：验证用户数据格式
     try {
         const userData = JSON.parse(user);
-        if (!userData.id || !userData.account) {
+        if (!userData.id || !userData.account || userData.auth_provider !== 'supabase_auth') {
             throw new Error('Invalid user data');
         }
     } catch (e) {
         // 用户数据无效，清除并跳转登录
         localStorage.removeItem('brushing_user');
+        localStorage.removeItem('activeProfileId');
+        localStorage.removeItem('cachedActiveProfile');
         window.location.replace('login.html');
         return;
     }

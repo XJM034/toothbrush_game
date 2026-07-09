@@ -4,6 +4,7 @@
 -- ============================================
 
 -- 执行步骤：
+-- 旧 Memfire 迁移片段，仅作历史参考；当前 Supabase schema 已合并到 supabase_initial_schema.sql。
 -- 1. 登录 Memfire 数据库控制台
 -- 2. 打开 SQL 编辑器
 -- 3. 复制并执行以下 SQL 语句

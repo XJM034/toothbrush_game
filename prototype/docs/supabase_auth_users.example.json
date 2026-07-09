@@ -1,0 +1,27 @@
+[
+  {
+    "account": "REPLACE_WITH_TEST_ACCOUNT_1",
+    "password": "REPLACE_WITH_LOCAL_TEST_PASSWORD_1",
+    "display_name": "测试玩家 1"
+  },
+  {
+    "account": "REPLACE_WITH_TEST_ACCOUNT_2",
+    "password": "REPLACE_WITH_LOCAL_TEST_PASSWORD_2",
+    "display_name": "测试玩家 2"
+  },
+  {
+    "account": "REPLACE_WITH_TEST_ACCOUNT_3",
+    "password": "REPLACE_WITH_LOCAL_TEST_PASSWORD_3",
+    "display_name": "测试玩家 3"
+  },
+  {
+    "account": "REPLACE_WITH_TEST_ACCOUNT_4",
+    "password": "REPLACE_WITH_LOCAL_TEST_PASSWORD_4",
+    "display_name": "测试玩家 4"
+  },
+  {
+    "account": "REPLACE_WITH_TEST_ACCOUNT_5",
+    "password": "REPLACE_WITH_LOCAL_TEST_PASSWORD_5",
+    "display_name": "测试玩家 5"
+  }
+]

@@ -1,18 +1,17 @@
 /**
- * Supabase/Memfire 客户端模块
+ * Supabase 客户端模块
  * 所有页面共享使用
  */
-
-// Memfire 配置
-const SUPABASE_URL = 'https://d555hb0g91htqli40010.baseapi.memfiredb.com';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImV4cCI6MzM0MzI4MDA0NCwiaWF0IjoxNzY2NDgwMDQ0LCJpc3MiOiJzdXBhYmFzZSJ9.KvoeBCiyrUNKBP7PDDLyMvl6Wc0POZR-HDaiFHPcgiI';
 
 // Supabase 客户端实例（延迟初始化）
 let _supabaseClient = null;
 
 function getSupabaseClient() {
-    if (!_supabaseClient && typeof window !== 'undefined' && window.supabase) {
-        _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!_supabaseClient && typeof window !== 'undefined') {
+        if (!window.BrushingMasterSupabase) {
+            throw new Error('Supabase 配置脚本未加载');
+        }
+        _supabaseClient = window.BrushingMasterSupabase.createClient();
     }
     return _supabaseClient;
 }
@@ -49,7 +48,7 @@ function isLoggedIn() {
 
 /**
  * 获取用户的活跃档案（不自动创建）
- * @param {number} userId - 用户ID
+ * @param {string} userId - Supabase Auth 用户 UUID
  * @returns {Promise<Object|null>} 档案数据或 null
  */
 async function getActiveProfile(userId) {
@@ -75,7 +74,7 @@ async function getActiveProfile(userId) {
 
 /**
  * 获取用户的所有档案
- * @param {number} userId - 用户ID
+ * @param {string} userId - Supabase Auth 用户 UUID
  * @returns {Promise<Array>} 档案列表
  */
 async function getAllProfiles(userId) {
@@ -94,7 +93,7 @@ async function getAllProfiles(userId) {
 
 /**
  * 创建新档案
- * @param {number} userId - 用户ID
+ * @param {string} userId - Supabase Auth 用户 UUID
  * @param {string} profileName - 档案名称
  * @param {string} avatarId - 头像ID
  * @returns {Promise<Object>} 新创建的档案
@@ -145,7 +144,7 @@ async function createProfile(userId, profileName, avatarId = 'owl') {
 
 /**
  * 切换活跃档案
- * @param {number} userId - 用户ID
+ * @param {string} userId - Supabase Auth 用户 UUID
  * @param {string} profileId - 要激活的档案ID
  * @returns {Promise<Object>} 激活的档案
  */

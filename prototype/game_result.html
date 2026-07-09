@@ -8,6 +8,8 @@
     <script src="auth_guard.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_config.js"></script>
+    <script src="supabase_config.local.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared_styles.css">
     <script src="mobile_fixes.js"></script>
@@ -177,7 +179,7 @@
 
                     // 保存刷牙会话到数据库
                     console.log('💾 正在保存刷牙会话...', { profileId, result, coins });
-                    await saveBrushingSession(profileId, result, coins);
+                    await saveBrushingSession(profileId, result);
                     console.log('✅ 刷牙会话保存成功');
 
                     // 更新用户档案（仅金币/统计）
@@ -196,7 +198,7 @@
         }
 
         // 保存刷牙会话到数据库
-        async function saveBrushingSession(profileId, result, coins) {
+        async function saveBrushingSession(profileId, result) {
             const supabase = BrushingMasterDB.getSupabaseClient();
             const { data, error } = await supabase
                 .from('brushing_sessions')
@@ -204,7 +206,6 @@
                     profile_id: profileId,
                     duration_minutes: result.duration,
                     germs_killed: result.germsKilled,
-                    diamonds_earned: coins.total, // 数据库暂时保留 diamonds_earned 字段名
                     streak_at_session: result.streakDays,
                     completed_at: new Date().toISOString()
                 })

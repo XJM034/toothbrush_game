@@ -77,7 +77,7 @@
 - Rewriting the prototype UI or recognition engine.
 - Moving runtime assets, model files, generated embed bundles, HTML pages, or source modules.
 - Adding backend photo upload.
-- Redesigning Memfire/Supabase RLS policies.
+- Production hardening beyond the current Supabase Auth/RLS prototype model.
 - Implementing reminders, cooldown enforcement, or native iOS behavior beyond documenting their product status.
 - Fixing npm audit findings or changing the package manager.
 - Creating a full automated test suite.
