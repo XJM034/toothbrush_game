@@ -1,0 +1,30 @@
+name: Supabase keepalive
+
+on:
+  schedule:
+    # Supabase recommends a few user database requests each day for Free projects.
+    - cron: "17 0,8,16 * * *"
+      timezone: Asia/Shanghai
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run database keepalive probe
+        run: node scripts/ping-supabase.mjs
+        env:
+          SUPABASE_URL: https://bwfpcgdopalydkxydntv.supabase.co
+          # Publishable keys are designed for public clients; the RPC can only return 1.
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_voBqv7EF7tq0Wgn061bCdQ_uXulzdZU

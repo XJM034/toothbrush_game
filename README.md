@@ -26,6 +26,7 @@ npm run serve:prototype
 - `npm run build`：TypeScript 与默认 Vite 构建，并复制 prototype 到 `dist/prototype`，同时排除本地数据库覆盖文件。
 - `npm run configure:supabase-local`：用环境变量中的 Supabase URL 和 publishable/anon key 生成本地前端配置。
 - `npm run seed:supabase-auth`：用环境变量中的 Supabase service role key 创建测试 Auth 用户；不要把 secret 写进仓库。
+- `npm run keepalive:supabase`：调用只返回 `1` 的只读 RPC；需提供 `SUPABASE_URL` 与 `SUPABASE_PUBLISHABLE_KEY`，GitHub Actions 每天自动执行 3 次。
 - `npm run lint`：脚本入口存在，但当前仓库未配置 ESLint 规则文件，跑通前不要当硬护栏。
 
 ## 目录概览
@@ -34,8 +35,9 @@ npm run serve:prototype
 - `supabase/`：当前 Supabase 迁移 runbook、migration 与原型测试账号 seed。
 - `src/`：MediaPipe 封装、检测器、游戏状态机、渲染器和 embed runtime。
 - `public/`：模型与 MediaPipe WASM 静态资源。
-- `scripts/`：模型/WASM 准备脚本与 Supabase Auth 测试用户导入脚本。
+- `scripts/`：模型/WASM 准备脚本、Supabase Auth 测试用户导入脚本与只读保活请求脚本。
 - `docs/`：当前文档入口、PRD、工程事实、历史归档和非运行设计资产。
+- `.github/workflows/`：仓库自动化；当前包含 Supabase Free project 保活任务。
 - `vercel.json` / `.vercelignore`：Vercel preview 部署命令和本地数据库覆盖文件排除规则。
 - `cleanup/delete-candidates/`：未被运行时代码引用的设计源文件候选。
 

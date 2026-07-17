@@ -16,7 +16,8 @@
     "preview": "vite preview",
     "serve:prototype": "vite --config vite.prototype.config.ts",
     "configure:supabase-local": "node scripts/write-supabase-local-config.mjs",
-    "seed:supabase-auth": "node scripts/seed-supabase-auth-users.mjs prototype/docs/supabase_auth_users.example.json"
+    "seed:supabase-auth": "node scripts/seed-supabase-auth-users.mjs prototype/docs/supabase_auth_users.example.json",
+    "keepalive:supabase": "node scripts/ping-supabase.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.17",

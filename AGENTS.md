@@ -1,6 +1,6 @@
 # Brushing Master Web - Agent Guide
 
-更新：2026-07-09。根文档只放高频规则和操作地图；`AGENTS.md` 与 `CLAUDE.md` 必须保持镜像，改一份后用 `cmp -s AGENTS.md CLAUDE.md` 复核。产品需求见 `docs/product/PRD.md`；细节见 `docs/README.md` 与 `docs/AI_REFERENCE.md`。不要沿用旧归档里的 `riga` 路径，工作目录以当前仓库根目录为准。
+更新：2026-07-17。根文档只放高频规则和操作地图；`AGENTS.md` 与 `CLAUDE.md` 必须保持镜像，改一份后用 `cmp -s AGENTS.md CLAUDE.md` 复核。产品需求见 `docs/product/PRD.md`；细节见 `docs/README.md` 与 `docs/AI_REFERENCE.md`。不要沿用旧归档里的 `riga` 路径，工作目录以当前仓库根目录为准。
 
 ## 项目契约
 - 这是移动端刷牙游戏 Web 原型：`prototype/*.html` 负责 Kawaii UI 和页面流，`src/embed` 提供无 React 依赖的 MediaPipe 刷牙识别引擎。
@@ -22,6 +22,7 @@
 - `supabase/migrations/20260708180000_auth_owned_initial_schema.sql`：当前正式 Supabase 初始化迁移。
 - `supabase/migrations/20260709011000_harden_schema_advisors.sql`：Supabase advisor hardening 迁移。
 - `supabase/migrations/20260709012132_restrict_catalog_write_grants.sql`：目录表只读权限收紧迁移。
+- `supabase/migrations/20260717012328_add_keepalive_probe.sql`：Free project 保活 RPC 迁移。
 - `prototype/supabase_config.js`、`prototype/supabase_client.js`、`prototype/docs/supabase_initial_schema.sql`：Supabase 运行配置、数据访问与当前 schema 参考。
 - `prototype/docs/memfire_v2_complete.sql`：旧 Memfire schema 参考；不要当作当前运行目标。
 - 若继续前序工作，先读最新 `./handoff/*-handoff.md`（如果存在；当前仓库可没有该目录）。handoff 只作补充，关键结论仍要回到代码验证。
@@ -31,6 +32,7 @@
 - 原型 HTTPS 预览：`npm run serve:prototype`，默认打开 `https://localhost:5174/prototype/home.html`。
 - 嵌入包构建：`npm run build:embed`，输出 `prototype/lib/embed/brushing-engine.{umd,esm}.js`，并触发模型/WASM 准备。
 - 完整构建：`npm run build`，执行 `tsc -b`、Vite 构建，并把 `prototype` 复制到 `dist/prototype`；复制时会排除本地数据库覆盖文件。
+- Supabase 保活：`npm run keepalive:supabase`，需 `SUPABASE_URL` 和 publishable key；默认分支的 GitHub Actions 每天执行 3 次。
 - Lint：`npm run lint` 只是脚本入口；当前未发现 `eslint.config.*`，ESLint v9 会失败，跑通前不能把它当硬护栏。
 
 ## 加载地图
@@ -40,6 +42,7 @@
 - 模型资源：`scripts/fetch-models.mjs` 准备 `public/models`、`public/mediapipe/wasm`、`prototype/lib/embed/*`。
 - 移动视口：`prototype/shared_styles.css` 和 `prototype/mobile_fixes.js` 提供 `--app-height`、safe-area、低端设备开关。
 - 数据连接：`prototype/supabase_config.js` 指向当前 Supabase project；`prototype/supabase_config.local.js` 可作本地覆盖且被忽略，可用 `npm run configure:supabase-local` 生成；测试账号用 `npm run seed:supabase-auth` 从服务端 Admin API 创建；不要把 service role/secret key 放入前端或可提交文档。
+- Free project 保活：`.github/workflows/supabase-keepalive.yml` 每 8 小时用公开 publishable key 调用只返回 `1` 的 `public.keepalive_probe()`；不要改成访问用户表或使用 service role/secret key。
 - 设计参考/样例图：旧 `prototype/Reference`、`prototype/Sample_ima` 已移到 `docs/assets/legacy-prototype/`，不参与当前运行。
 - 可删除候选：`cleanup/delete-candidates/README.md` 说明未引用的设计源文件。
 

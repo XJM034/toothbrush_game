@@ -1,6 +1,6 @@
 # AI Reference
 
-更新：2026-07-09。本文记录当前仓库事实和低频操作说明；产品需求见 `docs/product/PRD.md`，根文档只路由，不承载长历史。所有事实来自本工作区代码和命令输出，后续仍需按需复核。
+更新：2026-07-17。本文记录当前仓库事实和低频操作说明；产品需求见 `docs/product/PRD.md`，根文档只路由，不承载长历史。所有事实来自本工作区代码和命令输出，后续仍需按需复核。
 
 ## 当前状态
 - 项目是 Brushing Master Web 原型，不是完整原生 App。
@@ -12,6 +12,7 @@
 - 早期 UI 参考截图和样例图已从 `prototype/Reference`、`prototype/Sample_ima` 移到 `docs/assets/legacy-prototype/`；它们不参与当前运行。
 - 数据库运行目标已从 Memfire 迁到 Supabase。旧 Memfire 运行配置保留在本地忽略文件 `prototype/.env.memfire.local`，不要写回可提交前端文件。
 - 旧 Supabase 项目 `hcsullmeeyiuomrsbcpv`（URL `https://hcsullmeeyiuomrsbcpv.supabase.co`）在 2026-07-08 通过 connector 确认为 `INACTIVE`，且因暂停超过 90 天无法恢复。当前新 Supabase project 为 `bwfpcgdopalydkxydntv`，URL `https://bwfpcgdopalydkxydntv.supabase.co`，区域 `ap-southeast-1`。
+- 当前 Supabase Free project 的 `.github/workflows/supabase-keepalive.yml` 进入 GitHub 默认分支后每天 3 次调用 `public.keepalive_probe()`；该 RPC 只返回 `1`，以 publishable key 和 `anon` 角色执行，不接触业务数据。
 - 当前分支/工作树可能变化；不要把某个本地 worktree 名写成永久事实。
 
 ## 运行时文件地图
@@ -83,6 +84,7 @@
 - Vercel preview deploy 使用 `vercel.json` 固定 `npm install`、`npm run build` 和 `dist` 输出；`.vercelignore` 排除 `.env*`、`prototype/.env*`、`prototype/supabase_config.local.js` 等本地数据库覆盖文件。
 - `npm run configure:supabase-local`：生成本地前端 Supabase 配置；需要 `SUPABASE_URL` 与 publishable/anon key 环境变量，不接受 service role key。
 - `npm run seed:supabase-auth`：使用 Supabase Admin API 创建测试 Auth 用户；必须通过本地环境变量提供 `SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY`。
+- `npm run keepalive:supabase`：调用 `public.keepalive_probe()`；必须通过环境变量提供 `SUPABASE_URL` 和 `SUPABASE_PUBLISHABLE_KEY`。GitHub Actions 已固定当前公开项目 URL/key 并每 8 小时执行。
 - `npm run lint`：脚本存在，但当前未发现 `eslint.config.*`；ESLint v9 会报缺少配置。跑通前不要把 lint 当作硬护栏。
 - 当前没有 CI、测试套件、Playwright 配置或文档链接检查器；相关验证必须在本次任务里显式执行并记录结果。
 - 浏览器 QA 可用：
@@ -93,6 +95,7 @@
 - 认证绕过仅用于本地调试：写入 `localStorage.brushing_user = {"id":"test","account":"test","auth_provider":"supabase_auth"}`。不要把绕过态当真实登录验证。
 
 ## 最近验证记录
+- 2026-07-17 通过 Supabase connector 将 `bwfpcgdopalydkxydntv` 从 `INACTIVE` 恢复为 `ACTIVE_HEALTHY`，远端应用 `add_keepalive_probe` migration；实际 publishable-key 请求返回 `1` 且 API log 为 `POST 200`。权限审计确认函数是 `SECURITY INVOKER`、空 `search_path`、仅 `anon` 可执行；security advisor 未新增 schema 风险，只保留既有的 leaked password protection 设置提醒。
 - 2026-07-08 通过 ctx7 获取 Supabase 文档入口，并用 Supabase docs/Changelog 确认 SQL-created tables 需要显式 RLS 和 Data API grants。
 - 2026-07-08 通过 Chrome 只读确认旧 Memfire 项目：应用名 `toothbrushgame`、资源 ID `d555hb0g91htqli40010`、版本 `2.4.146`、到期时间 `2026-08-23 23:59:59`、状态含超限按量。
 - 2026-07-08 通过 ctx7 和 Supabase docs 确认浏览器登录应使用 `signInWithPassword`，后台测试账号可通过 Admin create-user API 创建；当前前端已改为 Supabase Auth 登录。

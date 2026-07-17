@@ -397,6 +397,25 @@ ON public.stickers_catalog FOR SELECT
 TO authenticated
 USING (true);
 
+-- Minimal public RPC for external Free project activity checks. It performs a
+-- real query without reading or mutating application data.
+CREATE OR REPLACE FUNCTION public.keepalive_probe()
+RETURNS INTEGER
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+    SELECT 1;
+$$;
+
+COMMENT ON FUNCTION public.keepalive_probe() IS
+    'Returns 1 for low-impact scheduled project activity checks.';
+
+REVOKE ALL ON FUNCTION public.keepalive_probe() FROM PUBLIC, authenticated;
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT EXECUTE ON FUNCTION public.keepalive_probe() TO anon;
+
 -- Reload PostgREST schema cache after DDL/grant changes.
 NOTIFY pgrst, 'reload schema';
 

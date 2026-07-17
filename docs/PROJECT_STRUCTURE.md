@@ -1,6 +1,6 @@
 # Project Structure
 
-更新：2026-07-09。本文是目录整理边界，不替代 `docs/AI_REFERENCE.md` 的实现事实。
+更新：2026-07-17。本文是目录整理边界，不替代 `docs/AI_REFERENCE.md` 的实现事实。
 
 ## Runtime-Stable Paths
 
@@ -17,7 +17,7 @@
 - `prototype/docs/memfire_*.sql`：旧 Memfire schema 参考，不参与当前运行。
 - `public/models/`、`public/mediapipe/`：Vite 运行与模型/WASM 资源。
 - `src/`：识别、检测器、游戏状态、渲染和 embed runtime 源码。
-- `scripts/`：模型/WASM 准备脚本、Supabase 本地配置生成脚本，以及 Supabase Auth 测试用户导入脚本。
+- `scripts/`：模型/WASM 准备脚本、Supabase 本地配置生成脚本、Auth 测试用户导入脚本，以及只读保活请求脚本。
 
 ## Current Documentation Paths
 
@@ -31,6 +31,10 @@
 - `vercel.json`、`.vercelignore`：Vercel preview 部署命令和上传排除规则。
 - `docs/md/archive/`：历史长文档归档，不作为当前事实。
 - `docs/assets/legacy-prototype/`：从 `prototype/` 移出的非运行参考图/样例图。
+
+## Automation Paths
+
+- `.github/workflows/supabase-keepalive.yml`：Supabase Free project 的外部定时数据库活动任务；只在进入 GitHub 默认分支后按计划运行。
 
 ## Local Or Generated Paths
 
